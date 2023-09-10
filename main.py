@@ -37,14 +37,14 @@ async def receive_video(file: UploadFile = Form(...), topic: str = Form(...)):
     temp.write(video_bytes)
     temp.flush()
     # Compress
-    compress_process = subprocess.Popen(compressCommand(temp.name), stdout=subprocess.PIPE)
+    compress_process = subprocess.Popen(compressCommand(temp.name), stdin=subprocess.PIPE)
     video_bytes, err = compress_process.communicate()
     if err:
       print(err)
       return "error"
     print(video_bytes)
     # Extract audio
-    audio_process = subprocess.Popen(audioCommand(temp.name), stdin=subprocess.PIPE)
+    audio_process = subprocess.Popen(audioCommand(temp.name), stdout=subprocess.PIPE)
     audio_bytes, err = audio_process.communicate()
     if err:
       print(err)

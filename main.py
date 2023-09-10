@@ -10,13 +10,13 @@ s3_client = boto3.client('s3')
 
 def compressCommand(mp4_name):
   return [
-      "ffmpeg", "-i", mp4_name, "-vf", "fps=1", "-c:v", "libx265", "-crf", "28", "-acodec",
-      "pcm_s16le", "-ar", "16000", "-ac", "1", "-f", "mp4", "-"
+      "ffmpeg", "-i", "-", "-vf", "fps=1", "-c:v", "libx265", "-crf", "28", "-acodec", "pcm_s16le",
+      "-ar", "16000", "-ac", "1", "-f", "mp4", "--", mp4_name
   ]
 
 
 def audioCommand(mp4_name, wav_name):
-  return ["ffmpeg", "-i", mp4_name, "-vn", wav_name]
+  return ["ffmpeg", "-i", mp4_name, "-vn", "--", wav_name]
 
 
 @app.get("/")
@@ -32,31 +32,20 @@ async def receive_video(file: UploadFile = Form(...), topic: str = Form(...)):
   print("Topic:", topic)
   # Convert to bytes-like object
   video_bytes = await file.read()
-  # Create temp file
-  with tempfile.NamedTemporaryFile(suffix=".mp4") as mp4_temp1:
-    mp4_temp1.write(video_bytes)
-    mp4_temp1.flush()
-    # Compress
-    compress_process = subprocess.Popen(compressCommand(mp4_temp1.name), stdout=subprocess.PIPE)
-    video_bytes, err = compress_process.communicate()
-    if err:
-      print(err)
-      return "error"
-    print(type(video_bytes))
-  with tempfile.NamedTemporaryFile(suffix=".mp4") as mp4_temp2:
-    mp4_temp2.write(video_bytes)
-    mp4_temp2.flush()
-    video_key = os.path.join("og", basename + ".mp4")
-    s3_client.upload_fileobj(mp4_temp2, "vampp", video_key)
-    # Extract audio
-    with tempfile.NamedTemporaryFile(suffix=".wav") as wav_temp:
-      audio_process = subprocess.Popen(audioCommand(mp4_temp2.name, wav_temp.name))
-      audio_bytes, err = audio_process.communicate()
-      if err:
-        print(err)
-        return "error"
-      print(type(audio_bytes))
-      audio_key = os.path.join("audio/og", basename + ".wav")
-      s3_client.upload_fileobj(wav_temp, "vampp", audio_key)
+  temp_dir = tempfile.TemporaryDirectory()
+  # Compress
+  mp4_name = os.path.join(temp_dir.name, "compressed.mp4")
+  compress_process = subprocess.Popen(compressCommand(mp4_name), stdin=subprocess.PIPE)
+  compress_process.communicate(video_bytes)
+  video_key = os.path.join("video/og", basename + ".mp4")
+  s3_client.upload_file(mp4_name, "vampp", video_key)
+  # Extract audio
+  wav_name = os.path.join(temp_dir.name, "audio.wav")
+  audio_process = subprocess.Popen(audioCommand(mp4_name, wav_name))
+  audio_process.communicate()
+  audio_key = os.path.join("audio/og", basename + ".wav")
+  s3_client.upload_file(wav_name, "vampp", audio_key)
+
+  temp_dir.cleanup()
 
   return "ok"

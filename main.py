@@ -1,4 +1,4 @@
-from fastapi import FastAPI, File, Form
+from fastapi import FastAPI, UploadFile, Form
 
 app = FastAPI()
 
@@ -9,8 +9,8 @@ def read_root():
 
 
 @app.post("/")
-async def receive_video(video: bytes = File(...), topic: str = Form(...)):
+async def receive_video(file: UploadFile = Form(...), topic: str = Form(...)):
   # Log
-  print("Video size:", len(video))
-  print("String data:", string_data)
-  return {"video_size": len(video), "string_data": string_data}
+  print("Video size:", len(file))
+  print("Topic:", topic)
+  return "ok"

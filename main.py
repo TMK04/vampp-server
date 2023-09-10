@@ -29,7 +29,7 @@ async def receive_video(file: UploadFile = Form(...), topic: str = Form(...)):
   print("Topic:", topic)
   # Convert to bytes-like object
   file_bytes = await file.read()
-  file_bytes = process.communicate(input=file_bytes)[0]
+  await process.communicate(input=file_bytes)[0]
   # Upload to S3
   Key = os.path.join("og", file.filename)
   s3_client.put_object(Bucket="vampp", Key=Key, Body=file_bytes)

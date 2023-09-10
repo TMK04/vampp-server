@@ -17,15 +17,15 @@ compress_process = (ffmpeg.input("pipe:").output("pipe:",
                                                  ar=16000,
                                                  ac=1,
                                                  format='rawvideo',
+                                                 vcodec="libx265",
+                                                 vf="fps=1",
+                                                 crf=28,
                                                  pix_fmt='rgb24').run_async(pipe_stdin=True,
                                                                             pipe_stdout=True,
                                                                             pipe_stderr=True))
 video_process = (ffmpeg.input("pipe:").output(
     "pipe:",
     format="mp4",
-    vf="fps=1",
-    vcodec="libx265",
-    crf=28,
 ).run_async(pipe_stdin=True, pipe_stdout=True, pipe_stderr=True))
 audio_process = (ffmpeg.input("pipe:").output("pipe:", format="wav",
                                               vn=1).run_async(pipe_stdin=True,

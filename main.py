@@ -33,25 +33,24 @@ async def receive_video(file: UploadFile = Form(...), topic: str = Form(...)):
   # Convert to bytes-like object
   video_bytes = await file.read()
   # Create temp file
-  with tempfile.NamedTemporaryFile(suffix=".mp4") as mp4_temp:
-    mp4_temp.write(video_bytes)
-    mp4_temp.flush()
+  with tempfile.NamedTemporaryFile(suffix=".mp4") as mp4_temp1:
+    mp4_temp1.write(video_bytes)
+    mp4_temp1.flush()
     # Compress
-    compress_process = subprocess.Popen(compressCommand(mp4_temp.name), stdout=subprocess.PIPE)
+    compress_process = subprocess.Popen(compressCommand(mp4_temp1.name), stdout=subprocess.PIPE)
     video_bytes, err = compress_process.communicate()
     if err:
       print(err)
       return "error"
     print(type(video_bytes))
+  with tempfile.NamedTemporaryFile(suffix=".mp4") as mp4_temp2:
+    mp4_temp2.write(video_bytes)
+    mp4_temp2.flush()
     video_key = os.path.join("og", basename + ".mp4")
-    s3_client.upload_fileobj(mp4_temp, "vampp", video_key)
-    # Overwrite mp4_temp file
-    mp4_temp.seek(0)
-    mp4_temp.write(video_bytes)
-    mp4_temp.flush()
+    s3_client.upload_fileobj(mp4_temp2, "vampp", video_key)
     # Extract audio
     with tempfile.NamedTemporaryFile(suffix=".wav") as wav_temp:
-      audio_process = subprocess.Popen(audioCommand(mp4_temp.name, wav_temp.name))
+      audio_process = subprocess.Popen(audioCommand(mp4_temp2.name, wav_temp.name))
       audio_bytes, err = audio_process.communicate()
       if err:
         print(err)

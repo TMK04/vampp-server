@@ -11,7 +11,7 @@ s3_client = boto3.client('s3')
 def compressCommand(mp4_name):
   return [
       "ffmpeg", "-i", mp4_name, "-vf", "fps=1", "-c:v", "libx265", "-crf", "28", "-acodec",
-      "pcm_s16le", "-ar", "16000", "-ac", "1", "-"
+      "pcm_s16le", "-ar", "16000", "-ac", "1", "-f", "mp4", "-"
   ]
 
 

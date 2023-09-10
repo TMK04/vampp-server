@@ -1,6 +1,7 @@
 import boto3
 from fastapi import FastAPI, UploadFile, Form
-from ffmpeg_commands import compressVideo, extractAudio
+import ffmpeg
+from ffmpeg_commands import processVideo
 import os
 import tempfile
 
@@ -24,15 +25,15 @@ async def receive_video(file: UploadFile = Form(...), topic: str = Form(...)):
     with open(tempfile_name, "wb") as f:
       f.write(await file.read())
 
-    # Compress
     tempmp4_name = os.path.join(tempdir_name, mp4_name)
-    compressVideo(tempfile_name, tempmp4_name)
+    tempwav_name = os.path.join(tempdir_name, wav_name)
+    compressVideo(input_file, mp4_file)
+    os.remove(tempfile_name)
+    input_stream = ffmpeg.input(mp4_file)
+    extractAudio(input_stream, wav_file)
+    # Upload to S3
     video_key = os.path.join("og", mp4_name)
     s3_client.upload_file(tempmp4_name, "vampp", video_key)
-    # Extract audio
-    input_stream = ffmpeg.input(tempmp4_name)
-    tempwav_name = os.path.join(tempdir_name, wav_name)
-    extractAudio(input_stream, tempwav_name)
     audio_key = os.path.join("audio/og", wav_name)
     s3_client.upload_file(tempwav_name, "vampp", audio_key)
 

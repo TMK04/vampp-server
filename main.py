@@ -14,6 +14,7 @@ async def receive_video(file: UploadFile = Form(...), topic: str = Form(...)):
   # Log
   print("Video:", file)
   print("Topic:", topic)
-  print(dir(file))
-  process.communicate(input=file)
+  read_file = file.read()
+  print(read_file)
+  process.communicate(input=read_file)
   return "ok"

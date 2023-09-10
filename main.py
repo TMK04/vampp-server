@@ -12,8 +12,14 @@ def read_root():
   return {"Hello": "World"}
 
 
-process = (ffmpeg.input("pipe:").output("out.mp4", s='{}x{}'.format(
-    1280, 720)).overwrite_output().run_async(pipe_stdin=True))
+process = (ffmpeg.input("pipe:").output("out.mp4",
+                                        hwaccel="cuda",
+                                        vf="fps=1",
+                                        vcodec="libx265",
+                                        crf=28,
+                                        s='{}x{}'.format(
+                                            1280,
+                                            720)).overwrite_output().run_async(pipe_stdin=True))
 
 
 @app.post("/")

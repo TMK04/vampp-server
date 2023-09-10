@@ -11,6 +11,6 @@ def read_root():
 @app.post("/")
 async def receive_video(file: UploadFile = Form(...), topic: str = Form(...)):
   # Log
-  print("Video size:", len(file))
+  print("Video:", file)
   print("Topic:", topic)
   return "ok"

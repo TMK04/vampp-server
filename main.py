@@ -1,34 +1,26 @@
 import boto3
 from fastapi import FastAPI, UploadFile, Form
-import ffmpeg
 import os
+import subprocess
 
 app = FastAPI()
 s3_client = boto3.client('s3')
+
+compress_command = [
+    "ffmpeg", "-hwaccel", "cuda", "-vf", "fps=1", "-c:v", "libx265", "-crf", "28", "-acodec",
+    "pcm_s16le", "-ar", "16000", "-ac", "1"
+]
+audio_command = [
+    "ffmpeg",
+    "-vn",
+    "--audio-format",
+    "wav",
+]
 
 
 @app.get("/")
 def read_root():
   return {"Hello": "World"}
-
-
-compress_process = (ffmpeg.input("pipe:0", format="rawvideo", pix_fmt='rgb24').output(
-    "pipe:1",
-    acodec="pcm_s16le",
-    ar=16000,
-    ac=1,
-    vcodec="libx265",
-    vf="fps=1",
-    crf=28,
-).run_async(pipe_stdin=True, pipe_stdout=True, pipe_stderr=True))
-video_process = (ffmpeg.input("pipe:0").output(
-    "pipe:1",
-    format="mp4",
-).run_async(pipe_stdin=True, pipe_stdout=True, pipe_stderr=True))
-audio_process = (ffmpeg.input("pipe:0").output("pipe:1", format="wav",
-                                               vn=1).run_async(pipe_stdin=True,
-                                                               pipe_stdout=True,
-                                                               pipe_stderr=True))
 
 
 @app.post("/")
@@ -40,13 +32,14 @@ async def receive_video(file: UploadFile = Form(...), topic: str = Form(...)):
   # Convert to bytes-like object
   video_bytes = await file.read()
   # Compress
-  video_bytes, err = compress_process.communicate(input=video_bytes)
-  print(video_bytes)
+  compress_process = subprocess.Popen(compress_command, stdin=subprocess.PIPE)
+  audio_process = subprocess.Popen(audio_command, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+  video_bytes, err = compress_process.communicate(video_bytes)
   if err:
     print(err)
     return "error"
   # Extract audio
-  audio_bytes, err = audio_process.communicate(input=video_bytes)
+  audio_bytes, err = audio_process.communicate(video_bytes)
   if err:
     print(err)
     return "error"

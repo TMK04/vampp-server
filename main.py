@@ -12,17 +12,16 @@ def read_root():
   return {"Hello": "World"}
 
 
-compress_process = (ffmpeg.input("pipe:").output("pipe:",
-                                                 acodec="pcm_s16le",
-                                                 ar=16000,
-                                                 ac=1,
-                                                 format='rawvideo',
-                                                 vcodec="libx265",
-                                                 vf="fps=1",
-                                                 crf=28,
-                                                 pix_fmt='rgb24').run_async(pipe_stdin=True,
-                                                                            pipe_stdout=True,
-                                                                            pipe_stderr=True))
+compress_process = (ffmpeg.input("pipe:", format="mp4", pix_fmt='rgb24').output(
+    "pipe:",
+    acodec="pcm_s16le",
+    ar=16000,
+    ac=1,
+    format='rawvideo',
+    vcodec="libx265",
+    vf="fps=1",
+    crf=28,
+).run_async(pipe_stdin=True, pipe_stdout=True, pipe_stderr=True))
 video_process = (ffmpeg.input("pipe:").output(
     "pipe:",
     format="mp4",

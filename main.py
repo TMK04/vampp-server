@@ -12,16 +12,15 @@ def read_root():
   return {"Hello": "World"}
 
 
-compress_process = (ffmpeg.input("pipe:").output("pipe:",
-                                                 vf="fps=1",
-                                                 vcodec="libx265",
-                                                 crf=28,
-                                                 acodec="pcm_s16le",
-                                                 ar=16000,
-                                                 ac=1,
-                                                 s='{}x{}'.format(1280,
-                                                                  720)).run_async(pipe_stdin=True,
-                                                                                  pipe_stdout=True))
+compress_process = (ffmpeg.input("pipe:").output(
+    "pipe:",
+    vf="fps=1",
+    vcodec="libx265",
+    crf=28,
+    acodec="pcm_s16le",
+    ar=16000,
+    ac=1,
+).run_async(pipe_stdin=True, pipe_stdout=True))
 audio_process = (ffmpeg.input("pipe:").output("pipe:", format="wav",
                                               vn=1).run_async(pipe_stdin=True, pipe_stdout=True))
 

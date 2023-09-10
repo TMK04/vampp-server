@@ -1,24 +1,11 @@
 import boto3
 from fastapi import FastAPI, UploadFile, Form
+from ffmpeg_commands import compressVideo, extractAudio
 import os
-import subprocess
 import tempfile
 
 app = FastAPI()
 s3_client = boto3.client('s3')
-
-
-def compressVideo(input_file, output_file):
-  command = [
-      "ffmpeg", "-i", input_file, "-vf", "fps=1", "-c:v", "libx265", "-crf", "28", "-acodec",
-      "pcm_s16le", "-ar", "16000", "-ac", "1", "--", output_file
-  ]
-  subprocess.run(command, check=True)
-
-
-def extractAudio(input_file, output_file):
-  command = ["ffmpeg", "-i", input_file, "-vn", "--", output_file]
-  subprocess.run(command, check=True)
 
 
 @app.get("/")

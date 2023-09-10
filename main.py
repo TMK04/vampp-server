@@ -12,17 +12,25 @@ def read_root():
   return {"Hello": "World"}
 
 
-compress_process = (ffmpeg.input("pipe:").output(
+compress_process = (ffmpeg.input("pipe:").output("pipe:",
+                                                 acodec="pcm_s16le",
+                                                 ar=16000,
+                                                 ac=1,
+                                                 format='rawvideo',
+                                                 pix_fmt='rgb24').run_async(pipe_stdin=True,
+                                                                            pipe_stdout=True,
+                                                                            pipe_stderr=True))
+video_process = (ffmpeg.input("pipe:").output(
     "pipe:",
+    format="mp4",
     vf="fps=1",
     vcodec="libx265",
     crf=28,
-    acodec="pcm_s16le",
-    ar=16000,
-    ac=1,
-).run_async(pipe_stdin=True, pipe_stdout=True))
+).run_async(pipe_stdin=True, pipe_stdout=True, pipe_stderr=True))
 audio_process = (ffmpeg.input("pipe:").output("pipe:", format="wav",
-                                              vn=1).run_async(pipe_stdin=True, pipe_stdout=True))
+                                              vn=1).run_async(pipe_stdin=True,
+                                                              pipe_stdout=True,
+                                                              pipe_stderr=True))
 
 
 @app.post("/")

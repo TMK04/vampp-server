@@ -8,15 +8,15 @@ app = FastAPI()
 s3_client = boto3.client('s3')
 
 
-def compressCommand(tempfile_name):
+def compressCommand(mp4_name):
   return [
-      "ffmpeg", "-i", tempfile_name, "-vf", "fps=1", "-c:v", "libx265", "-crf", "28", "-acodec",
+      "ffmpeg", "-i", mp4_name, "-vf", "fps=1", "-c:v", "libx265", "-crf", "28", "-acodec",
       "pcm_s16le", "-ar", "16000", "-ac", "1", "-"
   ]
 
 
-def audioCommand(tempfile_name):
-  return ["ffmpeg", "-i", "-", "-vn", "-f", "wav", "--", tempfile_name]
+def audioCommand(mp4_name):
+  return ["ffmpeg", "-i", mp4_name, "-vn", "-f", "wav", "-"]
 
 
 @app.get("/")
@@ -37,12 +37,16 @@ async def receive_video(file: UploadFile = Form(...), topic: str = Form(...)):
     temp.write(video_bytes)
     temp.flush()
     # Compress
-    compress_process = subprocess.Popen(compressCommand(temp.name), stdin=subprocess.PIPE)
+    compress_process = subprocess.Popen(compressCommand(temp.name), stdout=subprocess.PIPE)
     video_bytes, err = compress_process.communicate()
     if err:
       print(err)
       return "error"
     print(video_bytes)
+    # Overwrite temp file
+    temp.seek(0)
+    temp.write(video_bytes)
+    temp.flush()
     # Extract audio
     audio_process = subprocess.Popen(audioCommand(temp.name), stdout=subprocess.PIPE)
     audio_bytes, err = audio_process.communicate()
@@ -54,5 +58,6 @@ async def receive_video(file: UploadFile = Form(...), topic: str = Form(...)):
   video_key = os.path.join(topic, basename + ".mp4")
   audio_key = os.path.join("audio", topic, basename + ".wav")
   s3_client.put_object(Bucket="vampp", Key=video_key, Body=video_bytes)
+  s3_client.put_object(Bucket="vampp", Key=audio_key, Body=audio_bytes)
 
   return "ok"

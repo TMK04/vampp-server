@@ -34,15 +34,13 @@ async def receive_video(file: UploadFile = Form(...), topic: str = Form(...)):
   # Convert to bytes-like object
   video_bytes = await file.read()
   # Compress
-  video_bytes = await compress_process.communicate(input=video_bytes)[0]
+  video_bytes = compress_process.communicate(input=video_bytes)[0]
   # Extract audio
-  audio_bytes = await audio_process.communicate(input=video_bytes)[0]
+  audio_bytes = audio_process.communicate(input=video_bytes)[0]
   # Upload to S3
-  await s3_client.put_object(Bucket="vampp",
-                             Key=os.path.join("og", basename + ".mp4"),
-                             Body=video_bytes)
-  await s3_client.put_object(Bucket="vampp",
-                             Key=os.path.join("audio/og", basename + ".wav"),
-                             Body=audio_bytes)
+  s3_client.put_object(Bucket="vampp", Key=os.path.join("og", basename + ".mp4"), Body=video_bytes)
+  s3_client.put_object(Bucket="vampp",
+                       Key=os.path.join("audio/og", basename + ".wav"),
+                       Body=audio_bytes)
 
   return "ok"

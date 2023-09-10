@@ -12,8 +12,8 @@ def read_root():
   return {"Hello": "World"}
 
 
-compress_process = (ffmpeg.input("pipe:", format="rawvideo", pix_fmt='rgb24').output(
-    "pipe:",
+compress_process = (ffmpeg.input("pipe:0", format="rawvideo", pix_fmt='rgb24').output(
+    "pipe:1",
     acodec="pcm_s16le",
     ar=16000,
     ac=1,
@@ -21,14 +21,14 @@ compress_process = (ffmpeg.input("pipe:", format="rawvideo", pix_fmt='rgb24').ou
     vf="fps=1",
     crf=28,
 ).run_async(pipe_stdin=True, pipe_stdout=True, pipe_stderr=True))
-video_process = (ffmpeg.input("pipe:").output(
-    "pipe:",
+video_process = (ffmpeg.input("pipe:0").output(
+    "pipe:1",
     format="mp4",
 ).run_async(pipe_stdin=True, pipe_stdout=True, pipe_stderr=True))
-audio_process = (ffmpeg.input("pipe:").output("pipe:", format="wav",
-                                              vn=1).run_async(pipe_stdin=True,
-                                                              pipe_stdout=True,
-                                                              pipe_stderr=True))
+audio_process = (ffmpeg.input("pipe:0").output("pipe:1", format="wav",
+                                               vn=1).run_async(pipe_stdin=True,
+                                                               pipe_stdout=True,
+                                                               pipe_stderr=True))
 
 
 @app.post("/")
@@ -41,6 +41,7 @@ async def receive_video(file: UploadFile = Form(...), topic: str = Form(...)):
   video_bytes = await file.read()
   # Compress
   video_bytes, err = compress_process.communicate(input=video_bytes)
+  print(video_bytes)
   if err:
     print(err)
     return "error"

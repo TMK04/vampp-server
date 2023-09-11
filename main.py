@@ -7,7 +7,7 @@ import cv2
 from cv_helpers import extractFrames, resizeToLocalize
 from fastapi import FastAPI, UploadFile, Form
 from ffmpeg_commands import compressVideo, extractAudio
-from models.person_localizer import calculatePresenterXYXYN, localizePresenter
+from models.presenter_localizer import calculatePresenterXYXYN, localizePresenter
 import os
 import pandas as pd
 from pathlib import Path

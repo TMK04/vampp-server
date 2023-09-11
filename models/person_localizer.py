@@ -14,9 +14,9 @@ LOCALIZED_HEIGHT = LOCALIZED_WIDTH = 224
 def calculatePresenterXYXYN(to_localize_batch):
   # replicate channel dimension x3
   src = np.array(to_localize_batch).repeat(3, -1)
-  results = model(src)
+  result_stream = model(src, stream=True)
 
-  for result in results:
+  for result in result_stream:
     boxes = result.boxes
     conf_ls = boxes.conf
     xyxyn_ls = boxes.xyxyn

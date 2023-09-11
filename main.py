@@ -1,3 +1,7 @@
+from dotenv import load_dotenv
+
+load_dotenv()
+
 import boto3
 from cv_helpers import extractFrames
 from fastapi import FastAPI, UploadFile, Form

@@ -147,17 +147,24 @@ async def receive_video(file: UploadFile = Form(...), topic: str = Form(...)):
 
   attire_key_ls = ["attire"]
   attire_df_dict = {key: [] for key in ["i", *attire_key_ls]}
+
+  def attireCallback(i, restored_frame):
+    attire_frame = restored_frame[-134:]
+    attire_df_dict["i"].append(i)
+    attire_df_dict["attire"].append(attire_frame)
+
   multitask_key_ls = ["moving", "smiling", "upright", "ec"]
   multitask_df_dict = {key: [] for key in ["i", *multitask_key_ls]}
-  for batch_multitask_df_dict in processRestoredFrames(restoreFrames(), attire_df_dict):
+  for batch_multitask_df_dict in processRestoredFrames(restoreFrames(), attireCallback):
     restored_frame_batch_tensor = toTensor(batch_multitask_df_dict["frame"]).to(device)
     multitask_pred = infer(multitask_model, restored_frame_batch_tensor)
     multitask_df_dict["i"].extend(batch_multitask_df_dict["i"])
     for j, key in enumerate(multitask_key_ls):
       multitask_df_dict[key].extend(multitask_pred[:, j].tolist())
   multitask_df = pd.DataFrame(multitask_df_dict).set_index("i")
+  print(attire_df_dict["attire"])
+  print(len(attire_df_dict["attire"]))
   attire_frame_tensor = toTensor(attire_df_dict["attire"]).to(device)
-  print(attire_frame_tensor.shape)
   attire_pred = infer(attire_model, attire_frame_tensor)
   for j, key in enumerate(attire_key_ls):
     attire_df_dict[key].extend(attire_pred[:, j].tolist())

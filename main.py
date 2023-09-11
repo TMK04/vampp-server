@@ -7,6 +7,7 @@ import cv2
 from cv_helpers import extractFrames, resizeToLocalize
 from fastapi import FastAPI, UploadFile, Form
 from ffmpeg_commands import compressVideo, extractAudio
+from models.face_restorer import restoreFaces
 from models.presenter_localizer import calculatePresenterXYXYN, localizePresenter
 import os
 import pandas as pd
@@ -132,9 +133,10 @@ async def receive_video(file: UploadFile = Form(...), topic: str = Form(...)):
     return localized_frame_ls
 
   localized_frame_ls = localizeFrames()
-  print(len(localized_frame_ls))
-  print(os.listdir(temp_localized_dir_name))
   os.remove(temp_mp4_name)
+  temp_restored_dir_name = tempName(["frame", "restored"])
+  Path(temp_restored_dir_name).mkdir()
+  restoreFaces(temp_localized_dir_name, temp_restored_dir_name)
 
   shutil.rmtree(temp_dir_name, ignore_errors=True)
   return "ok"

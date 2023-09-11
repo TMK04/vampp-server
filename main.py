@@ -7,8 +7,10 @@ import cv2
 from cv_helpers import FRAME_ATTIRE_MASK, FRAME_BATCH, extractFrames, processRestoredFrames, resizeToLocalize
 from fastapi import FastAPI, UploadFile, Form
 from ffmpeg_commands import compressVideo, extractAudio
+from models.components import device, toTensor
 from models.face_restorer import restoreFaces
 from models.presenter_localizer import calculatePresenterXYXYN, localizePresenter
+from models.xdensenet import attire_model, infer, multitask_model
 import os
 import numpy as np
 import pandas as pd
@@ -18,6 +20,7 @@ from re_patterns import pattern_mp4_suffix
 import shortuuid
 import shutil
 import soundfile as sf
+import torch
 from transcription import transcribe, splitAudio
 
 app = FastAPI()
@@ -142,8 +145,13 @@ async def receive_video(file: UploadFile = Form(...), topic: str = Form(...)):
       yield restored_frame
 
   attire_frame_ls = []
-  for _ in processRestoredFrames(attire_frame_ls, restoreFrames()):
-    pass
+  for restored_frame_batch in processRestoredFrames(attire_frame_ls, restoreFrames()):
+    restored_frame_batch_tensor = toTensor(restored_frame_batch).to(device)
+    multitask_pred = infer(multitask_model, restored_frame_batch_tensor)
+    print(multitask_pred)
+  attire_frame_tensor = toTensor(attire_frame_ls).to(device)
+  attire_pred = infer(attire_model, restored_frame_batch_tensor)
+  print(attire_pred)
 
   for i, window in enumerate(splitAudio(temp_wav_name)):
     i_file = f"{i}.mp3"

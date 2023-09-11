@@ -2,6 +2,12 @@ import cv2
 import numpy as np
 import os
 
+FRAME_ATTIRE_MASK = os.environ.get("FRAME_ATTIRE_MASK",
+                                   "5,10,15,20,25,-26,-21,-16,-11,-6").split(",")
+FRAME_BATCH = int(os.environ.get("FRAME_BATCH", "1"))
+FRAME_INTERVAL = int(os.environ.get("FRAME_INTERVAL", "1"))
+FRAME_SKIP = int(os.environ.get("FRAME_SKIP", "0"))
+
 OG_WIDTH = 1280
 OG_HEIGHT = 720
 TO_LOCALIZE_WIDTH = 426
@@ -29,9 +35,7 @@ def resizeWithPad(image, target_width: int, target_height: int, print_diff=False
 
 def extractFrames(input_file: str):
   cap = cv2.VideoCapture(input_file)
-  skip = int(os.environ.get("FRAME_SKIP", "0"))
-  interval = int(os.environ.get("FRAME_INTERVAL", "1"))
-  batch_size = int(os.environ.get("FRAME_BATCH", "1"))
+  skip = FRAME_SKIP
   current_batch = []
   i = -1
   while cap.isOpened():
@@ -42,13 +46,13 @@ def extractFrames(input_file: str):
     if skip:
       skip -= 1
       continue
-    if i % interval == 0:
+    if i % FRAME_INTERVAL == 0:
       frame = resizeWithPad(frame, OG_WIDTH, OG_HEIGHT)
       current_batch.append((i, frame))
-      if len(current_batch) == batch_size:
+      if len(current_batch) == FRAME_BATCH:
         yield current_batch
         current_batch = []
-  # Yield the last batch (may be smaller than batch_size)
+  # Yield the last batch (may be smaller than FRAME_BATCH)
   if len(current_batch) > 0:
     yield current_batch
   cap.release()
@@ -62,3 +66,17 @@ def resizeToLocalize(frame):
   to_localize_frame = cv2.resize(frame, (TO_LOCALIZE_WIDTH, TO_LOCALIZE_HEIGHT))
   to_localize_frame = grayscale(to_localize_frame)
   return to_localize_frame
+
+
+def processRestoredFrames(attire_frame_ls, gen_restored_frames):
+  current_batch = []
+  for i, restored_frame in enumerate(gen_restored_frames):
+    if i in FRAME_ATTIRE_MASK:
+      attire_frame = restored_frame[-134:]
+      attire_frame_ls.append(attire_frame)
+    current_batch.append(restored_frame)
+    if len(current_batch) == FRAME_BATCH:
+      yield current_batch
+      current_batch = []
+  if len(current_batch) > 0:
+    yield current_batch

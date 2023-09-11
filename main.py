@@ -4,20 +4,21 @@ load_dotenv()
 
 from aws import AWS_S3_BUCKET, USE_AWS, s3_client
 import cv2
-from cv_helpers import extractFrames, resizeToLocalize
+from cv_helpers import FRAME_ATTIRE_MASK, FRAME_BATCH, extractFrames, processRestoredFrames, resizeToLocalize
 from fastapi import FastAPI, UploadFile, Form
 from ffmpeg_commands import compressVideo, extractAudio
 from models.face_restorer import restoreFaces
 from models.presenter_localizer import calculatePresenterXYXYN, localizePresenter
 import os
+import numpy as np
 import pandas as pd
 from pathlib import Path
 import re
 from re_patterns import pattern_mp4_suffix
 import shortuuid
 import shutil
-from transcription import transcribe, splitAudio
 import soundfile as sf
+from transcription import transcribe, splitAudio
 
 app = FastAPI()
 tmp_dir = Path("tmp/")
@@ -140,7 +141,8 @@ async def receive_video(file: UploadFile = Form(...), topic: str = Form(...)):
       os.remove(temp_restored_name)
       yield restored_frame
 
-  for _ in restoreFrames():
+  attire_frame_ls = []
+  for _ in processRestoredFrames(attire_frame_ls, restoreFrames()):
     pass
 
   for i, window in enumerate(splitAudio(temp_wav_name)):

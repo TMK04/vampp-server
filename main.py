@@ -145,7 +145,8 @@ async def receive_video(file: UploadFile = Form(...), topic: str = Form(...)):
       i = temp_restored_basename.replace(".jpg", "")
       yield i, restored_frame
 
-  attire_df_dict = {key: [] for key in ["i", "attire"]}
+  attire_key_ls = ["attire"]
+  attire_df_dict = {key: [] for key in ["i", *attire_key_ls]}
   multitask_key_ls = ["moving", "smiling", "upright", "ec"]
   multitask_df_dict = {key: [] for key in ["i", *multitask_key_ls]}
   for batch_multitask_df_dict in processRestoredFrames(restoreFrames(), attire_df_dict):
@@ -157,7 +158,9 @@ async def receive_video(file: UploadFile = Form(...), topic: str = Form(...)):
   multitask_df = pd.DataFrame(multitask_df_dict).set_index("i")
   print(multitask_df.head())
   attire_frame_tensor = toTensor(attire_df_dict["attire"]).to(device)
-  attire_df_dict["attire"] = infer(attire_model, restored_frame_batch_tensor)
+  attire_pred = infer(attire_model, restored_frame_batch_tensor)
+  for j, key in enumerate(attire_key_ls):
+    attire_df_dict[key].extend(attire_pred[:, j].tolist())
   attire_df = pd.DataFrame(attire_df_dict).set_index("i")
   print(attire_df.head())
 

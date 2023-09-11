@@ -43,4 +43,7 @@ def extractFrames(input_file: str):
       if len(current_batch) == batch_size:
         yield current_batch
         current_batch = []
+  # Yield the last batch (may be smaller than batch_size)
+  if len(current_batch) > 0:
+    yield current_batch
   cap.release()

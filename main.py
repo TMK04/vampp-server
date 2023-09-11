@@ -16,7 +16,7 @@ import re
 from re_patterns import pattern_mp4_suffix
 import shortuuid
 import shutil
-from transcription import transcribe_and_correct, split_audio
+from transcription import transcribe, splitAudio
 import soundfile as sf
 
 app = FastAPI()
@@ -131,26 +131,39 @@ async def receive_video(file: UploadFile = Form(...), topic: str = Form(...)):
     restoreFaces(temp_localized_dir_name, temp_restored_dir_name)
     temp_restored_dir_name = os.path.join(temp_restored_dir_name, "restored_imgs")
     for temp_restored_name in os.listdir(temp_restored_dir_name):
-      restored_key = s3Key(["frame", "restored", temp_restored_name])
       temp_restored_name = os.path.join(temp_restored_dir_name, temp_restored_name)
       restored_frame = cv2.imread(temp_restored_name, cv2.IMREAD_GRAYSCALE)
       restored_frame = np.expand_dims(restored_frame, axis=-1)
-      s3_client.upload_file(temp_restored_name, AWS_S3_BUCKET, restored_key)
+      if USE_AWS:
+        restored_key = s3Key(["frame", "restored", temp_restored_name])
+        s3_client.upload_file(temp_restored_name, AWS_S3_BUCKET, restored_key)
       os.remove(temp_restored_name)
       yield restored_frame
 
   for _ in restoreFrames():
     pass
 
-  for i, window in enumerate(split_audio(temp_wav_name)):
+  for i, window in enumerate(splitAudio(temp_wav_name)):
     i_file = f"{i}.mp3"
     window_arg_ls = ["audio", "window", i_file]
     temp_window_name = tempName(window_arg_ls)
     sf.write(temp_window_name, window, 16000)
     window_key = s3Key(window_arg_ls)
     s3_client.upload_file(temp_window_name, AWS_S3_BUCKET, window_key)
+    os.remove(temp_window_name)
 
-  transcribed = transcribe_and_correct(temp_wav_name)
+  def transcribeAudio():
+    text_arg_ls = ["text.txt"]
+    temp_text_name = tempName(text_arg_ls)
+    text = transcribe(temp_wav_name)
+    with open(temp_text_name, "w") as f:
+      f.write(text)
+    if USE_AWS:
+      text_key = s3Key(text_arg_ls)
+      s3_client.upload_file(temp_text_name, AWS_S3_BUCKET, text_key)
+    os.remove(temp_text_name)
+
+  transcribeAudio()
 
   shutil.rmtree(temp_dir_name, ignore_errors=True)
   return "ok"

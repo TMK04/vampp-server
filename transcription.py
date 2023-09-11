@@ -4,9 +4,10 @@ import torch
 import librosa
 import whisper
 
+model = whisper.load_model("base.en")
 
-def split_audio(audio_file_path):
 
+def splitAudio(audio_file_path):
   audio, sr = librosa.load(audio_file_path, sr=16000)
   # Calculate window size
   window_duration = 10  # in seconds
@@ -19,8 +20,6 @@ def split_audio(audio_file_path):
       yield window
 
 
-def transcribe_and_correct(audio_file_path):
-  model = whisper.load_model("base.en")
+def transcribe(audio_file_path):
   result = model.transcribe(audio_file_path)
-
   return result['text']

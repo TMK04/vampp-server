@@ -11,9 +11,10 @@ model = YOLO(MODEL_PL_PATH, task="detect")
 LOCALIZED_HEIGHT = LOCALIZED_WIDTH = 224
 
 
-def calculatePresenterXYXYN(to_localize_batch):
+def calculatePresenterXYXYN(to_localize_frame_batch):
+  print("calculating presenter xyxyn")
   # replicate channel dimension x3
-  src = np.array(to_localize_batch).repeat(3, -1)
+  src = np.array(to_localize_frame_batch).repeat(3, -1)
   print(src)
   results = model(src, conf=.5, imgsz=(TO_LOCALIZE_WIDTH, TO_LOCALIZE_HEIGHT), half=True)
 

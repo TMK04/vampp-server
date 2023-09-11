@@ -44,12 +44,12 @@ async def receive_video(file: UploadFile = Form(...), topic: str = Form(...)):
 
     def handleFrames(i, frame, to_localize_frame):
       jpg_name = f"{basename}-{i}.jpg"
-      og_file = os.path.join(tempdir_name, "og", jpg_name)
+      og_file = os.path.join(tempdir_name, f"frames-og-{jpg_name}")
       cv2.imwrite(og_file, frame)
       og_key = os.path.join("frames/og", jpg_name)
       s3_client.upload_file(og_file, "vampp", og_key)
 
-      to_localize_file = os.path.join(tempdir_name, "to_localize", jpg_name)
+      to_localize_file = os.path.join(tempdir_name, f"frames-to_localize-{jpg_name}")
       cv2.imwrite(to_localize_file, to_localize_frame)
       to_localize_key = os.path.join("frames/to_localize", jpg_name)
       s3_client.upload_file(to_localize_file, "vampp", to_localize_key)

@@ -112,7 +112,7 @@ async def receive_video(file: UploadFile = Form(...), topic: str = Form(...)):
   os.remove(temp_mp4_name)
 
   def localizeFrames():
-    for i_batch, frame_batch, to_localize_frame_batch in saveFrames():
+    for i_batch, frame_batch, to_localize_frame_batch in frame_batch_tuple_ls:
       print("localizing")
       localized_frame_batch = []
       for j, xyxyn in enumerate(calculatePresenterXYXYN(to_localize_frame_batch)):

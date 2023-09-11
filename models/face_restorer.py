@@ -7,6 +7,9 @@ if MODEL_FR_PATH is None:
 
 
 def restoreFaces(input_dir, output_dir):
-  subprocess.run(
-      ["python", "inference_gfpgan.py", "-i", input_dir, "-o", output_dir, "-v", "1.4", "-s", "2"],
-      cwd=MODEL_FR_PATH)
+  subprocess.run([
+      "python", "inference_gfpgan.py", "-i",
+      os.path.abspath(input_dir), "-o",
+      os.path.abspath(output_dir), "-v", "1.4", "-s", "2"
+  ],
+                 cwd=MODEL_FR_PATH)

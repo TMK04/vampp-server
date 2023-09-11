@@ -13,6 +13,7 @@ import re
 from re_patterns import pattern_mp4_suffix
 import shortuuid
 import shutil
+from transcription import transcribe_and_correct, split_audio
 
 app = FastAPI()
 tmp_dir = Path("tmp/")
@@ -94,6 +95,9 @@ async def receive_video(file: UploadFile = Form(...), topic: str = Form(...)):
   for _ in saveFrames():
     pass
   os.remove(temp_mp4_name)
+
+  split_audio(temp_wav_name, basename_random)
+  transcribe_and_correct(temp_wav_name)
 
   shutil.rmtree(temp_dir_name, ignore_errors=True)
   return "ok"

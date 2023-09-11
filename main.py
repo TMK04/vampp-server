@@ -79,8 +79,8 @@ async def receive_video(file: UploadFile = Form(...), topic: str = Form(...)):
     window_key = s3Key(window_arg_ls)
     s3_client.upload_file(temp_window_name, AWS_S3_BUCKET, window_key)
 
-  transcribe_and_correct(temp_wav_name)
-
+  transcribed = transcribe_and_correct(temp_wav_name)
+  print(transcribed)
 
   def saveFrames():
     for batch in extractFrames(temp_mp4_name):

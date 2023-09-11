@@ -1,5 +1,6 @@
 from .components import _Classifier, _ConvNormAct, _DepthwiseSeparableConv2d, _GAP, _NormAct, autocast, device, init_weights
 import numpy as np
+import os
 import torch
 from torch import Tensor
 import torch.nn as nn
@@ -118,13 +119,19 @@ class Head(nn.Sequential):
     init_weights(self.modules)
 
 
+MODEL_MULTITASK_PATH = os.environ.get("MODEL_MULTITASK_PATH")
+if MODEL_MULTITASK_PATH is None:
+  raise ValueError("MODEL_MULTITASK_PATH is not set")
 multitask_model = nn.Sequential(XDenseNet(block_config=[6, 12, 32, 32]), Head(1664, 4, 3, (1, 1)))
-multitask_model.load_state_dict(torch.load("/storage/cv-multitask/best.pth")["model"])
+multitask_model.load_state_dict(torch.load(MODEL_MULTITASK_PATH)["model"])
 multitask_model = torch.compile(multitask_model).to(device)
 multitask_model.eval()
 
+MODEL_ATTIRE_PATH = os.environ.get("MODEL_ATTIRE_PATH")
+if MODEL_ATTIRE_PATH is None:
+  raise ValueError("MODEL_ATTIRE_PATH is not set")
 attire_model = nn.Sequential(XDenseNet(block_config=[3, 6, 12, 8]), Head(516, 1, 1, (1, 1)))
-attire_model.load_state_dict(torch.load("/storage/cv-attire/best.pth")["model"])
+attire_model.load_state_dict(torch.load(MODEL_ATTIRE_PATH)["model"])
 attire_model = torch.compile(attire_model).to(device)
 attire_model.eval()
 

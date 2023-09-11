@@ -108,6 +108,9 @@ async def receive_video(file: UploadFile = Form(...), topic: str = Form(...)):
         to_localize_frame_batch.append(to_localize_frame)
       yield i_batch, frame_batch, to_localize_frame_batch
 
+  frame_batch_tuple_ls = [*saveFrames()]
+  os.remove(temp_mp4_name)
+
   def localizeFrames():
     for i_batch, frame_batch, to_localize_frame_batch in saveFrames():
       print("localizing")
@@ -120,9 +123,8 @@ async def receive_video(file: UploadFile = Form(...), topic: str = Form(...)):
         localized_frame_batch.append(localized_frame)
       yield i_batch, localized_frame_batch
 
-  # for _ in localizeFrames():
-  #   pass
+  for _ in localizeFrames():
+    pass
 
-  os.remove(temp_mp4_name)
   shutil.rmtree(temp_dir_name, ignore_errors=True)
   return "ok"

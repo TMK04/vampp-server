@@ -70,7 +70,6 @@ async def receive_video(file: UploadFile = Form(...), topic: str = Form(...)):
     audio_key = s3Key(wav_arg_ls)
     s3_client.upload_file(temp_wav_name, AWS_S3_BUCKET, audio_key)
 
-    
   for i, window in enumerate(split_audio(temp_wav_name)):
     i_file = f"{i}.mp3"
     window_arg_ls = ["audio", "window", i_file]
@@ -109,21 +108,22 @@ async def receive_video(file: UploadFile = Form(...), topic: str = Form(...)):
         to_localize_frame_batch.append(to_localize_frame)
       yield i_batch, frame_batch, to_localize_frame_batch
 
-  def localizeFrames():
-    for i_batch, frame_batch, to_localize_frame_batch in saveFrames():
-      localized_frame_batch = []
-      for j, xyxyn in enumerate(calculatePresenterXYXYN(to_localize_frame_batch)):
-        print(j, xyxyn)
-        i = i_batch[j]
-        frame = frame_batch[j]
-        localized_frame = localizePresenter(frame, xyxyn)
-        localized_frame_batch.append(localized_frame)
-      yield i_batch, localized_frame_batch
-
-  for _ in localizeFrames():
+  for _ in saveFrames():
     pass
 
+  # def localizeFrames():
+  #   for i_batch, frame_batch, to_localize_frame_batch in saveFrames():
+  #     localized_frame_batch = []
+  #     for j, xyxyn in enumerate(calculatePresenterXYXYN(to_localize_frame_batch)):
+  #       print(j, xyxyn)
+  #       i = i_batch[j]
+  #       frame = frame_batch[j]
+  #       localized_frame = localizePresenter(frame, xyxyn)
+  #       localized_frame_batch.append(localized_frame)
+  #     yield i_batch, localized_frame_batch
 
+  # for _ in localizeFrames():
+  #   pass
 
   os.remove(temp_mp4_name)
   shutil.rmtree(temp_dir_name, ignore_errors=True)

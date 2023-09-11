@@ -84,9 +84,9 @@ async def receive_video(file: UploadFile = Form(...), topic: str = Form(...)):
 
   def saveFrames():
     for batch in extractFrames(temp_mp4_name):
-      current_i_batch = []
-      current_batch = []
-      current_to_localize_batch = []
+      i_batch = []
+      frame_batch = []
+      to_localize_frame_batch = []
       for i, frame, to_localize_frame in batch:
         i_file = f"{i}.jpg"
 
@@ -104,21 +104,21 @@ async def receive_video(file: UploadFile = Form(...), topic: str = Form(...)):
           to_localize_key = s3Key(to_localize_arg_ls)
           s3_client.upload_file(temp_to_localize_name, AWS_S3_BUCKET, to_localize_key)
 
-        current_i_batch.append(i_file)
-        current_batch.append(temp_og_name)
-        current_to_localize_batch.append(temp_to_localize_name)
-      yield current_i_batch, current_batch, current_to_localize_batch
-      current_i_batch = []
-      current_batch = []
-      current_to_localize_batch = []
+        i_batch.append(i_file)
+        frame_batch.append(frame)
+        to_localize_frame_batch.append(to_localize_frame)
+      yield i_batch, frame_batch, to_localize_frame_batch
 
   def localizeFrames():
-    for i_batch, batch, to_localize_batch in saveFrames():
-      for j, xyxyn in enumerate(calculatePresenterXYXYN(to_localize_batch)):
+    for i_batch, frame_batch, to_localize_frame_batch in saveFrames():
+      localized_frame_batch = []
+      for j, xyxyn in enumerate(calculatePresenterXYXYN(to_localize_frame_batch)):
+        print(j, xyxyn)
         i = i_batch[j]
-        frame = batch[j]
+        frame = frame_batch[j]
         localized_frame = localizePresenter(frame, xyxyn)
-        yield i, localized_frame
+        localized_frame_batch.append(localized_frame)
+      yield i_batch, localized_frame_batch
 
   for _ in localizeFrames():
     pass

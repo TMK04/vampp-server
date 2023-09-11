@@ -23,8 +23,10 @@ def resizeWithPad(image, target_width: int, target_height: int, print_diff=False
 
 def extractFrames(input_file: str):
   cap = cv2.VideoCapture(input_file)
-  skip = int(os.environ.get("FRAMES_SKIP", "0"))
-  interval = int(os.environ.get("FRAMES_INTERVAL", "1"))
+  skip = int(os.environ.get("FRAME_SKIP", "0"))
+  interval = int(os.environ.get("FRAME_INTERVAL", "1"))
+  batch_size = int(os.environ.get("FRAME_BATCH", "1"))
+  current_batch = []
   i = -1
   while cap.isOpened():
     ret, frame = cap.read()
@@ -37,5 +39,8 @@ def extractFrames(input_file: str):
     if i % interval == 0:
       frame = resizeWithPad(frame, 1280, 720)
       to_localize_frame = cv2.cvtColor(cv2.resize(frame, (426, 240)), cv2.COLOR_BGR2GRAY)
-      yield i, frame, to_localize_frame
+      current_batch.append((i, frame, to_localize_frame))
+      if len(current_batch) == batch_size:
+        yield current_batch
+        current_batch = []
   cap.release()

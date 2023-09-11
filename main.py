@@ -52,20 +52,30 @@ async def receive_video(file: UploadFile = Form(...), topic: str = Form(...)):
     audio_key = s3Key(wav_arg_ls)
     s3_client.upload_file(temp_wav_name, "vampp", audio_key)
 
-    for i, frame, to_localize_frame in extractFrames(temp_mp4_name):
-      i_file = f"{i}.jpg"
+    def saveFrames():
+      for batch in extractFrames(temp_mp4_name):
+        current_batch = []
+        for i, frame, to_localize_frame in batch:
+          i_file = f"{i}.jpg"
 
-      og_arg_ls = ["frame", "og", i_file]
-      temp_og_name = tempName(og_arg_ls)
-      cv2.imwrite(temp_og_name, frame)
-      og_key = s3Key(og_arg_ls)
-      s3_client.upload_file(temp_og_name, "vampp", og_key)
+          og_arg_ls = ["frame", "og", i_file]
+          temp_og_name = tempName(og_arg_ls)
+          cv2.imwrite(temp_og_name, frame)
+          og_key = s3Key(og_arg_ls)
+          s3_client.upload_file(temp_og_name, "vampp", og_key)
 
-      to_localize_arg_ls = ["frame", "to_localize", i_file]
-      temp_to_localize_name = tempName(to_localize_arg_ls)
-      cv2.imwrite(temp_to_localize_name, to_localize_frame)
-      to_localize_key = s3Key(to_localize_arg_ls)
-      s3_client.upload_file(temp_to_localize_name, "vampp", to_localize_key)
+          to_localize_arg_ls = ["frame", "to_localize", i_file]
+          temp_to_localize_name = tempName(to_localize_arg_ls)
+          cv2.imwrite(temp_to_localize_name, to_localize_frame)
+          to_localize_key = s3Key(to_localize_arg_ls)
+          s3_client.upload_file(temp_to_localize_name, "vampp", to_localize_key)
+
+          current_batch.append((temp_og_name, temp_to_localize_name))
+        yield current_batch
+        current_batch = []
+
+    for _ in saveFrames():
+      pass
     os.remove(temp_mp4_name)
 
   return "ok"

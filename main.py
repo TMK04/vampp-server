@@ -158,7 +158,7 @@ async def receive_video(file: UploadFile = Form(...), topic: str = Form(...)):
   multitask_df = pd.DataFrame(multitask_df_dict).set_index("i")
   print(multitask_df.head())
   attire_frame_tensor = toTensor(attire_df_dict["attire"]).to(device)
-  attire_pred = infer(attire_model, restored_frame_batch_tensor)
+  attire_pred = infer(attire_model, attire_frame_tensor)
   for j, key in enumerate(attire_key_ls):
     attire_df_dict[key].extend(attire_pred[:, j].tolist())
   attire_df = pd.DataFrame(attire_df_dict).set_index("i")

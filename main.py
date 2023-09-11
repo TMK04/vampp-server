@@ -19,42 +19,50 @@ def read_root():
   return {"Hello": "World"}
 
 
+def tempName(temp_dir_name, *args):
+  return os.path.join(temp_dir_name, "-".join(args))
+
+
 @app.post("/")
 async def receive_video(file: UploadFile = Form(...), topic: str = Form(...)):
   mp4_name = file.filename
   basename = mp4_name.replace(".mp4", "")
   wav_name = f"{basename}.wav"
 
-  with tempfile.TemporaryDirectory() as tempdir_name:
-    tempfile_name = os.path.join(tempdir_name, "temp.mp4")
+  with tempfile.TemporaryDirectory() as temp_dir_name:
+    temp_file_name = tempName(temp_dir_name, "temp.mp4")
     # Save file to temp
-    with open(tempfile_name, "wb") as f:
+    with open(temp_file_name, "wb") as f:
       f.write(await file.read())
 
-    tempmp4_name = os.path.join(tempdir_name, mp4_name)
-    compressVideo(tempfile_name, tempmp4_name)
-    os.remove(tempfile_name)
+    temp_mp4_name = tempName(temp_dir_name, mp4_name)
+    compressVideo(temp_file_name, temp_mp4_name)
+    os.remove(temp_file_name)
     video_key = os.path.join("og", mp4_name)
-    s3_client.upload_file(tempmp4_name, "vampp", video_key)
+    s3_client.upload_file(temp_mp4_name, "vampp", video_key)
 
-    tempwav_name = os.path.join(tempdir_name, wav_name)
-    extractAudio(tempmp4_name, tempwav_name)
+    temp_wav_name = tempName(temp_dir_name, wav_name)
+    extractAudio(temp_mp4_name, temp_wav_name)
     audio_key = os.path.join("audio/og", wav_name)
-    s3_client.upload_file(tempwav_name, "vampp", audio_key)
+    s3_client.upload_file(temp_wav_name, "vampp", audio_key)
 
     def handleFrames(i, frame, to_localize_frame):
-      jpg_name = f"{basename}-{i}.jpg"
-      og_file = os.path.join(tempdir_name, f"frames-og-{jpg_name}")
-      cv2.imwrite(og_file, frame)
-      og_key = os.path.join("frames/og", jpg_name)
-      s3_client.upload_file(og_file, "vampp", og_key)
+      i_file = f"{i}.jpg"
+      basename_i_file = f"{basename}-{i_file}"
 
-      to_localize_file = os.path.join(tempdir_name, f"frames-to_localize-{jpg_name}")
-      cv2.imwrite(to_localize_file, to_localize_frame)
-      to_localize_key = os.path.join("frames/to_localize", jpg_name)
-      s3_client.upload_file(to_localize_file, "vampp", to_localize_key)
+      og_prefix_ls = ["frames", "og"]
+      temp_og_name = tempName(temp_dir_name, *og_prefix_ls, basename_i_file)
+      cv2.imwrite(temp_og_name, frame)
+      og_key = os.path.join(*og_prefix_ls, basename, i_file)
+      s3_client.upload_file(temp_og_name, "vampp", og_key)
 
-    extractFrames(tempmp4_name, handleFrames)
-    os.remove(tempmp4_name)
+      to_localize_prefix_ls = ["frames", "to_localize"]
+      temp_to_localize_name = tempName(temp_dir_name, *to_localize_prefix_ls, basename_i_file)
+      cv2.imwrite(temp_to_localize_name, to_localize_frame)
+      to_localize_key = os.path.join(*to_localize_prefix_ls, basename, i_file)
+      s3_client.upload_file(temp_to_localize_name, "vampp", to_localize_key)
+
+    extractFrames(temp_mp4_name, handleFrames)
+    os.remove(temp_mp4_name)
 
   return "ok"

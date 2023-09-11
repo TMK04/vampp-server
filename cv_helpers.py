@@ -54,8 +54,11 @@ def extractFrames(input_file: str):
   cap.release()
 
 
+def grayscale(frame):
+  return cv2.cvtColor(cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY), cv2.COLOR_GRAY2BGR)
+
+
 def resizeToLocalize(frame):
   to_localize_frame = cv2.resize(frame, (TO_LOCALIZE_WIDTH, TO_LOCALIZE_HEIGHT))
-  to_localize_frame = cv2.cvtColor(cv2.cvtColor(to_localize_frame, cv2.COLOR_BGR2GRAY),
-                                   cv2.COLOR_GRAY2BGR)
+  to_localize_frame = grayscale(to_localize_frame)
   return to_localize_frame

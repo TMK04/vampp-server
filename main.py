@@ -72,16 +72,6 @@ async def receive_video(file: UploadFile = Form(...), topic: str = Form(...)):
     audio_key = s3Key(wav_arg_ls)
     s3_client.upload_file(temp_wav_name, AWS_S3_BUCKET, audio_key)
 
-  for i, window in enumerate(split_audio(temp_wav_name)):
-    i_file = f"{i}.mp3"
-    window_arg_ls = ["audio", "window", i_file]
-    temp_window_name = tempName(window_arg_ls)
-    sf.write(temp_window_name, window, 16000)
-    window_key = s3Key(window_arg_ls)
-    s3_client.upload_file(temp_window_name, AWS_S3_BUCKET, window_key)
-
-  transcribed = transcribe_and_correct(temp_wav_name)
-
   localized_dir_arg_ls = ["frame", "localized"]
   temp_localized_dir_name = tempName(localized_dir_arg_ls)
   Path(temp_localized_dir_name).mkdir()
@@ -143,13 +133,24 @@ async def receive_video(file: UploadFile = Form(...), topic: str = Form(...)):
     for temp_restored_name in os.listdir(temp_restored_dir_name):
       restored_key = s3Key(["frame", "restored", temp_restored_name])
       temp_restored_name = os.path.join(temp_restored_dir_name, temp_restored_name)
-      restored_frame = cv2.imread(temp_restored_name)
+      restored_frame = cv2.imread(temp_restored_name, cv2.IMREAD_GRAYSCALE)
+      restored_frame = np.expand_dims(restored_frame, axis=-1)
       s3_client.upload_file(temp_restored_name, AWS_S3_BUCKET, restored_key)
       os.remove(temp_restored_name)
       yield restored_frame
 
   for _ in restoreFrames():
     pass
+
+  for i, window in enumerate(split_audio(temp_wav_name)):
+    i_file = f"{i}.mp3"
+    window_arg_ls = ["audio", "window", i_file]
+    temp_window_name = tempName(window_arg_ls)
+    sf.write(temp_window_name, window, 16000)
+    window_key = s3Key(window_arg_ls)
+    s3_client.upload_file(temp_window_name, AWS_S3_BUCKET, window_key)
+
+  transcribed = transcribe_and_correct(temp_wav_name)
 
   shutil.rmtree(temp_dir_name, ignore_errors=True)
   return "ok"

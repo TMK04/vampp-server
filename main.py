@@ -52,7 +52,7 @@ async def receive_video(file: UploadFile = Form(...), topic: str = Form(...)):
     audio_key = s3Key(wav_arg_ls)
     s3_client.upload_file(temp_wav_name, "vampp", audio_key)
 
-    def handleFrames(i, frame, to_localize_frame):
+    for i, frame, to_localize_frame in extractFrames(temp_mp4_name):
       i_file = f"{i}.jpg"
 
       og_arg_ls = ["frame", "og", i_file]
@@ -66,8 +66,6 @@ async def receive_video(file: UploadFile = Form(...), topic: str = Form(...)):
       cv2.imwrite(temp_to_localize_name, to_localize_frame)
       to_localize_key = s3Key(to_localize_arg_ls)
       s3_client.upload_file(temp_to_localize_name, "vampp", to_localize_key)
-
-    extractFrames(temp_mp4_name, handleFrames)
     os.remove(temp_mp4_name)
 
   return "ok"

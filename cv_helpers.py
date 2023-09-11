@@ -21,7 +21,7 @@ def resizeWithPad(image, target_width: int, target_height: int, print_diff=False
   return cv2.copyMakeBorder(resized, top, bottom, left, right, cv2.BORDER_CONSTANT, value=color)
 
 
-def extractFrames(input_file: str, handleFrames: callable):
+def extractFrames(input_file: str):
   cap = cv2.VideoCapture(input_file)
   skip = int(os.environ.get("FRAMES_SKIP", "0"))
   interval = int(os.environ.get("FRAMES_INTERVAL", "1"))
@@ -37,5 +37,5 @@ def extractFrames(input_file: str, handleFrames: callable):
     if i % interval == 0:
       frame = resizeWithPad(frame, 1280, 720)
       to_localize_frame = cv2.cvtColor(cv2.resize(frame, (426, 240)), cv2.COLOR_BGR2GRAY)
-      handleFrames(i, frame, to_localize_frame)
+      yield i, frame, to_localize_frame
   cap.release()

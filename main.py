@@ -134,14 +134,14 @@ async def receive_video(file: UploadFile = Form(...), topic: str = Form(...)):
     Path(temp_restored_dir_name).mkdir()
     restoreFaces(temp_localized_dir_name, temp_restored_dir_name)
     temp_restored_dir_name = os.path.join(temp_restored_dir_name, "restored_imgs")
-    for temp_restored_name in os.listdir(temp_restored_dir_name):
-      if USE_AWS:
-        restored_key = s3Key(["frame", "restored", temp_restored_name])
-        s3_client.upload_file(temp_restored_name, AWS_S3_BUCKET, restored_key)
-      temp_restored_name = os.path.join(temp_restored_dir_name, temp_restored_name)
+    for temp_restored_basename in os.listdir(temp_restored_dir_name):
+      temp_restored_name = os.path.join(temp_restored_dir_name, temp_restored_basename)
       restored_frame = cv2.imread(temp_restored_name, cv2.IMREAD_GRAYSCALE)
-      os.remove(temp_restored_name)
       restored_frame = np.expand_dims(restored_frame, axis=-1)
+      if USE_AWS:
+        restored_key = s3Key(["frame", "restored", temp_restored_basename])
+        s3_client.upload_file(temp_restored_name, AWS_S3_BUCKET, restored_key)
+      os.remove(temp_restored_name)
       yield restored_frame
 
   attire_frame_ls = []

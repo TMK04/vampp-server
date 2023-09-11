@@ -68,15 +68,20 @@ def resizeToLocalize(frame):
   return to_localize_frame
 
 
-def processRestoredFrames(attire_frame_ls, gen_restored_frames):
-  current_batch = []
-  for i, restored_frame in enumerate(gen_restored_frames):
-    if i in FRAME_ATTIRE_MASK:
+def processRestoredFrames(gen_restored_frames, attire_df_dict):
+  n = 0
+  multitask_df_dict = {key: [] for key in ["i", "frame"]}
+  for j, (i, restored_frame) in enumerate(gen_restored_frames):
+    if j in FRAME_ATTIRE_MASK:
       attire_frame = restored_frame[-134:]
-      attire_frame_ls.append(attire_frame)
-    current_batch.append(restored_frame)
-    if len(current_batch) == FRAME_BATCH:
-      yield current_batch
-      current_batch = []
-  if len(current_batch) > 0:
-    yield current_batch
+      attire_df_dict["i"].append(i)
+      attire_df_dict["attire"].append(attire_frame)
+    multitask_df_dict["i"].append(i)
+    multitask_df_dict["frame"].append(restored_frame)
+    n += 1
+    if n == FRAME_BATCH:
+      yield dict_i_multitask
+      multitask_df_dict = {key: [] for key in ["i", "frame"]}
+      n = 0
+  if n > 0:
+    yield multitask_df_dict

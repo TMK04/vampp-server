@@ -147,4 +147,5 @@ def infer(model, test_tensor):
   with torch.inference_mode():
     with autocast():
       y_pred = model(test_tensor.cuda())
+      y_pred = y_pred > 0
   return y_pred

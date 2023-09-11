@@ -142,16 +142,24 @@ async def receive_video(file: UploadFile = Form(...), topic: str = Form(...)):
         restored_key = s3Key(["frame", "restored", temp_restored_basename])
         s3_client.upload_file(temp_restored_name, AWS_S3_BUCKET, restored_key)
       os.remove(temp_restored_name)
-      yield restored_frame
+      i = temp_restored_basename.replace(".jpg", "")
+      yield i, restored_frame
 
-  attire_frame_ls = []
-  for restored_frame_batch in processRestoredFrames(attire_frame_ls, restoreFrames()):
-    restored_frame_batch_tensor = toTensor(restored_frame_batch).to(device)
+  attire_df_dict = {key: [] for key in ["i", "attire"]}
+  multitask_key_ls = ["moving", "smiling", "upright", "ec"]
+  multitask_df_dict = {key: [] for key in ["i", *multitask_key_ls]}
+  for batch_multitask_df_dict in processRestoredFrames(restoreFrames(), attire_df_dict):
+    restored_frame_batch_tensor = toTensor(batch_multitask_df_dict["frame"]).to(device)
     multitask_pred = infer(multitask_model, restored_frame_batch_tensor)
-    print(multitask_pred)
-  attire_frame_tensor = toTensor(attire_frame_ls).to(device)
-  attire_pred = infer(attire_model, restored_frame_batch_tensor)
-  print(attire_pred)
+    multitask_df_dict["i"].extend(batch_multitask_df_dict["i"])
+    for j, key in enumerate(multitask_key_ls):
+      multitask_df_dict[key].extend(multitask_pred[:, j].tolist())
+  multitask_df = pd.DataFrame(multitask_df_dict).set_index("i")
+  print(multitask_df.head())
+  attire_frame_tensor = toTensor(attire_df_dict["attire"]).to(device)
+  attire_df_dict["attire"] = infer(attire_model, restored_frame_batch_tensor)
+  attire_df = pd.DataFrame(attire_df_dict).set_index("i")
+  print(attire_df.head())
 
   for i, window in enumerate(splitAudio(temp_wav_name)):
     i_file = f"{i}.mp3"

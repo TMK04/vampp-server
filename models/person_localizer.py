@@ -13,7 +13,6 @@ LOCALIZED_HEIGHT = LOCALIZED_WIDTH = 224
 
 def calculatePresenterXYXYN(to_localize_frame_name_batch):
   results = model(to_localize_frame_name_batch)
-  print(results)
 
   for result in results:
     boxes = result.boxes

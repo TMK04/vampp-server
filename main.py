@@ -92,8 +92,8 @@ async def receive_video(file: UploadFile = Form(...), topic: str = Form(...)):
           s3_client.upload_file(temp_to_localize_name, AWS_S3_BUCKET, to_localize_key)
 
         current_i_batch.append(i_file)
-        current_batch.append(temp_og_name)
-        current_to_localize_batch.append(temp_to_localize_name)
+        current_batch.append(frame)
+        current_to_localize_batch.append(to_localize_frame)
       yield current_i_batch, current_batch, current_to_localize_batch
       current_i_batch = []
       current_batch = []

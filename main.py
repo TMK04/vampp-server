@@ -7,7 +7,7 @@ import cv2
 from cv_helpers import extractFrames
 from fastapi import FastAPI, UploadFile, Form
 from ffmpeg_commands import compressVideo, extractAudio
-from models.person_localizer import calculatePresenterXYXYN, localizePresenters
+from models.person_localizer import calculatePresenterXYXYN, localizePresenter
 import os
 from pathlib import Path
 import re
@@ -104,7 +104,7 @@ async def receive_video(file: UploadFile = Form(...), topic: str = Form(...)):
       for j, xyxyn in enumerate(calculatePresenterXYXYN(to_localize_batch)):
         i = i_batch[j]
         frame = batch[j]
-        localized_frame = localizePresenters(frame, xyxyn)
+        localized_frame = localizePresenter(frame, xyxyn)
         yield i, localized_frame
 
   for _ in localizeFrames():

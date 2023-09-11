@@ -5,7 +5,7 @@ import librosa
 import whisper
 
 
-def split_audio(audio_file_path, ):
+def split_audio(audio_file_path):
 
   audio, sr = librosa.load(audio_file_path, sr=16000)
   # Calculate window size

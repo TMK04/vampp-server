@@ -15,6 +15,7 @@ from re_patterns import pattern_mp4_suffix
 import shortuuid
 import shutil
 from transcription import transcribe_and_correct, split_audio
+import soundfile as sf
 
 app = FastAPI()
 tmp_dir = Path("tmp/")
@@ -69,6 +70,18 @@ async def receive_video(file: UploadFile = Form(...), topic: str = Form(...)):
     audio_key = s3Key(wav_arg_ls)
     s3_client.upload_file(temp_wav_name, AWS_S3_BUCKET, audio_key)
 
+    
+  for i, window in enumerate(split_audio(temp_wav_name)):
+    i_file = f"{i}.mp3"
+    window_arg_ls = ["audio", "window", i_file]
+    temp_window_name = tempName(window_arg_ls)
+    sf.write(temp_window_name, window, 16000)
+    window_key = s3Key(window_arg_ls)
+    s3_client.upload_file(temp_window_name, AWS_S3_BUCKET, window_key)
+
+  transcribe_and_correct(temp_wav_name)
+
+
   def saveFrames():
     for batch in extractFrames(temp_mp4_name):
       current_i_batch = []
@@ -110,15 +123,7 @@ async def receive_video(file: UploadFile = Form(...), topic: str = Form(...)):
   for _ in localizeFrames():
     pass
 
-  for i, window in enumerate(split_audio(temp_wav_name)):
-    i_file = f"{i}.mp3"
-    window_arg_ls = ["audio", "window", i_file]
-    temp_window_name = tempName(window_arg_ls)
-    sf.write(temp_window_name, window, 16000)
-    window_key = s3Key(window_arg_ls)
-    s3_client.upload_file(temp_window_name, AWS_S3_BUCKET, window_key)
 
-  transcribe_and_correct(temp_wav_name)
 
   os.remove(temp_mp4_name)
   shutil.rmtree(temp_dir_name, ignore_errors=True)

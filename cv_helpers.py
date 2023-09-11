@@ -36,6 +36,6 @@ def extractFrames(input_file: str, handleFrames: callable):
       continue
     if i % interval == 0:
       frame = resizeWithPad(frame, 1280, 720)
-      to_localize_frame = cv2.cvtColor(cv2.resize(frame, (426, 240)), cv2.COLORBGR2GRAY)
+      to_localize_frame = cv2.cvtColor(cv2.resize(frame, (426, 240)), cv2.COLOR_BGR2GRAY)
       handleFrames(i, frame, to_localize_frame)
   cap.release()

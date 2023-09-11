@@ -109,30 +109,31 @@ async def receive_video(file: UploadFile = Form(...), topic: str = Form(...)):
       yield i_batch, frame_batch, to_localize_frame_batch
 
   frame_batch_tuple_ls = [*saveFrames()]
+  print(frame_batch_tuple_ls)
   os.remove(temp_mp4_name)
 
-  def localizeFrames():
-    for i_batch, frame_batch, to_localize_frame_batch in frame_batch_tuple_ls:
-      print("localizing")
-      localized_frame_batch = []
-      for j, xyxyn in enumerate(calculatePresenterXYXYN(to_localize_frame_batch)):
-        print(j, xyxyn)
-        i = i_batch[j]
-        frame = frame_batch[j]
-        localized_frame = localizePresenter(frame, xyxyn)
+  # def localizeFrames():
+  #   for i_batch, frame_batch, to_localize_frame_batch in frame_batch_tuple_ls:
+  #     print("localizing")
+  #     localized_frame_batch = []
+  #     for j, xyxyn in enumerate(calculatePresenterXYXYN(to_localize_frame_batch)):
+  #       print(j, xyxyn)
+  #       i = i_batch[j]
+  #       frame = frame_batch[j]
+  #       localized_frame = localizePresenter(frame, xyxyn)
 
-        localized_arg_ls = ["frame", "localized", i]
-        temp_localized_name = tempName(localized_arg_ls)
-        cv2.imwrite(temp_localized_name, localized_frame)
-        if USE_AWS:
-          localized_key = s3Key(localized_arg_ls)
-          s3_client.upload_file(temp_localized_name, AWS_S3_BUCKET, localized_key)
+  #       localized_arg_ls = ["frame", "localized", i]
+  #       temp_localized_name = tempName(localized_arg_ls)
+  #       cv2.imwrite(temp_localized_name, localized_frame)
+  #       if USE_AWS:
+  #         localized_key = s3Key(localized_arg_ls)
+  #         s3_client.upload_file(temp_localized_name, AWS_S3_BUCKET, localized_key)
 
-        localized_frame_batch.append(localized_frame)
-      yield i_batch, localized_frame_batch
+  #       localized_frame_batch.append(localized_frame)
+  #     yield i_batch, localized_frame_batch
 
-  for _ in localizeFrames():
-    pass
+  # for _ in localizeFrames():
+  #   pass
 
   shutil.rmtree(temp_dir_name, ignore_errors=True)
   return "ok"

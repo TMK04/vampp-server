@@ -136,9 +136,13 @@ async def receive_video(file: UploadFile = Form(...), topic: str = Form(...)):
   os.remove(temp_mp4_name)
   temp_restored_dir_name = tempName(["frame", "restored"])
   Path(temp_restored_dir_name).mkdir()
-  print(os.listdir(temp_localized_dir_name))
   restoreFaces(temp_localized_dir_name, temp_restored_dir_name)
-  print(os.listdir(temp_restored_dir_name))
+  temp_restored_dir_name = os.path.join(temp_restored_dir_name, "restored_imgs")
+  for temp_restored_name in os.listdir(temp_restored_dir_name):
+    restored_key = s3Key(["frame", "restored", temp_restored_name])
+    temp_restored_name = os.path.join(temp_restored_dir_name, temp_restored_name)
+    s3_client.upload_file(temp_restored_name, AWS_S3_BUCKET, restored_key)
+    os.remove(temp_restored_name)
 
   shutil.rmtree(temp_dir_name, ignore_errors=True)
   return "ok"

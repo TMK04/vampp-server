@@ -8,6 +8,7 @@ from cv_helpers import extractFrames
 from fastapi import FastAPI, UploadFile, Form
 from ffmpeg_commands import compressVideo, extractAudio
 import os
+import re
 from re_patterns import pattern_mp4_suffix
 import tempfile
 

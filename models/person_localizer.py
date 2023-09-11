@@ -28,7 +28,7 @@ def calculatePresenterXYXYN(to_localize_frame_name_batch):
     if best_conf < .5:
       continue
 
-    xyxyn = xyxyn_ls[best_j]
+    xyxyn = xyxyn_ls[best_k]
     yield [obj.item() for obj in xyxyn]
 
 

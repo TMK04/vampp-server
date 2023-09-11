@@ -3,6 +3,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 import boto3
+import cv2
 from cv_helpers import extractFrames
 from fastapi import FastAPI, UploadFile, Form
 from ffmpeg_commands import compressVideo, extractAudio

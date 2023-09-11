@@ -47,7 +47,7 @@ async def receive_video(file: UploadFile = Form(...), topic: str = Form(...)):
       og_file = os.path.join(tempdir_name, "og", jpg_name)
       cv2.imwrite(og_file, frame)
       og_key = os.path.join("frames/og", jpg_name)
-      s3_client.upload_file(og_file, "vampp", ogg_key)
+      s3_client.upload_file(og_file, "vampp", og_key)
 
       to_localize_file = os.path.join(tempdir_name, "to_localize", jpg_name)
       cv2.imwrite(to_localize_file, to_localize_frame)

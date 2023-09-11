@@ -141,11 +141,3 @@ attire_model = nn.Sequential(XDenseNet(block_config=[3, 6, 12, 8]), Head(516, 1,
 attire_model.load_state_dict(torch.load(MODEL_ATTIRE_PATH)["model"])
 attire_model = attire_model.to(device)
 attire_model.eval()
-
-
-def infer(model, test_tensor):
-  with torch.inference_mode():
-    with autocast():
-      y_pred = model(test_tensor.cuda())
-      y_pred = y_pred > 0
-  return y_pred.cpu().numpy()

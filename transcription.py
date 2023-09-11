@@ -17,7 +17,7 @@ def splitAudio(audio_file_path):
   for i in range(0, len(audio), window_size):
     window = audio[i:i + window_size]
     if len(window) == window_size:
-      yield window
+      yield i, window
 
 
 def transcribe(audio_file_path):

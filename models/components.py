@@ -15,6 +15,14 @@ def autocast():
   return torch.autocast(device_type=device, dtype=torch.float16)
 
 
+def infer(model, test_tensor):
+  with torch.inference_mode():
+    with autocast():
+      y_pred = model(test_tensor.to(device))
+      y_pred = y_pred > 0
+  return y_pred.cpu().numpy()
+
+
 def toTensor(ls):
   return torch.from_numpy(np.array(ls)).float()
 

@@ -1,6 +1,11 @@
 import cv2
 import os
 
+OG_WIDTH = 1280
+OG_HEIGHT = 720
+TO_LOCALIZE_WIDTH = 426
+TO_LOCALIZE_HEIGHT = 240
+
 
 def resizeWithPad(image, target_width: int, target_height: int, print_diff=False):
   height, width, _ = image.shape
@@ -37,8 +42,9 @@ def extractFrames(input_file: str):
       skip -= 1
       continue
     if i % interval == 0:
-      frame = resizeWithPad(frame, 1280, 720)
-      to_localize_frame = cv2.cvtColor(cv2.resize(frame, (426, 240)), cv2.COLOR_BGR2GRAY)
+      frame = resizeWithPad(frame, OG_WIDTH, OG_HEIGHT)
+      to_localize_frame = cv2.cvtColor(cv2.resize(frame, (TO_LOCALIZE_WIDTH, TO_LOCALIZE_HEIGHT)),
+                                       cv2.COLOR_BGR2GRAY)
       current_batch.append((i, frame, to_localize_frame))
       if len(current_batch) == batch_size:
         yield current_batch

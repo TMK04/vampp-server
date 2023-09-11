@@ -7,6 +7,7 @@ import cv2
 from cv_helpers import extractFrames
 from fastapi import FastAPI, UploadFile, Form
 from ffmpeg_commands import compressVideo, extractAudio
+from models.person_localizer import calculatePresenterXYXYN, localizePresenters
 import os
 from pathlib import Path
 import re
@@ -70,7 +71,9 @@ async def receive_video(file: UploadFile = Form(...), topic: str = Form(...)):
 
   def saveFrames():
     for batch in extractFrames(temp_mp4_name):
+      current_i_batch = []
       current_batch = []
+      current_to_localize_batch = []
       for i, frame, to_localize_frame in batch:
         i_file = f"{i}.jpg"
 
@@ -88,16 +91,35 @@ async def receive_video(file: UploadFile = Form(...), topic: str = Form(...)):
           to_localize_key = s3Key(to_localize_arg_ls)
           s3_client.upload_file(temp_to_localize_name, AWS_S3_BUCKET, to_localize_key)
 
-        current_batch.append((temp_og_name, temp_to_localize_name))
-      yield current_batch
+        current_i_batch.append(i_file)
+        current_batch.append(temp_og_name)
+        current_to_localize_batch.append(temp_to_localize_name)
+      yield current_i_batch, current_batch, current_to_localize_batch
+      current_i_batch = []
       current_batch = []
+      current_to_localize_batch = []
 
-  for _ in saveFrames():
+  def localizeFrames():
+    for i_batch, batch, to_localize_batch in saveFrames():
+      for j, xyxyn in enumerate(calculatePresenterXYXYN(to_localize_batch)):
+        i = i_batch[j]
+        frame = batch[j]
+        localized_frame = localizePresenters(frame, xyxyn)
+        yield i, localized_frame
+
+  for _ in localizeFrames():
     pass
-  os.remove(temp_mp4_name)
 
-  split_audio(temp_wav_name, basename_random)
+  for i, window in enumerate(split_audio(temp_wav_name)):
+    i_file = f"{i}.mp3"
+    window_arg_ls = ["audio", "window", i_file]
+    temp_window_name = tempName(window_arg_ls)
+    sf.write(temp_window_name, window, 16000)
+    window_key = s3Key(window_arg_ls)
+    s3_client.upload_file(temp_window_name, AWS_S3_BUCKET, window_key)
+
   transcribe_and_correct(temp_wav_name)
 
+  os.remove(temp_mp4_name)
   shutil.rmtree(temp_dir_name, ignore_errors=True)
   return "ok"

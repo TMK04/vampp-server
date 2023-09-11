@@ -13,8 +13,7 @@ LOCALIZED_HEIGHT = LOCALIZED_WIDTH = 224
 
 def calculatePresenterXYXYN(to_localize_batch):
   # replicate channel dimension x3
-  src = np.array(to_localize_batch)[..., np.newaxis].repeat(3, -1)
-  print(src.shape)
+  src = np.array(to_localize_batch).repeat(3, -1)
   results = model(src)
 
   for result in results:
@@ -34,11 +33,11 @@ def calculatePresenterXYXYN(to_localize_batch):
     yield [obj.item() for obj in xyxyn]
 
 
-def localizePresenter(batch, xyxyn):
+def localizePresenter(frame, xyxyn):
   x1 = np.uint16(xyxyn[0] * 1280)
   x2 = np.uint16(xyxyn[2] * 1280)
   y1 = np.uint16(xyxyn[1] * 720)
   y2 = np.uint16(xyxyn[3] * 720)
-  localized_frame = batch[y1:y2, x1:x2]
+  localized_frame = frame[y1:y2, x1:x2]
   localized_frame = resizeWithPad(localized_frame, LOCALIZED_HEIGHT, LOCALIZED_WIDTH)
   return localized_frame

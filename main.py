@@ -97,11 +97,12 @@ async def receive_video(file: UploadFile = Form(...), topic: str = Form(...)):
       yield i_batch, frame_batch, to_localize_frame_batch
 
   def localizeFrames():
-    for i_batch, batch, to_localize_frame_batch in saveFrames():
+    for i_batch, frame_batch, to_localize_frame_batch in saveFrames():
       localized_frame_batch = []
       for j, xyxyn in enumerate(calculatePresenterXYXYN(to_localize_frame_batch)):
+        print(j, xyxyn)
         i = i_batch[j]
-        frame = batch[j]
+        frame = frame_batch[j]
         localized_frame = localizePresenter(frame, xyxyn)
         localized_frame_batch.append(localized_frame)
       yield i_batch, localized_frame_batch

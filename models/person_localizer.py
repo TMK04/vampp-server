@@ -1,4 +1,4 @@
-from cv_helpers import OG_HEIGHT, OG_WIDTH, resizeWithPad
+from cv_helpers import OG_HEIGHT, OG_WIDTH, TO_LOCALIZE_HEIGHT, TO_LOCALIZE_WIDTH, resizeWithPad
 import numpy as np
 import os
 from ultralytics import YOLO
@@ -14,9 +14,10 @@ LOCALIZED_HEIGHT = LOCALIZED_WIDTH = 224
 def calculatePresenterXYXYN(to_localize_batch):
   # replicate channel dimension x3
   src = np.array(to_localize_batch).repeat(3, -1)
-  result_stream = model(src, stream=True)
+  print(src)
+  results = model(src, conf=.5, imgsz=(TO_LOCALIZE_WIDTH, TO_LOCALIZE_HEIGHT), half=True)
 
-  for result in result_stream:
+  for result in results:
     boxes = result.boxes
     conf_ls = boxes.conf
     xyxyn_ls = boxes.xyxyn
@@ -34,7 +35,6 @@ def calculatePresenterXYXYN(to_localize_batch):
 
 
 def localizePresenter(frame, xyxyn):
-  print(frame.shape, xyxyn)
   x1 = np.uint16(xyxyn[0] * 1280)
   x2 = np.uint16(xyxyn[2] * 1280)
   y1 = np.uint16(xyxyn[1] * 720)

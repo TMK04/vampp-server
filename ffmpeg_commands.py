@@ -7,5 +7,5 @@ def compressVideo(input_file: str, output_file: str):
                                   vf="fps=1").run()
 
 
-def extractAudio(input_stream: Stream, output_file: str):
-  input_stream.audio.output(output_file, acodec="pcm_s16le").run()
+def extractAudio(input_file: Stream, output_file: str):
+  ffmpeg.input(input_file).audio.output(output_file, acodec="pcm_s16le").run()

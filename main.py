@@ -81,10 +81,14 @@ async def receive_video(file: UploadFile = Form(...), topic: str = Form(...)):
 
   transcribed = transcribe_and_correct(temp_wav_name)
 
+  localized_dir_arg_ls = ["frame", "localized"]
+  temp_localized_dir_name = tempName(localized_dir_arg_ls)
+  Path(temp_localized_dir_name).mkdir()
+
   def localizeFrames():
+    localized_frame_ls = []
     if USE_AWS:
       xyxyn_df = {key: [] for key in ["i", "x1", "y1", "x2", "y2"]}
-    localized_frame_ls = []
     for batch in extractFrames(temp_mp4_name):
       to_localize_frame_batch = []
       for i, frame in batch:
@@ -104,20 +108,19 @@ async def receive_video(file: UploadFile = Form(...), topic: str = Form(...)):
         i, frame = batch[j]
         localized_frame = localizePresenter(frame, xyxyn)
 
+        i_jpg = f"{i}.jpg"
+        temp_localized_name = os.path.join(temp_localized_dir_name, i_jpg)
+        cv2.imwrite(temp_localized_name, localized_frame)
+        localized_frame_ls.append(localized_frame)
         if USE_AWS:
-          localized_arg_ls = ["frame", "localized", f"{i}.jpg"]
-          temp_localized_name = tempName(localized_arg_ls)
-          cv2.imwrite(temp_localized_name, localized_frame)
-          localized_key = s3Key(localized_arg_ls)
+          localized_key = s3Key([*localized_dir_arg_ls, i_jpg])
           s3_client.upload_file(temp_localized_name, AWS_S3_BUCKET, localized_key)
-          os.remove(temp_localized_name)
 
           xyxyn_df["i"].append(i)
           xyxyn_df["x1"].append(xyxyn[0])
           xyxyn_df["y1"].append(xyxyn[1])
           xyxyn_df["x2"].append(xyxyn[2])
           xyxyn_df["y2"].append(xyxyn[3])
-        localized_frame_ls.append(localized_frame)
     if USE_AWS:
       xyxyn_df = pd.DataFrame(xyxyn_df).set_index("i")
       xyxyn_arg_ls = ["frame", "xyxyn.csv"]
@@ -126,10 +129,11 @@ async def receive_video(file: UploadFile = Form(...), topic: str = Form(...)):
       xyxyn_key = s3Key(xyxyn_arg_ls)
       s3_client.upload_file(temp_xyxyn_name, AWS_S3_BUCKET, xyxyn_key)
       os.remove(temp_xyxyn_name)
-
     return localized_frame_ls
 
   localized_frame_ls = localizeFrames()
+  print(len(localized_frame_ls))
+  print(os.listdir(temp_localized_dir_name))
   os.remove(temp_mp4_name)
 
   shutil.rmtree(temp_dir_name, ignore_errors=True)

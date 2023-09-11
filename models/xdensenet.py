@@ -131,7 +131,7 @@ for key in list(multitask_state_dict.keys()):
     multitask_state_dict[key.replace('1.classifier',
                                      '1.classifier.classifier')] = multitask_state_dict.pop(key)
 multitask_model.load_state_dict(multitask_state_dict)
-multitask_model = torch.compile(multitask_model).to(device)
+multitask_model = multitask_model.to(device)
 multitask_model.eval()
 
 MODEL_ATTIRE_PATH = os.environ.get("MODEL_ATTIRE_PATH")
@@ -139,7 +139,7 @@ if MODEL_ATTIRE_PATH is None:
   raise ValueError("MODEL_ATTIRE_PATH is not set")
 attire_model = nn.Sequential(XDenseNet(block_config=[3, 6, 12, 8]), Head(516, 1, 1, (1, 1)))
 attire_model.load_state_dict(torch.load(MODEL_ATTIRE_PATH)["model"])
-attire_model = torch.compile(attire_model).to(device)
+attire_model = attire_model.to(device)
 attire_model.eval()
 
 

@@ -120,6 +120,14 @@ async def receive_video(file: UploadFile = Form(...), topic: str = Form(...)):
         i = i_batch[j]
         frame = frame_batch[j]
         localized_frame = localizePresenter(frame, xyxyn)
+
+        localized_arg_ls = ["frame", "localized", i]
+        temp_localized_name = tempName(localized_arg_ls)
+        cv2.imwrite(temp_localized_name, localized_frame)
+        if USE_AWS:
+          localized_key = s3Key(localized_arg_ls)
+          s3_client.upload_file(temp_localized_name, AWS_S3_BUCKET, localized_key)
+
         localized_frame_batch.append(localized_frame)
       yield i_batch, localized_frame_batch
 

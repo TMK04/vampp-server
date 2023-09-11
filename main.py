@@ -145,31 +145,39 @@ async def receive_video(file: UploadFile = Form(...), topic: str = Form(...)):
       i = temp_restored_basename.replace(".jpg", "")
       yield i, restored_frame
 
-  attire_key_ls = ["attire"]
-  attire_df_dict = {key: [] for key in ["i", *attire_key_ls]}
-
-  def attireCallback(i, restored_frame):
-    attire_frame = restored_frame[-134:]
-    attire_df_dict["i"].append(i)
-    attire_df_dict["attire"].append(attire_frame)
-
   multitask_key_ls = ["moving", "smiling", "upright", "ec"]
   multitask_df_dict = {key: [] for key in ["i", *multitask_key_ls]}
-  for batch_multitask_df_dict in processRestoredFrames(restoreFrames(), attireCallback):
-    restored_frame_batch_tensor = toTensor(batch_multitask_df_dict["frame"]).to(device)
-    multitask_pred = infer(multitask_model, restored_frame_batch_tensor)
-    multitask_df_dict["i"].extend(batch_multitask_df_dict["i"])
+  frame_ls = []
+  for batch_i_ls, batch_frame_ls in processRestoredFrames(restoreFrames()):
+    batch_frame_tensor = toTensor(batch_frame_ls).to(device)
+    multitask_pred = infer(multitask_model, batch_frame_tensor)
+    multitask_df_dict["i"].extend(batch_i_ls)
+    frame_ls.extend(batch_frame_ls)
     for j, key in enumerate(multitask_key_ls):
-      multitask_df_dict[key].extend(multitask_pred[:, j].tolist())
+      multitask_df_dict[key].extend(multitask_pred[:, j])
   multitask_df = pd.DataFrame(multitask_df_dict).set_index("i")
-  print(attire_df_dict["attire"])
-  print(len(attire_df_dict["attire"]))
+  multitask_arg_ls = ["frame", "multitask.csv"]
+  temp_multitask_name = tempName(multitask_arg_ls)
+  multitask_df.to_csv(temp_multitask_name)
+  if USE_AWS:
+    multitask_key = s3Key(multitask_arg_ls)
+    s3_client.upload_file(temp_multitask_name, AWS_S3_BUCKET, multitask_key)
+  os.remove(temp_multitask_name)
+  attire_df_dict = {
+      "i": multitask_df.index[FRAME_ATTIRE_MASK],
+      "attire": np.array(frame_ls)[FRAME_ATTIRE_MASK]
+  }
   attire_frame_tensor = toTensor(attire_df_dict["attire"]).to(device)
   attire_pred = infer(attire_model, attire_frame_tensor)
-  for j, key in enumerate(attire_key_ls):
-    attire_df_dict[key].extend(attire_pred[:, j].tolist())
+  attire_df_dict["attire"] = attire_pred[:, 0]
   attire_df = pd.DataFrame(attire_df_dict).set_index("i")
-  print(attire_df.head())
+  attire_arg_ls = ["frame", "attire.csv"]
+  temp_attire_name = tempName(attire_arg_ls)
+  attire_df.to_csv(temp_attire_name)
+  if USE_AWS:
+    attire_key = s3Key(attire_arg_ls)
+    s3_client.upload_file(temp_attire_name, AWS_S3_BUCKET, attire_key)
+  os.remove(temp_attire_name)
 
   for i, window in enumerate(splitAudio(temp_wav_name)):
     i_file = f"{i}.mp3"

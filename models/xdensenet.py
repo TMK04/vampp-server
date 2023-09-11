@@ -123,7 +123,14 @@ MODEL_MULTITASK_PATH = os.environ.get("MODEL_MULTITASK_PATH")
 if MODEL_MULTITASK_PATH is None:
   raise ValueError("MODEL_MULTITASK_PATH is not set")
 multitask_model = nn.Sequential(XDenseNet(block_config=[6, 12, 32, 32]), Head(1664, 4, 3, (1, 1)))
-multitask_model.load_state_dict(torch.load(MODEL_MULTITASK_PATH)["model"])
+multitask_state_dict = torch.load(MODEL_MULTITASK_PATH)["model"]
+for key in list(multitask_state_dict.keys()):
+  if key.startswith('1.fc'):
+    multitask_state_dict[key.replace('1.fc', '1.classifier.fc')] = multitask_state_dict.pop(key)
+  elif key.startswith('1.classifier'):
+    multitask_state_dict[key.replace('1.classifier',
+                                     '1.classifier.classifier')] = multitask_state_dict.pop(key)
+multitask_model.load_state_dict(multitask_state_dict)
 multitask_model = torch.compile(multitask_model).to(device)
 multitask_model.eval()
 

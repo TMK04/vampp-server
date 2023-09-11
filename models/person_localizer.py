@@ -6,7 +6,7 @@ from ultralytics import YOLO
 MODEL_PL_PATH = os.environ.get("MODEL_PL_PATH")
 if MODEL_PL_PATH is None:
   raise Exception("MODEL_PL_PATH is not set")
-model = YOLO(MODEL_PL_PATH)
+model = YOLO(MODEL_PL_PATH, task="detect")
 
 LOCALIZED_HEIGHT = LOCALIZED_WIDTH = 224
 

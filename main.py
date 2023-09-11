@@ -4,11 +4,12 @@ load_dotenv()
 
 from aws import AWS_S3_BUCKET, USE_AWS, s3_client
 import cv2
-from cv_helpers import extractFrames
+from cv_helpers import extractFrames, resizeToLocalize
 from fastapi import FastAPI, UploadFile, Form
 from ffmpeg_commands import compressVideo, extractAudio
 from models.person_localizer import calculatePresenterXYXYN, localizePresenter
 import os
+import pandas as pd
 from pathlib import Path
 import re
 from re_patterns import pattern_mp4_suffix
@@ -80,57 +81,56 @@ async def receive_video(file: UploadFile = Form(...), topic: str = Form(...)):
 
   transcribed = transcribe_and_correct(temp_wav_name)
 
-  def saveFrames():
+  def localizeFrames():
+    if USE_AWS:
+      xyxyn_df = {key: [] for key in ["i", "x1", "y1", "x2", "y2"]}
+    localized_frame_ls = []
     for batch in extractFrames(temp_mp4_name):
-      i_batch = []
-      frame_batch = []
-      to_localize_frame_name_batch = []
-      for i, frame, to_localize_frame in batch:
-        i_file = f"{i}.jpg"
-
-        og_arg_ls = ["frame", "og", i_file]
-        temp_og_name = tempName(og_arg_ls)
-        cv2.imwrite(temp_og_name, frame)
+      to_localize_frame_batch = []
+      for i, frame in batch:
         if USE_AWS:
+          og_arg_ls = ["frame", "og", f"{i}.jpg"]
+          temp_og_name = tempName(og_arg_ls)
+          cv2.imwrite(temp_og_name, frame)
           og_key = s3Key(og_arg_ls)
           s3_client.upload_file(temp_og_name, AWS_S3_BUCKET, og_key)
+          os.remove(temp_og_name)
 
-        to_localize_arg_ls = ["frame", "to_localize", i_file]
-        temp_to_localize_name = tempName(to_localize_arg_ls)
-        cv2.imwrite(temp_to_localize_name, to_localize_frame)
-        if USE_AWS:
-          to_localize_key = s3Key(to_localize_arg_ls)
-          s3_client.upload_file(temp_to_localize_name, AWS_S3_BUCKET, to_localize_key)
+        to_localize_frame = resizeToLocalize(frame)
+        to_localize_frame_batch.append(to_localize_frame)
 
-        i_batch.append(i_file)
-        frame_batch.append(frame)
-        to_localize_frame_name_batch.append(temp_to_localize_name)
-      yield i_batch, frame_batch, to_localize_frame_name_batch
-
-  frame_batch_tuple_ls = [*saveFrames()]
-  os.remove(temp_mp4_name)
-
-  def localizeFrames():
-    for i_batch, frame_batch, to_localize_frame_name_batch in frame_batch_tuple_ls:
-      localized_frame_batch = []
-      gen_xyxyn = calculatePresenterXYXYN(to_localize_frame_name_batch)
+      gen_xyxyn = calculatePresenterXYXYN(to_localize_frame_batch)
       for j, xyxyn in enumerate(gen_xyxyn):
-        i = i_batch[j]
-        frame = frame_batch[j]
+        i, frame = batch[j]
         localized_frame = localizePresenter(frame, xyxyn)
 
-        localized_arg_ls = ["frame", "localized", i]
-        temp_localized_name = tempName(localized_arg_ls)
-        cv2.imwrite(temp_localized_name, localized_frame)
         if USE_AWS:
+          localized_arg_ls = ["frame", "localized", f"{i}.jpg"]
+          temp_localized_name = tempName(localized_arg_ls)
+          cv2.imwrite(temp_localized_name, localized_frame)
           localized_key = s3Key(localized_arg_ls)
           s3_client.upload_file(temp_localized_name, AWS_S3_BUCKET, localized_key)
+          os.remove(temp_localized_name)
 
-        localized_frame_batch.append(localized_frame)
-      yield i_batch, localized_frame_batch
+          xyxyn_df["i"].append(i)
+          xyxyn_df["x1"].append(xyxyn[0])
+          xyxyn_df["y1"].append(xyxyn[1])
+          xyxyn_df["x2"].append(xyxyn[2])
+          xyxyn_df["y2"].append(xyxyn[3])
+        localized_frame_ls.append(localized_frame)
+    if USE_AWS:
+      xyxyn_df = pd.DataFrame(xyxyn_df).set_index("i")
+      xyxyn_arg_ls = ["frame", "xyxyn.csv"]
+      temp_xyxyn_name = tempName(xyxyn_arg_ls)
+      xyxyn_df.to_csv(temp_xyxyn_name)
+      xyxyn_key = s3Key(xyxyn_arg_ls)
+      s3_client.upload_file(temp_xyxyn_name, AWS_S3_BUCKET, xyxyn_key)
+      os.remove(temp_xyxyn_name)
 
-  for _ in localizeFrames():
-    pass
+    return localized_frame_ls
+
+  localized_frame_ls = localizeFrames()
+  os.remove(temp_mp4_name)
 
   shutil.rmtree(temp_dir_name, ignore_errors=True)
   return "ok"

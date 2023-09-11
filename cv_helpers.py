@@ -44,9 +44,7 @@ def extractFrames(input_file: str):
       continue
     if i % interval == 0:
       frame = resizeWithPad(frame, OG_WIDTH, OG_HEIGHT)
-      to_localize_frame = cv2.cvtColor(cv2.resize(frame, (TO_LOCALIZE_WIDTH, TO_LOCALIZE_HEIGHT)),
-                                       cv2.COLOR_BGR2GRAY)
-      current_batch.append((i, frame, to_localize_frame))
+      current_batch.append((i, frame))
       if len(current_batch) == batch_size:
         yield current_batch
         current_batch = []
@@ -54,3 +52,7 @@ def extractFrames(input_file: str):
   if len(current_batch) > 0:
     yield current_batch
   cap.release()
+
+
+def resizeToLocalize(frame):
+  return cv2.resize(frame, (TO_LOCALIZE_WIDTH, TO_LOCALIZE_HEIGHT))

@@ -11,8 +11,8 @@ model = YOLO(MODEL_PL_PATH, task="detect")
 LOCALIZED_HEIGHT = LOCALIZED_WIDTH = 224
 
 
-def calculatePresenterXYXYN(to_localize_frame_name_batch):
-  results = model(to_localize_frame_name_batch)
+def calculatePresenterXYXYN(to_localize_batch):
+  results = model(to_localize_batch)
 
   for result in results:
     boxes = result.boxes
@@ -32,10 +32,10 @@ def calculatePresenterXYXYN(to_localize_frame_name_batch):
 
 
 def localizePresenter(frame, xyxyn):
-  x1 = np.uint16(xyxyn[0] * 1280)
-  x2 = np.uint16(xyxyn[2] * 1280)
-  y1 = np.uint16(xyxyn[1] * 720)
-  y2 = np.uint16(xyxyn[3] * 720)
+  x1 = int(xyxyn[0] * OG_WIDTH)
+  x2 = int(xyxyn[2] * OG_WIDTH)
+  y1 = int(xyxyn[1] * OG_HEIGHT)
+  y2 = int(xyxyn[3] * OG_HEIGHT)
   localized_frame = frame[y1:y2, x1:x2]
   localized_frame = resizeWithPad(localized_frame, LOCALIZED_HEIGHT, LOCALIZED_WIDTH)
   return localized_frame

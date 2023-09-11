@@ -12,6 +12,7 @@ from pathlib import Path
 import re
 from re_patterns import pattern_mp4_suffix
 import shortuuid
+import shutil
 
 app = FastAPI()
 tmp_dir = Path("tmp/")
@@ -94,6 +95,5 @@ async def receive_video(file: UploadFile = Form(...), topic: str = Form(...)):
     pass
   os.remove(temp_mp4_name)
 
-  os.rmdir(temp_dir_name)
-
+  shutil.rmtree(temp_dir_name, ignore_errors=True)
   return "ok"

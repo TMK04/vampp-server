@@ -134,15 +134,22 @@ async def receive_video(file: UploadFile = Form(...), topic: str = Form(...)):
 
   localized_frame_ls = localizeFrames()
   os.remove(temp_mp4_name)
-  temp_restored_dir_name = tempName(["frame", "restored"])
-  Path(temp_restored_dir_name).mkdir()
-  restoreFaces(temp_localized_dir_name, temp_restored_dir_name)
-  temp_restored_dir_name = os.path.join(temp_restored_dir_name, "restored_imgs")
-  for temp_restored_name in os.listdir(temp_restored_dir_name):
-    restored_key = s3Key(["frame", "restored", temp_restored_name])
-    temp_restored_name = os.path.join(temp_restored_dir_name, temp_restored_name)
-    s3_client.upload_file(temp_restored_name, AWS_S3_BUCKET, restored_key)
-    os.remove(temp_restored_name)
+
+  def restoreFrames():
+    temp_restored_dir_name = tempName(["frame", "restored"])
+    Path(temp_restored_dir_name).mkdir()
+    restoreFaces(temp_localized_dir_name, temp_restored_dir_name)
+    temp_restored_dir_name = os.path.join(temp_restored_dir_name, "restored_imgs")
+    for temp_restored_name in os.listdir(temp_restored_dir_name):
+      restored_key = s3Key(["frame", "restored", temp_restored_name])
+      temp_restored_name = os.path.join(temp_restored_dir_name, temp_restored_name)
+      restored_frame = cv2.imread(temp_restored_name)
+      s3_client.upload_file(temp_restored_name, AWS_S3_BUCKET, restored_key)
+      os.remove(temp_restored_name)
+      yield restored_frame
+
+  for _ in restoreFrames():
+    pass
 
   shutil.rmtree(temp_dir_name, ignore_errors=True)
   return "ok"

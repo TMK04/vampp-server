@@ -55,4 +55,7 @@ def extractFrames(input_file: str):
 
 
 def resizeToLocalize(frame):
-  return cv2.resize(frame, (TO_LOCALIZE_WIDTH, TO_LOCALIZE_HEIGHT))
+  to_localize_frame = cv2.resize(frame, (TO_LOCALIZE_WIDTH, TO_LOCALIZE_HEIGHT))
+  to_localize_frame = cv2.cvtColor(cv2.cvtColor(to_localize_frame, cv2.COLOR_BGR2GRAY),
+                                   cv2.COLOR_GRAY2BGR)
+  return to_localize_frame

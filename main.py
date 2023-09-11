@@ -136,7 +136,9 @@ async def receive_video(file: UploadFile = Form(...), topic: str = Form(...)):
   os.remove(temp_mp4_name)
   temp_restored_dir_name = tempName(["frame", "restored"])
   Path(temp_restored_dir_name).mkdir()
+  print(os.listdir(temp_localized_dir_name))
   restoreFaces(temp_localized_dir_name, temp_restored_dir_name)
+  print(os.listdir(temp_restored_dir_name))
 
   shutil.rmtree(temp_dir_name, ignore_errors=True)
   return "ok"

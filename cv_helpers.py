@@ -1,4 +1,5 @@
 import cv2
+import numpy as np
 import os
 
 OG_WIDTH = 1280

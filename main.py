@@ -220,24 +220,24 @@ async def receive_video(topic: str = Form(...), file: Union[UploadFile, str] = F
   attire_mode = attire_df["attire"].mode()[0]
   mean_speech_stats = speech_stats_df.mean()
   if USE_AWS:
-    dynamo_client.put_item(
-        TableName=AWS_DYNAMO_TABLE,
-        Item={
-            "topic": {
-                "S": topic
-            },
-            "professional_attire": {
-                "N": str(attire_mode)
-            },
-            **{key: {
-                "N": str(multitask_mean[key])
-            }
-               for key in multitask_key_ls},
-            **{f"speech_{key}": {
-                "N": str(mean_speech_stats[key])
-            }
-               for key in speech_stats_key_ls}
-        })
+    Item = {
+        "topic": {
+            "S": topic
+        },
+        "professional_attire": {
+            "N": str(attire_mode)
+        },
+        **{key: {
+            "N": str(multitask_mean[key])
+        }
+           for key in multitask_key_ls},
+        **{f"speech_{key}": {
+            "N": str(mean_speech_stats[key])
+        }
+           for key in speech_stats_key_ls}
+    }
+    print(Item)
+    dynamo_client.put_item(TableName=AWS_DYNAMO_TABLE, Item=Item)
 
   shutil.rmtree(temp_dir_name, ignore_errors=True)
   return "ok"

@@ -231,7 +231,10 @@ async def receive_video(topic: str = Form(...), file: Union[UploadFile, str] = F
 
   pitch = transcribeAudio()
   Item["pitch"] = {"S": pitch}
-  beholder_response = runBeholderFirst(topic, pitch)
+  try:
+    beholder_response = runBeholderFirst(topic, pitch)
+  except ValueError as e:
+    raise HTTPException(status_code=500, detail=str(e))
   for key, value in beholder_response:
     Item_key = f"beholder_{key}"
     if key.endswith("_justification"):

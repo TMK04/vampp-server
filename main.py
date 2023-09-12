@@ -157,13 +157,13 @@ async def receive_video(file: UploadFile = Form(...), topic: str = Form(...)):
   #   for j, key in enumerate(multitask_key_ls):
   #     multitask_df_dict[key].extend(multitask_pred[:, j])
   # multitask_df = pd.DataFrame(multitask_df_dict).set_index("i")
-  # multitask_arg_ls = ["frame", "multitask.csv"]
-  # temp_multitask_name = tempName(multitask_arg_ls)
-  # multitask_df.to_csv(temp_multitask_name)
   # if USE_AWS:
+  #   multitask_arg_ls = ["frame", "multitask.csv"]
+  #   temp_multitask_name = tempName(multitask_arg_ls)
+  #   multitask_df.to_csv(temp_multitask_name)
   #   multitask_key = s3Key(multitask_arg_ls)
   #   s3_client.upload_file(temp_multitask_name, AWS_S3_BUCKET, multitask_key)
-  # os.remove(temp_multitask_name)
+  #   os.remove(temp_multitask_name)
   # attire_df_dict = {
   #     "i": multitask_df.index[FRAME_ATTIRE_MASK],
   #     "attire": np.array(frame_ls)[FRAME_ATTIRE_MASK]
@@ -172,13 +172,13 @@ async def receive_video(file: UploadFile = Form(...), topic: str = Form(...)):
   # attire_pred = infer(attire_model, attire_frame_tensor)
   # attire_df_dict["attire"] = attire_pred[:, 0]
   # attire_df = pd.DataFrame(attire_df_dict).set_index("i")
-  # attire_arg_ls = ["frame", "attire.csv"]
-  # temp_attire_name = tempName(attire_arg_ls)
-  # attire_df.to_csv(temp_attire_name)
   # if USE_AWS:
+  #   attire_arg_ls = ["frame", "attire.csv"]
+  #   temp_attire_name = tempName(attire_arg_ls)
+  #   attire_df.to_csv(temp_attire_name)
   #   attire_key = s3Key(attire_arg_ls)
   #   s3_client.upload_file(temp_attire_name, AWS_S3_BUCKET, attire_key)
-  # os.remove(temp_attire_name)
+  #   os.remove(temp_attire_name)
 
   # multitask_mean = multitask_df.mean()
   # attire_mode = attire_df["attire"].mode()[0]
@@ -189,9 +189,23 @@ async def receive_video(file: UploadFile = Form(...), topic: str = Form(...)):
   # #       },
   # #   })
 
-  for i, window in splitAudio(temp_wav_name):
-    speech_stats = infer(speech_stats_model, preprocess(window))
-    print(speech_stats)
+  speech_stats_key_ls = ["clarity", "enthusiasm"]
+  speech_stats_df_dict = {key: [] for key in ["i", *speech_stats_key_ls]}
+  for batch_i, batch_window in splitAudio(temp_wav_name):
+    batch_window_tensor = preprocess(batch_window)
+    print(batch_window_tensor.shape)
+    speech_stats = infer(speech_stats_model, batch_window_tensor)
+    speech_stats_df_dict["i"].extend(batch_i)
+    for j, key in enumerate(speech_stats_key_ls):
+      speech_stats_df_dict[key].extend(speech_stats[:, j])
+  speech_stats_df = pd.DataFrame(speech_stats_df_dict).set_index("i")
+  if USE_AWS:
+    speech_stats_arg_ls = ["audio", "stats.csv"]
+    temp_speech_stats_name = tempName(speech_stats_arg_ls)
+    speech_stats_df.to_csv(temp_speech_stats_name)
+    speech_stats_key = s3Key(speech_stats_arg_ls)
+    s3_client.upload_file(temp_speech_stats_name, AWS_S3_BUCKET, speech_stats_key)
+    os.remove(temp_speech_stats_name)
 
   def transcribeAudio():
     text_arg_ls = ["text.txt"]

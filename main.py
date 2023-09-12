@@ -222,6 +222,9 @@ async def receive_video(topic: str = Form(...), file: Union[UploadFile, str] = F
   mean_speech_stats = speech_stats_df.mean()
   if USE_AWS:
     Item = {
+        "id": {
+            "S": basename_random
+        },
         "topic": {
             "S": topic
         },

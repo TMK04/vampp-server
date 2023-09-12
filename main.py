@@ -1,6 +1,4 @@
-from dotenv import load_dotenv
-
-load_dotenv()
+import config
 
 from audio import transcribe, splitAudio, splitAudioBatch
 from aws import AWS_DYNAMO_TABLE, AWS_S3_BUCKET, USE_AWS, dynamo_client, s3_client
@@ -194,7 +192,6 @@ async def receive_video(file: UploadFile = Form(...), topic: str = Form(...)):
   speech_stats_df_dict = {key: [] for key in ["i", *speech_stats_key_ls]}
   for batch_i, batch_window in splitAudioBatch(splitAudio(temp_wav_name)):
     batch_window_tensor = toTensor(batch_window)
-    print(batch_window_tensor.shape)
     speech_stats = infer(speech_stats_model, batch_window_tensor)
     speech_stats_df_dict["i"].extend(batch_i)
     for j, key in enumerate(speech_stats_key_ls):

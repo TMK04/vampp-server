@@ -1,5 +1,5 @@
 from .exllama_loader import Exllama
-from .prompts import assistant_parser, dict_h_base_h, prompt
+from .prompts import assistant_parser, dict_h_base_h, pitch_prompt, prompt
 from config import MODEL_LLM_PATH, TEXT_CONTEXT_LEN
 from langchain.chains import ConversationChain
 from langchain.memory import ConversationSummaryBufferMemory

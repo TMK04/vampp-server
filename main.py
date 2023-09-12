@@ -10,6 +10,7 @@ from cv_helpers import extractFrames, processRestoredFrames, resizeToLocalize
 from fastapi import FastAPI, HTTPException, UploadFile, Form
 from models.components import device, infer, toTensor
 from models.face_restorer import restoreFaces
+from models.llm import runBeholderFirst
 from models.presenter_localizer import calculatePresenterXYXYN, localizePresenter
 from models.speech_stats import preprocess, speech_stats_model
 from models.xdensenet import attire_model, multitask_model
@@ -216,40 +217,47 @@ async def receive_video(topic: str = Form(...), file: Union[UploadFile, str] = F
     text_arg_ls = ["text.txt"]
     temp_text_name = tempName(text_arg_ls)
     text = transcribe(temp_wav_name)
-    with open(temp_text_name, "w") as f:
-      f.write(text)
-    if USE_AWS:
-      text_key = s3Key(text_arg_ls)
-      s3_client.upload_file(temp_text_name, AWS_S3_BUCKET, text_key)
-    os.remove(temp_text_name)
+    return text
 
-  transcribeAudio()
+  text = transcribeAudio()
+  beholder_response = runBeholderFirst(text)
 
   multitask_mean = multitask_df.mean()
   attire_mode = bool(attire_df["attire"].mode()[0])
   mean_speech_stats = speech_stats_df.mean()
+  Item = {
+      "id": {
+          "S": basename_random
+      },
+      "topic": {
+          "S": topic
+      },
+      "text": {
+          "S": text
+      },
+      "professional_attire": {
+          "BOOL": attire_mode
+      },
+      **{key: {
+          "N": str(multitask_mean[key])
+      }
+         for key in multitask_key_ls},
+      **{f"speech_{key}": {
+          "N": str(mean_speech_stats[key])
+      }
+         for key in speech_stats_key_ls},
+      **{
+          f"beholder_{key}": {
+              "S": str(beholder_response[key])
+          } if key.endswith("_justification") else {
+              "N": str(beholder_response[key])
+          }
+          for key in beholder_response
+      },
+  }
+  print(Item)
   if USE_AWS:
-    Item = {
-        "id": {
-            "S": basename_random
-        },
-        "topic": {
-            "S": topic
-        },
-        "professional_attire": {
-            "BOOL": attire_mode
-        },
-        **{key: {
-            "N": str(multitask_mean[key])
-        }
-           for key in multitask_key_ls},
-        **{f"speech_{key}": {
-            "N": str(mean_speech_stats[key])
-        }
-           for key in speech_stats_key_ls}
-    }
-    print(Item)
     dynamo_client.put_item(TableName=AWS_DYNAMO_TABLE, Item=Item)
 
   shutil.rmtree(temp_dir_name, ignore_errors=True)
-  return "ok"
+  return Item

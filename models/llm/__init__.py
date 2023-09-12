@@ -74,3 +74,20 @@ def runBeholderFirst(topic, pitch):
       beholder_chain.memory.chat_memory.add_message(SystemMessage(content=str(e)))
       print("Retrying...")
   raise ValueError("Failed to parse response from Beholder.")
+
+
+def runBeholder(user_input):
+  while failures < 3:
+    try:
+      beholder_response_str = beholder_chain.run(input=user_input)
+    except Exception as e:
+      failures += 1
+      str_e = str(e)
+      if (str_e.endswith(f"exceeds dimension size ({TEXT_CONTEXT_LEN}).")):
+        beholder_chain.memory.chat_memory.prune()
+        raise ValueError(f"Input length exceeds the maximum length of {TEXT_CONTEXT_LEN}.")
+      print(str_e)
+      print(beholder_kwargs)
+      print("Retrying...")
+      continue
+  return beholder_response_str

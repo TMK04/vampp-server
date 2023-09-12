@@ -13,6 +13,7 @@ if USE_AWS:
 else:
   AWS_DYNAMO_TABLE = None
   AWS_S3_BUCKET = None
+print(f"USE_AWS: {USE_AWS}")
 
 dynamo_client = boto3.client('dynamodb') if USE_AWS else None
 s3_client = boto3.client('s3') if USE_AWS else None

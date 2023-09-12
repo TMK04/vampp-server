@@ -226,7 +226,7 @@ async def receive_video(topic: str = Form(...), file: Union[UploadFile, str] = F
             "S": topic
         },
         "professional_attire": {
-            "N": str(attire_mode)
+            "BOOL": attire_mode
         },
         **{key: {
             "N": str(multitask_mean[key])

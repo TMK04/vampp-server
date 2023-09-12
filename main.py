@@ -218,7 +218,7 @@ async def receive_video(topic: str = Form(...), file: Union[UploadFile, str] = F
   transcribeAudio()
 
   multitask_mean = multitask_df.mean()
-  attire_mode = attire_df["attire"].mode()[0]
+  attire_mode = bool(attire_df["attire"].mode()[0])
   mean_speech_stats = speech_stats_df.mean()
   if USE_AWS:
     Item = {

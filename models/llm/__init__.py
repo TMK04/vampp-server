@@ -1,6 +1,6 @@
 from .exllama_loader import Exllama
 from .prompts import assistant_parser, dict_h_base_h, pitch_prompt, prompt
-from config import MODEL_LLM_PATH, TEXT_CONTEXT_LEN
+from config import MODEL_LLM_CONTEXT_LEN, MODEL_LLM_PATH
 from langchain.chains import ConversationChain
 from langchain.memory import ConversationSummaryBufferMemory
 from langchain.schema import SystemMessage
@@ -21,8 +21,8 @@ llm = Exllama(
     # ],
     verbose=True,
     set_auto_map="64",
-    max_seq_len=TEXT_CONTEXT_LEN,
-    max_input_len=TEXT_CONTEXT_LEN,
+    max_seq_len=MODEL_LLM_CONTEXT_LEN,
+    max_input_len=MODEL_LLM_CONTEXT_LEN,
     compress_pos_emb=1.0,
     temperature=.7,
     top_k=50,
@@ -36,7 +36,7 @@ llm = Exllama(
 )
 
 memory = ConversationSummaryBufferMemory(llm=llm,
-                                         max_token_limit=256,
+                                         max_token_limit=512,
                                          ai_prefix="Assistant",
                                          human_prefix="User")
 beholder_chain = ConversationChain(
@@ -57,9 +57,9 @@ def runBeholderFirst(topic, pitch):
     except Exception as e:
       failures += 1
       str_e = str(e)
-      if (str_e.endswith(f"exceeds dimension size ({TEXT_CONTEXT_LEN}).")):
+      if (str_e.endswith(f"exceeds dimension size ({MODEL_LLM_CONTEXT_LEN}).")):
         beholder_chain.memory.chat_memory.prune()
-        raise ValueError(f"Input length exceeds the maximum length of {TEXT_CONTEXT_LEN}.")
+        raise ValueError(f"Input length exceeds the maximum length of {MODEL_LLM_CONTEXT_LEN}.")
       print(str_e)
       print(beholder_kwargs)
       print("Retrying...")
@@ -83,9 +83,9 @@ def runBeholder(user_input):
     except Exception as e:
       failures += 1
       str_e = str(e)
-      if (str_e.endswith(f"exceeds dimension size ({TEXT_CONTEXT_LEN}).")):
+      if (str_e.endswith(f"exceeds dimension size ({MODEL_LLM_CONTEXT_LEN}).")):
         beholder_chain.memory.chat_memory.prune()
-        raise ValueError(f"Input length exceeds the maximum length of {TEXT_CONTEXT_LEN}.")
+        raise ValueError(f"Input length exceeds the maximum length of {MODEL_LLM_CONTEXT_LEN}.")
       print(str_e)
       print(beholder_kwargs)
       print("Retrying...")

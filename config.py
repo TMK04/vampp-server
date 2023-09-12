@@ -15,8 +15,6 @@ FRAME_BATCH = int(os.environ.get("FRAME_BATCH", "1"))
 FRAME_INTERVAL = int(os.environ.get("FRAME_INTERVAL", "1"))
 FRAME_SKIP = int(os.environ.get("FRAME_SKIP", "0"))
 
-TEXT_CONTEXT_LEN = int(os.environ.get("TEXT_CONTEXT_LEN", "8192"))
-
 for key in [
     "MODEL_ATTIRE_PATH", "MODEL_FR_PATH", "MODEL_LLM_PATH", "MODEL_MULTITASK_PATH", "MODEL_PL_PATH",
     "MODEL_SS_PATH", "MODEL_SS_PRETRAINED_PATH"
@@ -27,8 +25,10 @@ for key in [
 
 MODEL_ATTIRE_PATH = os.environ.get("MODEL_ATTIRE_PATH")
 MODEL_FR_PATH = os.environ.get("MODEL_FR_PATH")
-MODEL_LLM_PATH = os.environ.get("MODEL_LLM_PATH")
 MODEL_MULTITASK_PATH = os.environ.get("MODEL_MULTITASK_PATH")
 MODEL_PL_PATH = os.environ.get("MODEL_PL_PATH")
 MODEL_SS_PATH = os.environ.get("MODEL_SS_PATH")
 MODEL_SS_PRETRAINED_PATH = os.environ.get("MODEL_SS_PRETRAINED_PATH")
+
+MODEL_LLM_PATH = os.environ.get("MODEL_LLM_PATH")
+MODEL_LLM_CONTEXT_LEN = int(os.environ.get("MODEL_LLM_CONTEXT_LEN", "8192"))

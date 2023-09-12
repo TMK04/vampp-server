@@ -230,7 +230,7 @@ async def receive_video(topic: str = Form(...), file: Union[UploadFile, str] = F
 
   text = transcribeAudio()
   Item["text"] = {"S": text}
-  beholder_response = runBeholderFirst(text)
+  beholder_response = runBeholderFirst(topic, text)
   for key in beholder_response:
     if key.endswith("_justification"):
       Item[key] = {"S": beholder_response[key]}

@@ -187,7 +187,7 @@ async def receive_video(topic: str = Form(...), file: Union[UploadFile, str] = F
     s3_client.upload_file(temp_attire_name, AWS_S3_BUCKET, attire_key)
     os.remove(temp_attire_name)
 
-  speech_stats_key_ls = ["clarity", "enthusiasm"]
+  speech_stats_key_ls = ["enthusiasm", "clarity"]
   speech_stats_df_dict = {key: [] for key in ["i", *speech_stats_key_ls]}
   for batch_i, batch_window in splitAudioBatch(splitAudio(temp_wav_name)):
     batch_window_tensor = toTensor(batch_window)

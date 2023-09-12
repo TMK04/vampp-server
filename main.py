@@ -67,6 +67,7 @@ async def receive_video(topic: str = Form(...), file: Union[UploadFile, str] = F
   else:
     with open(temp_file_name, "wb") as f:
       f.write(await file.read())
+  print(os.listdir(temp_dir_name))
 
   mp4_arg_ls = ["og.mp4"]
   temp_mp4_name = tempName(mp4_arg_ls)

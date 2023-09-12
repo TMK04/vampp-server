@@ -16,7 +16,8 @@ FRAME_INTERVAL = int(os.environ.get("FRAME_INTERVAL", "1"))
 FRAME_SKIP = int(os.environ.get("FRAME_SKIP", "0"))
 
 for key in [
-    "MODEL_ATTIRE_PATH", "MODEL_FR_PATH", "MODEL_MULTITASK_PATH", "MODEL_PL_PATH", "MODEL_SS_PATH"
+    "MODEL_ATTIRE_PATH", "MODEL_FR_PATH", "MODEL_MULTITASK_PATH", "MODEL_PL_PATH", "MODEL_SS_PATH",
+    "MODEL_SS_PRETRAINED_PATH"
 ]:
   env_var = os.environ.get(key)
   if env_var is None:
@@ -27,3 +28,4 @@ MODEL_FR_PATH = os.environ.get("MODEL_FR_PATH")
 MODEL_MULTITASK_PATH = os.environ.get("MODEL_MULTITASK_PATH")
 MODEL_PL_PATH = os.environ.get("MODEL_PL_PATH")
 MODEL_SS_PATH = os.environ.get("MODEL_SS_PATH")
+MODEL_SS_PRETRAINED_PATH = os.environ.get("MODEL_SS_PRETRAINED_PATH")

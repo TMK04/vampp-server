@@ -1,5 +1,5 @@
 from .components import _Classifier, device
-from config import MODEL_SS_PATH
+from config import MODEL_SS_PATH, MODEL_SS_PRETRAINED_PATH
 from audio import AUDIO_SR
 import os
 import torch
@@ -67,7 +67,7 @@ class Head(nn.Module):
     return logits
 
 
-processor = Wav2Vec2Processor.from_pretrained(MODEL_SS_PATH)
+processor = Wav2Vec2Processor.from_pretrained(MODEL_SS_PRETRAINED_PATH)
 
 
 def preprocess(x):
@@ -76,7 +76,8 @@ def preprocess(x):
   return y
 
 
-emotion_model = EmotionModel.from_pretrained(MODEL_SS_PATH)
+emotion_model = EmotionModel.from_pretrained(MODEL_SS_PRETRAINED_PATH)
 speech_stats_model = nn.Sequential(
     emotion_model.wav2vec2,
     Head(emotion_model.config.hidden_size, 0, emotion_model.config.final_dropout)).to(device)
+speech_stats_model.load_state_dict(torch.load(MODEL_SS_PATH)["model"])

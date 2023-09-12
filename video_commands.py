@@ -1,5 +1,11 @@
 import ffmpeg
 from ffmpeg import Stream
+import subprocess
+
+
+def downloadVideo(ytid: str, output_file: str):
+  subprocess.run(
+      ["yt-dlp", "-f", "bestvideo[height<=1080][fps<=60]", "-o", output_file, "--", ytid])
 
 
 def compressVideo(input_file: str, output_file: str):

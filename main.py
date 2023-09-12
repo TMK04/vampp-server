@@ -1,12 +1,13 @@
 import config
 
+from typing import Union
+
 from audio import transcribe, splitAudio, splitAudioBatch
 from aws import AWS_DYNAMO_TABLE, AWS_S3_BUCKET, USE_AWS, dynamo_client, s3_client
 import cv2
 from config import FRAME_ATTIRE_MASK
 from cv_helpers import extractFrames, processRestoredFrames, resizeToLocalize
 from fastapi import FastAPI, UploadFile, Form
-from ffmpeg_commands import compressVideo, extractAudio
 from models.components import device, infer, toTensor
 from models.face_restorer import restoreFaces
 from models.presenter_localizer import calculatePresenterXYXYN, localizePresenter
@@ -22,6 +23,7 @@ import shortuuid
 import shutil
 import soundfile as sf
 import torch
+from video_commands import compressVideo, downloadVideo, extractAudio
 
 app = FastAPI()
 tmp_dir = Path("tmp/")
@@ -34,8 +36,10 @@ def read_root():
 
 
 @app.post("/")
-async def receive_video(file: UploadFile = Form(...), topic: str = Form(...)):
-  basename = re.sub(pattern_mp4_suffix, "", file.filename)
+async def receive_video(topic: str = Form(...), file: Union[UploadFile, str] = Form(...)):
+  file_is_ytid = isinstance(file, str)
+  file_name = file if file_is_ytid else file.filename
+  basename = re.sub(pattern_mp4_suffix, "", file_name)
 
   # Create temp dir
   while True:
@@ -58,8 +62,11 @@ async def receive_video(file: UploadFile = Form(...), topic: str = Form(...)):
   # Save file to temp
   temp_arg_ls = ["temp.mp4"]
   temp_file_name = tempName(temp_arg_ls)
-  with open(temp_file_name, "wb") as f:
-    f.write(await file.read())
+  if file_is_ytid:
+    downloadVideo(file, temp_file_name)
+  else:
+    with open(temp_file_name, "wb") as f:
+      f.write(await file.read())
 
   mp4_arg_ls = ["og.mp4"]
   temp_mp4_name = tempName(mp4_arg_ls)

@@ -5,7 +5,10 @@ import subprocess
 
 def downloadVideo(ytid: str, output_file: str):
   yturl = f"https://youtu.be/{ytid}"
-  subprocess.run(["yt-dlp", "-f", "bv[height<=1080][fps<=60]+ba/b", "-o", output_file, "--", ytid],
+  subprocess.run([
+      "yt-dlp", "-f", "bv[height<=1080][fps<=60]+ba", "--merge-output-format", "mp4", "-o",
+      output_file, "--", ytid
+  ],
                  check=True)
 
 

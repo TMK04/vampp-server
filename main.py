@@ -57,6 +57,8 @@ async def receive_video(topic: str = Form(...), file: Union[UploadFile, str] = F
     except FileExistsError:
       continue
 
+  Item = {"id": {"S": basename_random}, "topic": {"S": topic}}
+
   if USE_AWS:
 
     def s3Key(arg_ls):
@@ -180,6 +182,9 @@ async def receive_video(topic: str = Form(...), file: Union[UploadFile, str] = F
     multitask_key = s3Key(multitask_arg_ls)
     s3_client.upload_file(temp_multitask_name, AWS_S3_BUCKET, multitask_key)
     os.remove(temp_multitask_name)
+  for key in multitask_key_ls:
+    Item[key] = {"N": str(multitask_df[key].mean())}
+
   attire_df_dict = {
       "i": multitask_df.index[FRAME_ATTIRE_MASK],
       "attire": np.array(frame_ls)[FRAME_ATTIRE_MASK]
@@ -195,6 +200,8 @@ async def receive_video(topic: str = Form(...), file: Union[UploadFile, str] = F
     attire_key = s3Key(attire_arg_ls)
     s3_client.upload_file(temp_attire_name, AWS_S3_BUCKET, attire_key)
     os.remove(temp_attire_name)
+  attire_mode = bool(attire_df["attire"].mode()[0])
+  Item["professional_attire"] = {"BOOL": attire_mode}
 
   speech_stats_key_ls = ["enthusiasm", "clarity"]
   speech_stats_df_dict = {key: [] for key in ["i", *speech_stats_key_ls]}
@@ -212,6 +219,8 @@ async def receive_video(topic: str = Form(...), file: Union[UploadFile, str] = F
     speech_stats_key = s3Key(speech_stats_arg_ls)
     s3_client.upload_file(temp_speech_stats_name, AWS_S3_BUCKET, speech_stats_key)
     os.remove(temp_speech_stats_name)
+  for key in speech_stats_key_ls:
+    Item[key] = {"N": str(speech_stats_df[key].mean())}
 
   def transcribeAudio():
     text_arg_ls = ["text.txt"]
@@ -220,41 +229,14 @@ async def receive_video(topic: str = Form(...), file: Union[UploadFile, str] = F
     return text
 
   text = transcribeAudio()
+  Item["text"] = {"S": text}
   beholder_response = runBeholderFirst(text)
+  for key in beholder_response:
+    if key.endswith("_justification"):
+      Item[key] = {"S": beholder_response[key]}
+    else:
+      Item[key] = {"N": str(beholder_response[key])}
 
-  multitask_mean = multitask_df.mean()
-  attire_mode = bool(attire_df["attire"].mode()[0])
-  mean_speech_stats = speech_stats_df.mean()
-  Item = {
-      "id": {
-          "S": basename_random
-      },
-      "topic": {
-          "S": topic
-      },
-      "text": {
-          "S": text
-      },
-      "professional_attire": {
-          "BOOL": attire_mode
-      },
-      **{key: {
-          "N": str(multitask_mean[key])
-      }
-         for key in multitask_key_ls},
-      **{f"speech_{key}": {
-          "N": str(mean_speech_stats[key])
-      }
-         for key in speech_stats_key_ls},
-      **{
-          f"beholder_{key}": {
-              "S": str(beholder_response[key])
-          } if key.endswith("_justification") else {
-              "N": str(beholder_response[key])
-          }
-          for key in beholder_response
-      },
-  }
   print(Item)
   if USE_AWS:
     dynamo_client.put_item(TableName=AWS_DYNAMO_TABLE, Item=Item)

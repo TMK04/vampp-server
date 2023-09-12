@@ -24,7 +24,7 @@ def infer(model, test_tensor):
 
 
 def toTensor(ls):
-  return torch.from_numpy(np.array(ls)).float()
+  return torch.tensor(np.array(ls), dtype=torch.float32)
 
 
 def N(i):

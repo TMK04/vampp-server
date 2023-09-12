@@ -2,6 +2,7 @@ import os
 import sys
 import torch
 import librosa
+from models.speech_stats import preprocess
 import os
 import whisper
 
@@ -18,13 +19,19 @@ def splitAudio(audio_file_path):
   window_size = int(window_duration * AUDIO_SR)
 
   # Split the audio
-  i_batch = []
-  window_batch = []
   for i in range(0, len(audio), window_size):
     window = audio[i:i + window_size]
     if len(window) == window_size:
-      window_batch.append(window)
-      i_batch.append(i)
+      yield i, preprocess(window)
+
+
+def splitAudioBatch(gen_split_audio):
+  # Split the audio
+  i_batch = []
+  window_batch = []
+  for i, window in gen_split_audio:
+    i_batch.append(i)
+    window_batch.append(window)
     if len(window_batch) == AUDIO_BATCH:
       yield i_batch, window_batch
       i_batch = []

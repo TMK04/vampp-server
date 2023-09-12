@@ -1,13 +1,10 @@
 from .components import _Classifier, device
+from config import MODEL_SS_PATH
 from audio import AUDIO_SR
 import os
 import torch
 import torch.nn as nn
 from transformers import Wav2Vec2Model, Wav2Vec2PreTrainedModel, Wav2Vec2Processor
-
-MODEL_SS_PATH = os.environ.get("MODEL_SS_PATH")
-if MODEL_SS_PATH is None:
-  raise ValueError("MODEL_SS_PATH is not set")
 
 
 class RegressionHead(nn.Module):

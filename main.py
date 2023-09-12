@@ -5,7 +5,8 @@ load_dotenv()
 from audio import transcribe, splitAudio, splitAudioBatch
 from aws import AWS_DYNAMO_TABLE, AWS_S3_BUCKET, USE_AWS, dynamo_client, s3_client
 import cv2
-from cv_helpers import FRAME_ATTIRE_MASK, FRAME_BATCH, extractFrames, processRestoredFrames, resizeToLocalize
+from config import FRAME_ATTIRE_MASK
+from cv_helpers import extractFrames, processRestoredFrames, resizeToLocalize
 from fastapi import FastAPI, UploadFile, Form
 from ffmpeg_commands import compressVideo, extractAudio
 from models.components import device, infer, toTensor

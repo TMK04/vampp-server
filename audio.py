@@ -1,3 +1,4 @@
+from config import AUDIO_BATCH, AUDIO_SR
 import os
 import sys
 import torch
@@ -5,9 +6,6 @@ import librosa
 from models.speech_stats import preprocess
 import os
 import whisper
-
-AUDIO_BATCH = int(os.environ.get("AUDIO_BATCH", "1"))
-AUDIO_SR = int(os.environ.get("AUDIO_SR", "16000"))
 
 model = whisper.load_model("base.en")
 

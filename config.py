@@ -1,0 +1,25 @@
+import numpy as np
+import os
+
+AUDIO_BATCH = int(os.environ.get("AUDIO_BATCH", "1"))
+AUDIO_SR = int(os.environ.get("AUDIO_SR", "16000"))
+
+FRAME_ATTIRE_MASK = np.array(os.environ.get("FRAME_ATTIRE_MASK",
+                                            "5,10,15,20,25,-26,-21,-16,-11,-6").split(","),
+                             dtype=int)
+FRAME_BATCH = int(os.environ.get("FRAME_BATCH", "1"))
+FRAME_INTERVAL = int(os.environ.get("FRAME_INTERVAL", "1"))
+FRAME_SKIP = int(os.environ.get("FRAME_SKIP", "0"))
+
+for key in [
+    "MODEL_ATTIRE_PATH", "MODEL_FR_PATH", "MODEL_MULTITASK_PATH", "MODEL_PL_PATH", "MODEL_SS_PATH"
+]:
+  env_var = os.environ.get(key)
+  if env_var is None:
+    raise ValueError(f"env_var {key} is unset")
+
+MODEL_ATTIRE_PATH = os.environ.get("MODEL_ATTIRE_PATH")
+MODEL_FR_PATH = os.environ.get("MODEL_FR_PATH")
+MODEL_MULTITASK_PATH = os.environ.get("MODEL_MULTITASK_PATH")
+MODEL_PL_PATH = os.environ.get("MODEL_PL_PATH")
+MODEL_SS_PATH = os.environ.get("MODEL_SS_PATH")

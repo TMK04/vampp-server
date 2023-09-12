@@ -1,13 +1,6 @@
+from config import FRAME_BATCH, FRAME_INTERVAL, FRAME_SKIP
 import cv2
-import numpy as np
 import os
-
-FRAME_ATTIRE_MASK = np.array(os.environ.get("FRAME_ATTIRE_MASK",
-                                            "5,10,15,20,25,-26,-21,-16,-11,-6").split(","),
-                             dtype=int)
-FRAME_BATCH = int(os.environ.get("FRAME_BATCH", "1"))
-FRAME_INTERVAL = int(os.environ.get("FRAME_INTERVAL", "1"))
-FRAME_SKIP = int(os.environ.get("FRAME_SKIP", "0"))
 
 OG_WIDTH = 1280
 OG_HEIGHT = 720

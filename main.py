@@ -223,14 +223,14 @@ async def receive_video(topic: str = Form(...), file: Union[UploadFile, str] = F
   #   Item[key] = {"N": str(speech_stats_df[key].mean())}
 
   def transcribeAudio():
-    text_arg_ls = ["text.txt"]
-    temp_text_name = tempName(text_arg_ls)
-    text = transcribe(temp_wav_name)
-    return text
+    pitch_arg_ls = ["pitch.txt"]
+    temp_pitch_name = tempName(pitch_arg_ls)
+    pitch = transcribe(temp_wav_name)
+    return pitch
 
-  text = transcribeAudio()
-  Item["text"] = {"S": text}
-  beholder_response = runBeholderFirst(topic, text)
+  pitch = transcribeAudio()
+  Item["pitch"] = {"S": pitch}
+  beholder_response = runBeholderFirst(topic, pitch)
   for key, value in beholder_response:
     if key.endswith("_justification"):
       Item[key] = {"S": value}

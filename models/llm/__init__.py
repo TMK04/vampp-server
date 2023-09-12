@@ -47,6 +47,7 @@ beholder_chain = ConversationChain(
 
 
 def runBeholderFirst(topic, pitch):
+  beholder_chain.memory.clear()
   beholder_kwargs = {
       "input": pitch_prompt.format(topic=topic, pitch=pitch),
   }

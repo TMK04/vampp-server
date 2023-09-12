@@ -220,7 +220,8 @@ async def receive_video(topic: str = Form(...), file: Union[UploadFile, str] = F
   #   s3_client.upload_file(temp_speech_stats_name, AWS_S3_BUCKET, speech_stats_key)
   #   os.remove(temp_speech_stats_name)
   for key in speech_stats_key_ls:
-    Item[key] = {"N": str(speech_stats_df[key].mean())}
+    Item_key = f"speech_{key}"
+    Item[Item_key] = {"N": str(speech_stats_df[key].mean())}
 
   def transcribeAudio():
     pitch_arg_ls = ["pitch.txt"]
@@ -232,11 +233,12 @@ async def receive_video(topic: str = Form(...), file: Union[UploadFile, str] = F
   Item["pitch"] = {"S": pitch}
   beholder_response = runBeholderFirst(topic, pitch)
   for key, value in beholder_response:
+    Item_key = f"beholder_{key}"
     if key.endswith("_justification"):
       continue
-      Item[key] = {"S": value}
+      Item[Item_key] = {"S": value}
     else:
-      Item[key] = {"N": str(value)}
+      Item[Item_key] = {"N": str(value)}
 
   print(Item)
   if USE_AWS:

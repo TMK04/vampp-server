@@ -2,6 +2,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+from audio import transcribe, splitAudio
 from aws import AWS_DYNAMO_TABLE, AWS_S3_BUCKET, USE_AWS, dynamo_client, s3_client
 import cv2
 from cv_helpers import FRAME_ATTIRE_MASK, FRAME_BATCH, extractFrames, processRestoredFrames, resizeToLocalize
@@ -22,7 +23,6 @@ import shortuuid
 import shutil
 import soundfile as sf
 import torch
-from transcription import transcribe, splitAudio
 
 app = FastAPI()
 tmp_dir = Path("tmp/")

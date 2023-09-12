@@ -2,16 +2,19 @@ import os
 import sys
 import torch
 import librosa
+import os
 import whisper
+
+AUDIO_SR = int(os.environ.get("AUDIO_SR", "16000"))
 
 model = whisper.load_model("base.en")
 
 
 def splitAudio(audio_file_path):
-  audio, sr = librosa.load(audio_file_path, sr=16000)
+  audio, _ = librosa.load(audio_file_path, sr=AUDIO_SR)
   # Calculate window size
   window_duration = 10  # in seconds
-  window_size = int(window_duration * sr)
+  window_size = int(window_duration * AUDIO_SR)
 
   # Split the audio
   for i in range(0, len(audio), window_size):

@@ -1,4 +1,5 @@
 from .components import _Classifier, device
+from audio import AUDIO_SR
 import os
 import torch
 import torch.nn as nn
@@ -73,8 +74,9 @@ processor = Wav2Vec2Processor.from_pretrained(MODEL_SS_PATH)
 
 
 def preprocess(x):
-  y = processor(x, padding="do_not_pad", return_tensors="pt")
+  y = processor(x, sampling_rate=AUDIO_SR)
   y = y['input_values'][0]
+  y = torch.tensor(y).unsqueeze(0)
   return y
 
 

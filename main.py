@@ -241,7 +241,6 @@ async def receive_video(topic: str = Form(...), file: Union[UploadFile, str] = F
       raise HTTPException(status_code=500, detail=str(e))
     for key, value in beholder_response:
       Item_key = f"beholder_{key}"
-      print(key, Item_key)
       if key.endswith("_justification"):
         Item[Item_key] = {"S": value}
       else:
@@ -256,6 +255,7 @@ async def receive_video(topic: str = Form(...), file: Union[UploadFile, str] = F
 
     # Wait for all futures to complete
     concurrent.futures.wait([frames_future, speech_stats_future, pitch_future])
+  print(Item)
 
   X_pe = [
       *[Item[key]["N"] for key in ["moving", "smiling", "upright", "ec"]],

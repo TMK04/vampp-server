@@ -36,7 +36,11 @@ tmp_dir.mkdir(parents=True, exist_ok=True)
 
 @app.get("/")
 def get_histories():
-  histories = dynamo_client.scan(TableName=AWS_DYNAMO_TABLE)["Items"]
+  histories = dynamo_client.scan(
+      TableName=AWS_DYNAMO_TABLE,
+      FilterExpression=
+      "attribute_exists(ec) AND attribute_exists(professional_attire) AND attribute_exists(speech_clarity) AND attribute_exists(beholder_clarity) AND attribute_exists(beholder_clarity_justification) AND attribute_exists(pe)"
+  )["Items"]
   return histories
 
 

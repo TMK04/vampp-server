@@ -232,8 +232,9 @@ async def receive_video(topic: str = Form(...), file: Union[UploadFile, str] = F
     temp_pitch_name = tempName(pitch_arg_ls)
     pitch = transcribe(temp_wav_name)
     Item["pitch"] = {"S": pitch}
+    chain = Chain(basename_random)
     try:
-      beholder_response = runBeholderFirst(topic, pitch)
+      beholder_response = runBeholderFirst(chain, topic, pitch)
     except ValueError as e:
       raise HTTPException(status_code=500, detail=str(e))
     for key, value in beholder_response:

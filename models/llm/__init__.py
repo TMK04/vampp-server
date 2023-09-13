@@ -1,8 +1,8 @@
 from .exllama_loader import Exllama
 from .prompts import assistant_parser, dict_h_base_h, pitch_prompt, prompt
-from config import MODEL_LLM_CONTEXT_LEN, MODEL_LLM_PATH
+from config import MODEL_LLM_CONTEXT_LEN, MODEL_LLM_DYNAMO_HISTORY_TABLE, MODEL_LLM_PATH
 from langchain.chains import ConversationChain
-from langchain.memory import ConversationSummaryBufferMemory
+from langchain.memory import ConversationSummaryBufferMemory, DynamoDBChatMessageHistory
 from langchain.schema import SystemMessage
 import numpy as np
 import pandas as pd
@@ -35,31 +35,45 @@ llm = Exllama(
     fused_attn=True,
 )
 
-memory = ConversationSummaryBufferMemory(llm=llm,
-                                         max_token_limit=512,
-                                         ai_prefix="Assistant",
-                                         human_prefix="User")
-beholder_chain = ConversationChain(
-    llm=llm,
-    prompt=prompt,
-    memory=memory,
-)
+dict_id_chain = {}
 
 
-def runBeholderFirst(topic, pitch):
-  beholder_chain.memory.clear()
+def Chain(id):
+  if id in dict_id_chain:
+    return dict_id_chain[id]
+
+  history = DynamoDBChatMessageHistory(
+      table_name=MODEL_LLM_DYNAMO_HISTORY_TABLE,
+      session_id=id,
+  )
+  memory = ConversationSummaryBufferMemory(llm=llm,
+                                           chat_memory=history,
+                                           max_token_limit=512,
+                                           ai_prefix="Assistant",
+                                           human_prefix="User")
+  chain = ConversationChain(
+      llm=llm,
+      prompt=prompt,
+      memory=memory,
+  )
+  dict_id_chain[id] = chain
+  return chain
+
+
+def runBeholderFirst(chain, topic, pitch):
+  chain.memory.clear()
   beholder_kwargs = {
       "input": pitch_prompt.format(topic=topic, pitch=pitch),
   }
   failures = 0
   while failures < 3:
     try:
-      beholder_response_str = beholder_chain.run(input=beholder_kwargs["input"])
+      beholder_response_str = chain.run(input=beholder_kwargs["input"])
     except Exception as e:
       failures += 1
       str_e = str(e)
       if (str_e.endswith(f"exceeds dimension size ({MODEL_LLM_CONTEXT_LEN}).")):
-        beholder_chain.memory.chat_memory.prune()
+        chain.memory.chat_memory.prune()
         raise ValueError(f"Input length exceeds the maximum length of {MODEL_LLM_CONTEXT_LEN}.")
       print(str_e)
       print(beholder_kwargs)
@@ -72,20 +86,20 @@ def runBeholderFirst(topic, pitch):
       failures += 1
       print(e)
       print(beholder_response_str)
-      beholder_chain.memory.chat_memory.add_message(SystemMessage(content=str(e)))
+      chain.memory.chat_memory.add_message(SystemMessage(content=str(e)))
       print("Retrying...")
   raise ValueError("Failed to parse response from Beholder.")
 
 
-def runBeholder(user_input):
+def runBeholder(chain, user_input):
   while failures < 3:
     try:
-      beholder_response_str = beholder_chain.run(input=user_input)
+      beholder_response_str = chain.run(input=user_input)
     except Exception as e:
       failures += 1
       str_e = str(e)
       if (str_e.endswith(f"exceeds dimension size ({MODEL_LLM_CONTEXT_LEN}).")):
-        beholder_chain.memory.chat_memory.prune()
+        chain.memory.chat_memory.prune()
         raise ValueError(f"Input length exceeds the maximum length of {MODEL_LLM_CONTEXT_LEN}.")
       print(str_e)
       print(beholder_kwargs)

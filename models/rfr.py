@@ -8,10 +8,10 @@ def load(suffix):
     return pickle.load(f)
 
 
-def infer(rfr, X):
-  y_pred = rfr.predict(X)
+def rfrInfer(rfr, X):
+  y_pred = rfr.predict(np.array([X], dtype=np.float32))
   y_pred = np.clip(y_pred, 1, 10)
-  return y_pred
+  return y_pred[0]
 
 
 rfr_pe = load("pe")

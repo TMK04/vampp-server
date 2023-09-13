@@ -13,6 +13,7 @@ from models.components import device, infer, toTensor
 from models.face_restorer import restoreFaces
 from models.llm import runBeholderFirst
 from models.presenter_localizer import calculatePresenterXYXYN, localizePresenter
+from models.rfr import rfr_bv, rfr_clarity, rfr_pe, rfrInfer
 from models.speech_stats import preprocess, speech_stats_model
 from models.xdensenet import attire_model, multitask_model
 import os
@@ -255,6 +256,19 @@ async def receive_video(topic: str = Form(...), file: Union[UploadFile, str] = F
 
     # Wait for all futures to complete
     concurrent.futures.wait([frames_future, speech_stats_future, pitch_future])
+
+  X_pe = [
+      *[Item[key]["N"] for key in ["moving", "smiling", "upright", "ec"]],
+      Item["professional_attire"]["BOOL"],
+      Item["speech_enthusiasm"]["N"],
+  ]
+  Item["pe"] = {"N": str(rfrInfer(rfr_pe, X_pe))}
+  X_clarity = [Item[key]["N"] for key in ["speech_clarity", "beholder_clarity"]]
+  Item["clarity"] = {"N": str(rfrInfer(rfr_clarity, X_clarity))}
+  X_bv = [
+      Item[key]["N"] for key in ["beholder_creativity", "beholder_feasibility", "beholder_impact"]
+  ]
+  Item["bv"] = {"N": str(rfrInfer(rfr_bv, X_bv))}
 
   print(Item)
   if USE_AWS:

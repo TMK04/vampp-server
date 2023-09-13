@@ -91,35 +91,35 @@ async def receive_video(topic: str = Form(...), file: Union[UploadFile, str] = F
   temp_mp4_name = tempName(mp4_arg_ls)
   compressVideo(temp_file_name, temp_mp4_name)
   os.remove(temp_file_name)
-  # if USE_AWS:
-  #   video_key = s3Key(mp4_arg_ls)
-  #   s3_client.upload_file(temp_mp4_name, AWS_S3_BUCKET, video_key)
+  if USE_AWS:
+    video_key = s3Key(mp4_arg_ls)
+    s3_client.upload_file(temp_mp4_name, AWS_S3_BUCKET, video_key)
 
   wav_arg_ls = ["audio", "og.wav"]
   temp_wav_name = tempName(wav_arg_ls)
   extractAudio(temp_mp4_name, temp_wav_name)
 
-  # if USE_AWS:
-  #   audio_key = s3Key(wav_arg_ls)
-  #   s3_client.upload_file(temp_wav_name, AWS_S3_BUCKET, audio_key)
+  if USE_AWS:
+    audio_key = s3Key(wav_arg_ls)
+    s3_client.upload_file(temp_wav_name, AWS_S3_BUCKET, audio_key)
 
   localized_dir_arg_ls = ["frame", "localized"]
   temp_localized_dir_name = tempName(localized_dir_arg_ls)
   Path(temp_localized_dir_name).mkdir()
 
   def localizeFrames():
-    # if USE_AWS:
-    #   xyxyn_df = {key: [] for key in ["i", "x1", "y1", "x2", "y2"]}
+    if USE_AWS:
+      xyxyn_df = {key: [] for key in ["i", "x1", "y1", "x2", "y2"]}
     for batch in extractFrames(temp_mp4_name):
       to_localize_frame_batch = []
       for i, frame in batch:
-        # if USE_AWS:
-        #   og_arg_ls = ["frame", "og", f"{i}.jpg"]
-        #   temp_og_name = tempName(og_arg_ls)
-        #   cv2.imwrite(temp_og_name, frame)
-        #   og_key = s3Key(og_arg_ls)
-        #   s3_client.upload_file(temp_og_name, AWS_S3_BUCKET, og_key)
-        #   os.remove(temp_og_name)
+        if USE_AWS:
+          og_arg_ls = ["frame", "og", f"{i}.jpg"]
+          temp_og_name = tempName(og_arg_ls)
+          cv2.imwrite(temp_og_name, frame)
+          og_key = s3Key(og_arg_ls)
+          s3_client.upload_file(temp_og_name, AWS_S3_BUCKET, og_key)
+          os.remove(temp_og_name)
 
         to_localize_frame = resizeToLocalize(frame)
         to_localize_frame_batch.append(to_localize_frame)
@@ -132,23 +132,23 @@ async def receive_video(topic: str = Form(...), file: Union[UploadFile, str] = F
         i_jpg = f"{i}.jpg"
         temp_localized_name = os.path.join(temp_localized_dir_name, i_jpg)
         cv2.imwrite(temp_localized_name, localized_frame)
-        # if USE_AWS:
-        #   localized_key = s3Key([*localized_dir_arg_ls, i_jpg])
-        #   s3_client.upload_file(temp_localized_name, AWS_S3_BUCKET, localized_key)
+        if USE_AWS:
+          localized_key = s3Key([*localized_dir_arg_ls, i_jpg])
+          s3_client.upload_file(temp_localized_name, AWS_S3_BUCKET, localized_key)
 
-        #   xyxyn_df["i"].append(i)
-        #   xyxyn_df["x1"].append(xyxyn[0])
-        #   xyxyn_df["y1"].append(xyxyn[1])
-        #   xyxyn_df["x2"].append(xyxyn[2])
-        #   xyxyn_df["y2"].append(xyxyn[3])
-    # if USE_AWS:
-    #   xyxyn_df = pd.DataFrame(xyxyn_df).set_index("i")
-    #   xyxyn_arg_ls = ["frame", "xyxyn.csv"]
-    #   temp_xyxyn_name = tempName(xyxyn_arg_ls)
-    #   xyxyn_df.to_csv(temp_xyxyn_name)
-    #   xyxyn_key = s3Key(xyxyn_arg_ls)
-    #   s3_client.upload_file(temp_xyxyn_name, AWS_S3_BUCKET, xyxyn_key)
-    #   os.remove(temp_xyxyn_name)
+          xyxyn_df["i"].append(i)
+          xyxyn_df["x1"].append(xyxyn[0])
+          xyxyn_df["y1"].append(xyxyn[1])
+          xyxyn_df["x2"].append(xyxyn[2])
+          xyxyn_df["y2"].append(xyxyn[3])
+    if USE_AWS:
+      xyxyn_df = pd.DataFrame(xyxyn_df).set_index("i")
+      xyxyn_arg_ls = ["frame", "xyxyn.csv"]
+      temp_xyxyn_name = tempName(xyxyn_arg_ls)
+      xyxyn_df.to_csv(temp_xyxyn_name)
+      xyxyn_key = s3Key(xyxyn_arg_ls)
+      s3_client.upload_file(temp_xyxyn_name, AWS_S3_BUCKET, xyxyn_key)
+      os.remove(temp_xyxyn_name)
 
   def restoreFrames():
     temp_restored_dir_name = tempName(["frame", "restored"])
@@ -159,9 +159,9 @@ async def receive_video(topic: str = Form(...), file: Union[UploadFile, str] = F
       temp_restored_name = os.path.join(temp_restored_dir_name, temp_restored_basename)
       restored_frame = cv2.imread(temp_restored_name, cv2.IMREAD_GRAYSCALE)
       restored_frame = np.expand_dims(restored_frame, axis=0)
-      # if USE_AWS:
-      #   restored_key = s3Key(["frame", "restored", temp_restored_basename])
-      #   s3_client.upload_file(temp_restored_name, AWS_S3_BUCKET, restored_key)
+      if USE_AWS:
+        restored_key = s3Key(["frame", "restored", temp_restored_basename])
+        s3_client.upload_file(temp_restored_name, AWS_S3_BUCKET, restored_key)
       os.remove(temp_restored_name)
       i = temp_restored_basename.replace(".jpg", "")
       yield i, restored_frame
@@ -179,13 +179,13 @@ async def receive_video(topic: str = Form(...), file: Union[UploadFile, str] = F
         multitask_df_dict[key].extend(multitask_pred[:, j])
     multitask_df = pd.DataFrame(multitask_df_dict).set_index("i")
 
-    # if USE_AWS:
-    #   multitask_arg_ls = ["frame", "multitask.csv"]
-    #   temp_multitask_name = tempName(multitask_arg_ls)
-    #   multitask_df.to_csv(temp_multitask_name)
-    #   multitask_key = s3Key(multitask_arg_ls)
-    #   s3_client.upload_file(temp_multitask_name, AWS_S3_BUCKET, multitask_key)
-    #   os.remove(temp_multitask_name)
+    if USE_AWS:
+      multitask_arg_ls = ["frame", "multitask.csv"]
+      temp_multitask_name = tempName(multitask_arg_ls)
+      multitask_df.to_csv(temp_multitask_name)
+      multitask_key = s3Key(multitask_arg_ls)
+      s3_client.upload_file(temp_multitask_name, AWS_S3_BUCKET, multitask_key)
+      os.remove(temp_multitask_name)
     for key in multitask_key_ls:
       Item[key] = {"N": str(multitask_df[key].mean())}
 
@@ -197,13 +197,13 @@ async def receive_video(topic: str = Form(...), file: Union[UploadFile, str] = F
     attire_pred = infer(attire_model, attire_frame_tensor)
     attire_df_dict["attire"] = attire_pred[:, 0]
     attire_df = pd.DataFrame(attire_df_dict).set_index("i")
-    # if USE_AWS:
-    #   attire_arg_ls = ["frame", "attire.csv"]
-    #   temp_attire_name = tempName(attire_arg_ls)
-    #   attire_df.to_csv(temp_attire_name)
-    #   attire_key = s3Key(attire_arg_ls)
-    #   s3_client.upload_file(temp_attire_name, AWS_S3_BUCKET, attire_key)
-    #   os.remove(temp_attire_name)
+    if USE_AWS:
+      attire_arg_ls = ["frame", "attire.csv"]
+      temp_attire_name = tempName(attire_arg_ls)
+      attire_df.to_csv(temp_attire_name)
+      attire_key = s3Key(attire_arg_ls)
+      s3_client.upload_file(temp_attire_name, AWS_S3_BUCKET, attire_key)
+      os.remove(temp_attire_name)
     attire_mode = bool(attire_df["attire"].mode()[0])
     Item["professional_attire"] = {"BOOL": attire_mode}
 

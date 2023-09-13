@@ -241,8 +241,8 @@ async def receive_video(topic: str = Form(...), file: Union[UploadFile, str] = F
       raise HTTPException(status_code=500, detail=str(e))
     for key, value in beholder_response:
       Item_key = f"beholder_{key}"
+      print(key, Item_key)
       if key.endswith("_justification"):
-        continue
         Item[Item_key] = {"S": value}
       else:
         Item[Item_key] = {"N": str(value)}

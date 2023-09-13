@@ -11,7 +11,7 @@ import cv2
 from fastapi import FastAPI, HTTPException, UploadFile, Form
 from models.components import device, infer, toTensor
 from models.face_restorer import restoreFaces
-from models.llm import runBeholderFirst
+from models.llm import Chain, runBeholderFirst
 from models.presenter_localizer import calculatePresenterXYXYN, localizePresenter
 from models.rfr import rfr_bv, rfr_clarity, rfr_pe, rfrInfer
 from models.speech_stats import preprocess, speech_stats_model

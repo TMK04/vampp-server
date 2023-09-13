@@ -34,8 +34,9 @@ tmp_dir.mkdir(parents=True, exist_ok=True)
 
 
 @app.get("/")
-def read_root():
-  return {"Hello": "World"}
+def get_histories():
+  histories = dynamo_client.scan(TableName=AWS_DYNAMO_TABLE)["Items"]
+  return histories
 
 
 @app.post("/")

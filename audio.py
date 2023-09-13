@@ -40,4 +40,4 @@ def splitAudioBatch(gen_split_audio):
 
 def transcribe(audio_file_path):
   result = model.transcribe(audio_file_path)
-  return result['text']
+  return result['text'].strip()

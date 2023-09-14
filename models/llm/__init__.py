@@ -49,7 +49,7 @@ def Chain(id):
   memory = ConversationSummaryBufferMemory(llm=llm,
                                            chat_memory=history,
                                            max_token_limit=512,
-                                           ai_prefix="Assistant",
+                                           ai_prefix="Beholder",
                                            human_prefix="User")
   chain = ConversationChain(
       llm=llm,

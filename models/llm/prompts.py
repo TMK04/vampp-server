@@ -8,9 +8,9 @@ def hS(n, h_n=3):
 
 
 dict_h_base_h = {
-    "System": hS("System"),
+    "Instruction": hS("Instruction"),
     "User": hS("User"),
-    "Assistant": hS("Assistant"),
+    "Beholder": hS("Beholder"),
     "History": hS("Summary of Conversation History"),
 }
 print(dict_h_base_h)
@@ -48,8 +48,8 @@ prompt = PromptTemplate(
     template=("""{h_history}
 {history}
 
-{h_system}
-You are a judge for project pitches. You analyze pitches based on the following factors:
+{h_instruction}
+You are Beholder, a judge for project pitches. You analyze pitches based on the following factors:
 
 Creativity
 - Do similar projects exist?
@@ -80,14 +80,14 @@ For every factor,
 {h_user}
 {input}
 
-{h_assistant}"""),
+{h_response}"""),
     input_variables=["history", "input"],
     partial_variables={
         "h_history": dict_h_base_h["History"],
-        "h_system": dict_h_base_h["System"],
+        "h_instruction": dict_h_base_h["Instruction"],
         "format_instruction": format_instruction,
         "h_user": dict_h_base_h["User"],
-        "h_assistant": dict_h_base_h["Assistant"],
+        "h_response": dict_h_base_h["Beholder"],
     },
 )
 

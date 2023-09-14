@@ -24,9 +24,7 @@ import re
 from re_patterns import pattern_mp4_suffix
 import shortuuid
 import shutil
-import soundfile as sf
 from subprocess import CalledProcessError
-import torch
 from video_commands import compressVideo, downloadVideo, extractAudio
 
 app = FastAPI()

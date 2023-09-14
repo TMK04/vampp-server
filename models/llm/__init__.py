@@ -1,5 +1,5 @@
 from .exllama_loader import Exllama
-from .prompts import assistant_parser, dict_h_base_h, pitch_prompt, prompt
+from .prompts import dict_h_base_h, pitch_prompt, prompt, score_parser
 from config import MODEL_LLM_CONTEXT_LEN, MODEL_LLM_DYNAMO_HISTORY_TABLE, MODEL_LLM_PATH
 from langchain.chains import ConversationChain
 from langchain.memory import ConversationSummaryBufferMemory, DynamoDBChatMessageHistory
@@ -20,7 +20,7 @@ llm = Exllama(
     #     handler,
     # ],
     verbose=True,
-    set_auto_map="64",
+    set_auto_map="50",
     max_seq_len=MODEL_LLM_CONTEXT_LEN,
     max_input_len=MODEL_LLM_CONTEXT_LEN,
     compress_pos_emb=1.0,
@@ -80,7 +80,7 @@ def runBeholderFirst(chain, topic, pitch):
       print("Retrying...")
       continue
     try:
-      beholder_response = assistant_parser.parse(beholder_response_str)
+      beholder_response = score_parser.parse(beholder_response_str)
       return beholder_response
     except Exception as e:
       failures += 1

@@ -20,7 +20,7 @@ def escapeBraces(s):
   return s.replace("{", "{{").replace("}", "}}")
 
 
-class AssistantOutput(BaseModel):
+class ScoreOutput(BaseModel):
   creativity: int = Field(description="creativity score", ge=1, le=10)
   creativity_justification: str = Field(description="justification for creativity score",
                                         max_length=1000)
@@ -33,7 +33,7 @@ class AssistantOutput(BaseModel):
   clarity_justification: str = Field(description="justification for clarity score", max_length=1000)
 
 
-assistant_parser = PydanticOutputParser(pydantic_object=AssistantOutput)
+score_parser = PydanticOutputParser(pydantic_object=ScoreOutput)
 
 format_instruction = (
     """The output should be formatted as a JSON instance that conforms to the JSON schema below:

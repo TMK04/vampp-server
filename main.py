@@ -37,7 +37,7 @@ def get_histories():
   histories = dynamo_client.scan(
       TableName=AWS_DYNAMO_TABLE,
       FilterExpression=
-      "attribute_exists(ec) AND attribute_exists(professional_attire) AND attribute_exists(speech_clarity) AND attribute_exists(beholder_clarity) AND attribute_exists(beholder_clarity_justification) AND attribute_exists(pe)"
+      "attribute_exists(ec) AND attribute_exists(pa) AND attribute_exists(speech_clarity) AND attribute_exists(beholder_clarity) AND attribute_exists(beholder_clarity_justification) AND attribute_exists(pe)"
   )["Items"]
   return histories
 
@@ -192,7 +192,7 @@ async def receive_video(topic: str = Form(...), file: Union[UploadFile, str] = F
       s3_client.upload_file(temp_attire_name, AWS_S3_BUCKET, attire_key)
       os.remove(temp_attire_name)
     attire_mode = bool(attire_df["attire"].mode()[0])
-    Item["professional_attire"] = {"BOOL": attire_mode}
+    Item["pa"] = {"BOOL": attire_mode}
 
   def framesFn():
     localizeFrames()
@@ -250,7 +250,7 @@ async def receive_video(topic: str = Form(...), file: Union[UploadFile, str] = F
 
   X_pe = [
       *[Item[key]["N"] for key in ["moving", "smiling", "upright", "ec"]],
-      Item["professional_attire"]["BOOL"],
+      Item["pa"]["BOOL"],
       Item["speech_enthusiasm"]["N"],
   ]
   Item["pe"] = {"N": str(rfrInfer(rfr_pe, X_pe))}

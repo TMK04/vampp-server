@@ -89,9 +89,9 @@ async def receive_video(topic: str = Form(...), file: Union[UploadFile, str] = F
   temp_mp4_name = tempName(mp4_arg_ls)
   compressVideo(temp_file_name, temp_mp4_name)
   os.remove(temp_file_name)
-  if USE_AWS:
-    video_key = s3Key(mp4_arg_ls)
-    s3_client.upload_file(temp_mp4_name, AWS_S3_BUCKET, video_key)
+  # if USE_AWS:
+  #   video_key = s3Key(mp4_arg_ls)
+  #   s3_client.upload_file(temp_mp4_name, AWS_S3_BUCKET, video_key)
 
   wav_arg_ls = ["audio", "og.wav"]
   temp_wav_name = tempName(wav_arg_ls)
@@ -111,14 +111,6 @@ async def receive_video(topic: str = Form(...), file: Union[UploadFile, str] = F
     for batch in extractFrames(temp_mp4_name):
       to_localize_frame_batch = []
       for i, frame in batch:
-        if USE_AWS:
-          og_arg_ls = ["frame", "og", f"{i}.jpg"]
-          temp_og_name = tempName(og_arg_ls)
-          cv2.imwrite(temp_og_name, frame)
-          og_key = s3Key(og_arg_ls)
-          s3_client.upload_file(temp_og_name, AWS_S3_BUCKET, og_key)
-          os.remove(temp_og_name)
-
         to_localize_frame = resizeToLocalize(frame)
         to_localize_frame_batch.append(to_localize_frame)
 
@@ -131,9 +123,6 @@ async def receive_video(topic: str = Form(...), file: Union[UploadFile, str] = F
         temp_localized_name = os.path.join(temp_localized_dir_name, i_jpg)
         cv2.imwrite(temp_localized_name, localized_frame)
         if USE_AWS:
-          localized_key = s3Key([*localized_dir_arg_ls, i_jpg])
-          s3_client.upload_file(temp_localized_name, AWS_S3_BUCKET, localized_key)
-
           xyxyn_df["i"].append(i)
           xyxyn_df["x1"].append(xyxyn[0])
           xyxyn_df["y1"].append(xyxyn[1])
@@ -220,13 +209,13 @@ async def receive_video(topic: str = Form(...), file: Union[UploadFile, str] = F
       for j, key in enumerate(speech_stats_key_ls):
         speech_stats_df_dict[key].extend(speech_stats[:, j])
     speech_stats_df = pd.DataFrame(speech_stats_df_dict).set_index("i")
-    # if USE_AWS:
-    #   speech_stats_arg_ls = ["audio", "stats.csv"]
-    #   temp_speech_stats_name = tempName(speech_stats_arg_ls)
-    #   speech_stats_df.to_csv(temp_speech_stats_name)
-    #   speech_stats_key = s3Key(speech_stats_arg_ls)
-    #   s3_client.upload_file(temp_speech_stats_name, AWS_S3_BUCKET, speech_stats_key)
-    #   os.remove(temp_speech_stats_name)
+    if USE_AWS:
+      speech_stats_arg_ls = ["audio", "stats.csv"]
+      temp_speech_stats_name = tempName(speech_stats_arg_ls)
+      speech_stats_df.to_csv(temp_speech_stats_name)
+      speech_stats_key = s3Key(speech_stats_arg_ls)
+      s3_client.upload_file(temp_speech_stats_name, AWS_S3_BUCKET, speech_stats_key)
+      os.remove(temp_speech_stats_name)
     for key in speech_stats_key_ls:
       Item_key = f"speech_{key}"
       Item[Item_key] = {"N": str(speech_stats_df[key].mean())}

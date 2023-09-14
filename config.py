@@ -8,7 +8,8 @@ import os
 AUDIO_BATCH = int(os.environ.get("AUDIO_BATCH", "1"))
 AUDIO_SR = int(os.environ.get("AUDIO_SR", "16000"))
 
-FRAME_ATTIRE_MASK = np.array(os.environ.get("FRAME_ATTIRE_MASK", "5,-6").split(","), dtype=int)
+FRAME_ATTIRE_MASK = np.array(os.environ.get("FRAME_ATTIRE_MASK", "5").split(","), dtype=int)
+FRAME_ATTIRE_MASK = np.concatenate((FRAME_ATTIRE_MASK, -(FRAME_ATTIRE_MASK + 1)))
 FRAME_BATCH = int(os.environ.get("FRAME_BATCH", "1"))
 FRAME_INTERVAL = int(os.environ.get("FRAME_INTERVAL", "1"))
 FRAME_SKIP = int(os.environ.get("FRAME_SKIP", "0"))

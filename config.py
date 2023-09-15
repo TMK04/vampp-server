@@ -12,7 +12,6 @@ FRAME_ATTIRE_MASK = np.array(os.environ.get("FRAME_ATTIRE_MASK", "5").split(",")
 FRAME_ATTIRE_MASK = np.concatenate((FRAME_ATTIRE_MASK, -(FRAME_ATTIRE_MASK + 1)))
 FRAME_BATCH = int(os.environ.get("FRAME_BATCH", "1"))
 FRAME_INTERVAL = int(os.environ.get("FRAME_INTERVAL", "1"))
-FRAME_SKIP = int(os.environ.get("FRAME_SKIP", "0"))
 
 for key in [
     "MODEL_ATTIRE_PATH", "MODEL_FR_PATH", "MODEL_LLM_PATH", "MODEL_MULTITASK_PATH", "MODEL_PL_PATH",

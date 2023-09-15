@@ -1,4 +1,4 @@
-from config import FRAME_BATCH, FRAME_INTERVAL, FRAME_SKIP
+from config import FRAME_BATCH, FRAME_INTERVAL
 import cv2
 import os
 
@@ -29,7 +29,6 @@ def resizeWithPad(image, target_width: int, target_height: int, print_diff=False
 
 def extractFrames(input_file: str):
   cap = cv2.VideoCapture(input_file)
-  skip = FRAME_SKIP
   current_batch = []
   i = -1
   while cap.isOpened():
@@ -37,9 +36,6 @@ def extractFrames(input_file: str):
     if not ret:
       break
     i += 1
-    if skip:
-      skip -= 1
-      continue
     if i % FRAME_INTERVAL == 0:
       frame = resizeWithPad(frame, OG_WIDTH, OG_HEIGHT)
       current_batch.append((i, frame))

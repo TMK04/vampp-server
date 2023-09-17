@@ -10,7 +10,7 @@ def hS(n, h_n=3):
 dict_h_base_h = {
     "Instruction": hS("Instruction"),
     "User": hS("User"),
-    "Beholder": hS("Beholder"),
+    "Response": hS("Response"),
     "History": hS("Summary of Conversation History"),
 }
 print(dict_h_base_h)
@@ -86,7 +86,7 @@ For every factor,
         "h_instruction": dict_h_base_h["Instruction"],
         "format_instruction": format_instruction,
         "h_user": dict_h_base_h["User"],
-        "h_response": dict_h_base_h["Beholder"],
+        "h_response": dict_h_base_h["Response"],
     },
 )
 

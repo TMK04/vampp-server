@@ -174,7 +174,9 @@ async def receive_video(topic: str = Form(...), file: Union[UploadFile, str] = F
       s3_client.upload_file(temp_multitask_name, AWS_S3_BUCKET, multitask_key)
       os.remove(temp_multitask_name)
     for key in multitask_key_ls:
-      Item[key] = {"N": str(multitask_df[key].mean())}
+      value = str(multitask_df[key].mean())
+      Item[key] = {"N": value}
+      print(f"{key}: {value}")
 
     attire_df_dict = {
         "i": multitask_df.index[FRAME_ATTIRE_MASK],
@@ -193,6 +195,7 @@ async def receive_video(topic: str = Form(...), file: Union[UploadFile, str] = F
       os.remove(temp_attire_name)
     attire_mode = bool(attire_df["attire"].mode()[0])
     Item["pa"] = {"BOOL": attire_mode}
+    print(f"pa: {attire_mode}")
 
   def framesFn():
     localizeFrames()
@@ -218,7 +221,9 @@ async def receive_video(topic: str = Form(...), file: Union[UploadFile, str] = F
       os.remove(temp_speech_stats_name)
     for key in speech_stats_key_ls:
       Item_key = f"speech_{key}"
-      Item[Item_key] = {"N": str(speech_stats_df[key].mean())}
+      value = str(speech_stats_df[key].mean())
+      Item[Item_key] = {"N": value}
+      print(f"{Item_key}: {value}")
 
   def predictPitch():
     pitch_arg_ls = ["pitch.txt"]
@@ -232,10 +237,10 @@ async def receive_video(topic: str = Form(...), file: Union[UploadFile, str] = F
       raise HTTPException(status_code=500, detail=str(e))
     for key, value in beholder_response:
       Item_key = f"beholder_{key}"
-      if key.endswith("_justification"):
-        Item[Item_key] = {"S": value}
-      else:
-        Item[Item_key] = {"N": str(value)}
+      if not key.endswith("_justification"):
+        value = str(value)
+      Item[Item_key] = {"S": value}
+      print(f"{Item_key}: {value}")
 
   # Create a ThreadPoolExecutor to run the functions in parallel
   with concurrent.futures.ThreadPoolExecutor() as executor:

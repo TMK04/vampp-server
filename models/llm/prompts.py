@@ -60,7 +60,6 @@ Feasibility
 - Are there risks in implementing & maintaining the project?
 + Does the presenter have a plan to *mitigate* the risks?
 Impact
-+ Is the project **related** to the topic?
 + Does the project target a *specific* audience?
 + Does the project **solve** the target audience's needs?
 - Is the project **difficult to use** for the target audience?

@@ -1,6 +1,6 @@
 from .exllama_loader import Exllama
 from .prompts import dict_h_base_h, pitch_prompt, prompt, score_parser
-from config import MODEL_LLM_CONTEXT_LEN, MODEL_LLM_DYNAMO_HISTORY_TABLE, MODEL_LLM_PATH, MODEL_LLM_SUPPORT_PATH
+from config import MODEL_LLM_CONTEXT_LEN, MODEL_LLM_DYNAMO_HISTORY_TABLE, MODEL_LLM_PATH, MODEL_LLM_SAM, MODEL_LLM_SUPPORT_PATH, MODEL_LLM_SUPPORT_SAM
 from langchain.chains import ConversationChain
 from langchain.memory import ConversationSummaryBufferMemory, DynamoDBChatMessageHistory
 from langchain.output_parsers import RetryWithErrorOutputParser
@@ -30,7 +30,7 @@ llm = Exllama(
     #     handler,
     # ],
     verbose=True,
-    set_auto_map="45",
+    set_auto_map=MODEL_LLM_SAM,
     temperature=.7,
     top_k=50,
     typical=.95,
@@ -45,7 +45,7 @@ llm_support = Exllama(
     #     handler,
     # ],
     verbose=True,
-    set_auto_map="14",
+    set_auto_map=MODEL_LLM_SUPPORT_SAM,
     temperature=.5,
     top_k=40,
     typical=.2,

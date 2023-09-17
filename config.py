@@ -31,6 +31,10 @@ MODEL_SS_PATH = os.environ.get("MODEL_SS_PATH")
 MODEL_SS_PRETRAINED_PATH = os.environ.get("MODEL_SS_PRETRAINED_PATH")
 
 MODEL_LLM_PATH = os.environ.get("MODEL_LLM_PATH")
+# set_auto_map
+MODEL_LLM_SAM = os.environ.get("MODEL_LLM_SAM", "54")
 MODEL_LLM_SUPPORT_PATH = os.environ.get("MODEL_LLM_SUPPORT_PATH")
+# set_auto_map
+MODEL_LLM_SUPPORT_SAM = os.environ.get("MODEL_LLM_SUPPORT_SAM", "16")
 MODEL_LLM_CONTEXT_LEN = int(os.environ.get("MODEL_LLM_CONTEXT_LEN", "4096"))
 MODEL_LLM_DYNAMO_HISTORY_TABLE = os.environ.get("MODEL_LLM_DYNAMO_HISTORY_TABLE")

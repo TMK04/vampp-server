@@ -1,6 +1,7 @@
 from .exllama_loader import Exllama
 from .prompts import dict_h_base_h, pitch_prompt, prompt, score_parser
-from config import MODEL_LLM_CONTEXT_LEN, MODEL_LLM_DYNAMO_HISTORY_TABLE, MODEL_LLM_PATH, MODEL_LLM_GS
+from aws import AWS_DYNAMO_TABLE
+from config import MODEL_LLM_CONTEXT_LEN, MODEL_LLM_PATH, MODEL_LLM_GS
 from langchain.chains import ConversationChain
 from langchain.memory import ConversationSummaryBufferMemory, DynamoDBChatMessageHistory
 from langchain.output_parsers import RetryWithErrorOutputParser
@@ -46,8 +47,9 @@ def Chain(id):
     return dict_id_chain[id]
 
   history = DynamoDBChatMessageHistory(
-      table_name=MODEL_LLM_DYNAMO_HISTORY_TABLE,
+      table_name=AWS_DYNAMO_TABLE,
       session_id=id,
+      primary_key_name="id",
   )
   memory = ConversationSummaryBufferMemory(llm=llm,
                                            chat_memory=history,

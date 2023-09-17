@@ -246,13 +246,13 @@ async def receive_video(topic: str = Form(...), file: Union[UploadFile, str] = F
 
   # Create a ThreadPoolExecutor to run the functions in parallel
   with concurrent.futures.ThreadPoolExecutor() as executor:
-    # Submit the functions to the executor for parallel execution
-    frames_future = executor.submit(framesFn)
-    speech_stats_future = executor.submit(predictSpeechStats)
-    pitch_future = executor.submit(predictPitch)
-
-    # Wait for all futures to complete
-    concurrent.futures.wait([frames_future, speech_stats_future, pitch_future])
+    concurrent.futures.wait([
+        executor.submit(fn) for fn in [
+            # framesFn,
+            # predictSpeechStats,
+            predictPitch,
+        ]
+    ])
   print(Item)
 
   X_pe = [

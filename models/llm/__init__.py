@@ -67,11 +67,12 @@ def Chain(id):
 
 def runBeholderFirst(chain, topic, pitch):
   chain.memory.clear()
-  prompt_value = pitch_prompt.format_prompt(topic=topic, pitch=pitch),
+  prompt_value = pitch_prompt.format_prompt(topic=topic, pitch=pitch)
+  prompt_value_str = prompt_value.to_string()
   failures = 0
   while failures < 3:
     try:
-      beholder_response_str = chain.run(input=prompt_value)
+      beholder_response_str = chain.run(input=prompt_value_str)
     except Exception as e:
       failures += 1
       str_e = str(e)

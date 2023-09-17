@@ -142,7 +142,9 @@ async def receive_video(topic: str = Form(...), file: Union[UploadFile, str] = F
     Path(temp_restored_dir_name).mkdir()
     restoreFaces(temp_localized_dir_name, temp_restored_dir_name)
     temp_restored_dir_name = os.path.join(temp_restored_dir_name, "restored_imgs")
-    for temp_restored_basename in os.listdir(temp_restored_dir_name):
+    temp_restored_basename_ls = os.listdir(temp_restored_dir_name)
+    print(temp_restored_basename_ls)
+    for temp_restored_basename in temp_restored_basename_ls:
       temp_restored_name = os.path.join(temp_restored_dir_name, temp_restored_basename)
       restored_frame = cv2.imread(temp_restored_name, cv2.IMREAD_GRAYSCALE)
       restored_frame = np.expand_dims(restored_frame, axis=0)

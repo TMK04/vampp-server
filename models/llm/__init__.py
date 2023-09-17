@@ -1,6 +1,6 @@
 from .exllama_loader import Exllama
 from .prompts import dict_h_base_h, pitch_prompt, prompt, score_parser
-from config import MODEL_LLM_CONTEXT_LEN, MODEL_LLM_DYNAMO_HISTORY_TABLE, MODEL_LLM_PATH, MODEL_LLM_GS, MODEL_LLM_SUPPORT_PATH, MODEL_LLM_SUPPORT_GS
+from config import MODEL_LLM_CONTEXT_LEN, MODEL_LLM_DYNAMO_HISTORY_TABLE, MODEL_LLM_PATH, MODEL_LLM_GS
 from langchain.chains import ConversationChain
 from langchain.memory import ConversationSummaryBufferMemory, DynamoDBChatMessageHistory
 from langchain.output_parsers import RetryWithErrorOutputParser
@@ -36,22 +36,7 @@ llm = Exllama(
     typical=.95,
     token_repetition_penalty_max=1.15,
 )
-llm_support = Exllama(
-    **shared_kwargs,
-    #streaming = True,
-    model_path=MODEL_LLM_SUPPORT_PATH,
-    # lora_path = os.path.abspath(sys.argv[2]) if len(sys.argv) > 2 else None,
-    # callbacks=[
-    #     handler,
-    # ],
-    verbose=True,
-    gpu_split=MODEL_LLM_SUPPORT_GS,
-    temperature=.5,
-    top_k=40,
-    typical=.2,
-    token_repetition_penalty_max=1.1,
-)
-score_parser = RetryWithErrorOutputParser.from_llm(parser=score_parser, llm=llm_support)
+score_parser = RetryWithErrorOutputParser.from_llm(parser=score_parser, llm=llm)
 
 dict_id_chain = {}
 
@@ -64,7 +49,7 @@ def Chain(id):
       table_name=MODEL_LLM_DYNAMO_HISTORY_TABLE,
       session_id=id,
   )
-  memory = ConversationSummaryBufferMemory(llm=llm_support,
+  memory = ConversationSummaryBufferMemory(llm=llm,
                                            chat_memory=history,
                                            max_token_limit=512,
                                            ai_prefix="Beholder",

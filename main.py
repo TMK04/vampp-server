@@ -143,7 +143,6 @@ async def receive_video(topic: str = Form(...), file: Union[UploadFile, str] = F
     restoreFaces(temp_localized_dir_name, temp_restored_dir_name)
     temp_restored_dir_name = os.path.join(temp_restored_dir_name, "restored_imgs")
     temp_restored_basename_ls = os.listdir(temp_restored_dir_name)
-    print(temp_restored_basename_ls)
     for temp_restored_basename in temp_restored_basename_ls:
       temp_restored_name = os.path.join(temp_restored_dir_name, temp_restored_basename)
       restored_frame = cv2.imread(temp_restored_name, cv2.IMREAD_GRAYSCALE)
@@ -160,6 +159,7 @@ async def receive_video(topic: str = Form(...), file: Union[UploadFile, str] = F
     multitask_df_dict = {key: [] for key in ["i", *multitask_key_ls]}
     frame_ls = []
     for batch_i_ls, batch_frame_ls in processRestoredFrames(restoreFrames()):
+      print(batch_i_ls)
       batch_frame_tensor = toTensor(batch_frame_ls).to(device)
       multitask_pred = infer(multitask_model, batch_frame_tensor)
       multitask_df_dict["i"].extend(batch_i_ls)

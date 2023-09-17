@@ -80,7 +80,7 @@ def runBeholderFirst(chain, topic, pitch):
         chain.memory.chat_memory.prune()
         raise ValueError(f"Input length exceeds the maximum length of {MODEL_LLM_CONTEXT_LEN}.")
       print(str_e)
-      print(beholder_kwargs)
+      print(prompt_value_str)
       print("Retrying...")
       continue
     try:
@@ -88,8 +88,10 @@ def runBeholderFirst(chain, topic, pitch):
       return beholder_response
     except Exception as e:
       failures += 1
-      print(e)
+      str_e = str(e)
+      print(str_e)
       print(beholder_response_str)
+      chain.memory.chat_memory.add_message(SystemMessage(content=str_e))
       print("Retrying...")
   raise ValueError("Failed to parse response from Beholder.")
 

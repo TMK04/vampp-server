@@ -6,7 +6,7 @@ from audio import transcribe, splitAudio, splitAudioBatch
 from aws import AWS_DYNAMO_TABLE, AWS_S3_BUCKET, USE_AWS, dynamo_client, s3_client
 import concurrent.futures
 from config import FRAME_ATTIRE_MASK
-from cv_helpers import extractFrames, processRestoredFrames, resizeToLocalize
+from cv_helpers import batchRestoredFrames, extractFrames, resizeToLocalize
 import cv2
 from fastapi import FastAPI, HTTPException, UploadFile, Form
 from models.components import device, infer, toTensor
@@ -101,11 +101,7 @@ async def receive_video(topic: str = Form(...), file: Union[UploadFile, str] = F
     audio_key = s3Key(wav_arg_ls)
     s3_client.upload_file(temp_wav_name, AWS_S3_BUCKET, audio_key)
 
-  localized_dir_arg_ls = ["frame", "localized"]
-  temp_localized_dir_name = tempName(localized_dir_arg_ls)
-  Path(temp_localized_dir_name).mkdir()
-
-  def localizeFrames():
+  def localizeFrames(temp_localized_dir_name):
     if USE_AWS:
       xyxyn_df = {key: [] for key in ["i", "x1", "y1", "x2", "y2"]}
     for batch in extractFrames(temp_mp4_name):
@@ -137,7 +133,7 @@ async def receive_video(topic: str = Form(...), file: Union[UploadFile, str] = F
       s3_client.upload_file(temp_xyxyn_name, AWS_S3_BUCKET, xyxyn_key)
       os.remove(temp_xyxyn_name)
 
-  def restoreFrames():
+  def restoreFrames(temp_localized_dir_name):
     temp_restored_dir_name = tempName(["frame", "restored"])
     Path(temp_restored_dir_name).mkdir()
     restoreFaces(temp_localized_dir_name, temp_restored_dir_name)
@@ -154,11 +150,11 @@ async def receive_video(topic: str = Form(...), file: Union[UploadFile, str] = F
       i = temp_restored_basename.replace(".jpg", "")
       yield i, restored_frame
 
-  def predictFrames():
+  def predictFrames(gen_restored_frame_batches):
     multitask_key_ls = ["moving", "smiling", "upright", "ec"]
     multitask_df_dict = {key: [] for key in ["i", *multitask_key_ls]}
     frame_ls = []
-    for batch_i_ls, batch_frame_ls in processRestoredFrames(restoreFrames()):
+    for batch_i_ls, batch_frame_ls in gen_restored_frame_batches:
       batch_frame_tensor = toTensor(batch_frame_ls).to(device)
       multitask_pred = infer(multitask_model, batch_frame_tensor)
       multitask_df_dict["i"].extend(batch_i_ls)
@@ -200,9 +196,13 @@ async def receive_video(topic: str = Form(...), file: Union[UploadFile, str] = F
     print(f"pa: {attire_mode}")
 
   def framesFn():
-    localizeFrames()
+    localized_dir_arg_ls = ["frame", "localized"]
+    temp_localized_dir_name = tempName(localized_dir_arg_ls)
+    Path(temp_localized_dir_name).mkdir()
+
+    localizeFrames(temp_localized_dir_name)
     os.remove(temp_mp4_name)
-    predictFrames()
+    predictFrames(batchRestoredFrames(restoreFrames(temp_localized_dir_name)))
 
   def predictSpeechStats():
     speech_stats_key_ls = ["enthusiasm", "clarity"]

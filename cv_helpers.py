@@ -58,7 +58,7 @@ def resizeToLocalize(frame):
   return to_localize_frame
 
 
-def processRestoredFrames(gen_restored_frames):
+def batchRestoredFrames(gen_restored_frames):
   i_ls = []
   frame_ls = []
   for i, restored_frame in gen_restored_frames:

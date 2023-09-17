@@ -159,7 +159,6 @@ async def receive_video(topic: str = Form(...), file: Union[UploadFile, str] = F
     multitask_df_dict = {key: [] for key in ["i", *multitask_key_ls]}
     frame_ls = []
     for batch_i_ls, batch_frame_ls in processRestoredFrames(restoreFrames()):
-      print(batch_i_ls)
       batch_frame_tensor = toTensor(batch_frame_ls).to(device)
       multitask_pred = infer(multitask_model, batch_frame_tensor)
       multitask_df_dict["i"].extend(batch_i_ls)
@@ -167,6 +166,7 @@ async def receive_video(topic: str = Form(...), file: Union[UploadFile, str] = F
       for j, key in enumerate(multitask_key_ls):
         multitask_df_dict[key].extend(multitask_pred[:, j])
     multitask_df = pd.DataFrame(multitask_df_dict).set_index("i")
+    print(multitask_df)
 
     if USE_AWS:
       multitask_arg_ls = ["frame", "multitask.csv"]

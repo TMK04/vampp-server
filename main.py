@@ -64,6 +64,10 @@ async def receive_video(topic: str = Form(...), file: Union[UploadFile, str] = F
 
   Item = {"id": {"S": basename_random}, "topic": {"S": topic}}
 
+  def setItem(key, type_code, value):
+    Item[key] = {type_code: value}
+    print(f"{key}: {value}")
+
   if USE_AWS:
 
     def s3Key(arg_ls):
@@ -173,8 +177,7 @@ async def receive_video(topic: str = Form(...), file: Union[UploadFile, str] = F
       os.remove(temp_multitask_name)
     for key in multitask_key_ls:
       value = str(multitask_df[key].mean())
-      Item[key] = {"N": value}
-      print(f"{key}: {value}")
+      setItem(key, "N", value)
 
     attire_df_dict = {
         "i": multitask_df.index[FRAME_ATTIRE_MASK],
@@ -192,8 +195,7 @@ async def receive_video(topic: str = Form(...), file: Union[UploadFile, str] = F
       s3_client.upload_file(temp_attire_name, AWS_S3_BUCKET, attire_key)
       os.remove(temp_attire_name)
     attire_mode = bool(attire_df["attire"].mode()[0])
-    Item["pa"] = {"BOOL": attire_mode}
-    print(f"pa: {attire_mode}")
+    setItem("pa", "BOOL", attire_mode)
 
   def framesFn():
     localized_dir_arg_ls = ["frame", "localized"]
@@ -224,8 +226,7 @@ async def receive_video(topic: str = Form(...), file: Union[UploadFile, str] = F
     for key in speech_stats_key_ls:
       Item_key = f"speech_{key}"
       value = str(speech_stats_df[key].mean())
-      Item[Item_key] = {"N": value}
-      print(f"{Item_key}: {value}")
+      setItem(Item_key, "N", value)
 
   def predictPitch():
     pitch_arg_ls = ["pitch.txt"]
@@ -239,20 +240,19 @@ async def receive_video(topic: str = Form(...), file: Union[UploadFile, str] = F
       raise HTTPException(status_code=500, detail=str(e))
     for key, value in beholder_response:
       Item_key = f"beholder_{key}"
-      if not key.endswith("_justification"):
-        value = str(value)
-      Item[Item_key] = {"S": value}
-      print(f"{Item_key}: {value}")
+      if key.endswith("_justification"):
+        setItem(Item_key, "S", value)
+      else:
+        setItem(Item_key, "N", str(value))
 
   # Create a ThreadPoolExecutor to run the functions in parallel
   with concurrent.futures.ThreadPoolExecutor() as executor:
-    concurrent.futures.wait([
-        executor.submit(fn) for fn in [
-            # framesFn,
-            # predictSpeechStats,
+    concurrent.futures.wait(
+        [executor.submit(fn) for fn in [
+            framesFn,
+            predictSpeechStats,
             predictPitch,
-        ]
-    ])
+        ]])
   print(Item)
 
   X_pe = [

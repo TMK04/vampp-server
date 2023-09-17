@@ -5,7 +5,7 @@ from typing import Union
 from audio import transcribe, splitAudio, splitAudioBatch
 from aws import AWS_DYNAMO_TABLE, AWS_S3_BUCKET, USE_AWS, dynamo_client, s3_client
 import concurrent.futures
-from config import FRAME_ATTIRE_MASK
+from config import FRAME_ATTIRE_MASK, TMP_DIR, TMP_FILENAME
 from cv_helpers import batchRestoredFrames, extractFrames, resizeToLocalize
 import cv2
 from fastapi import FastAPI, HTTPException, UploadFile, Form
@@ -22,7 +22,6 @@ import pandas as pd
 from pathlib import Path
 import re
 from re_patterns import pattern_mp4_suffix
-import shortuuid
 import shutil
 from subprocess import CalledProcessError
 from video_commands import compressVideo, downloadVideo, extractAudio
@@ -42,25 +41,16 @@ def get_histories():
   return histories
 
 
-@app.post("/")
-async def receive_video(topic: str = Form(...), file: Union[UploadFile, str] = Form(...)):
-  file_is_ytid = isinstance(file, str)
-  try:
-    file_name = file if file_is_ytid else file.filename
-  # No filename
-  except AttributeError:
-    raise HTTPException(status_code=400, detail="No file name")
-  basename = re.sub(pattern_mp4_suffix, "", file_name)
+@app.delete("/{id}")
+def delete_history(id: str):
+  result = dynamo_client.delete_item(TableName=AWS_DYNAMO_TABLE, Key={"id": {"S": id}})
+  return result
 
-  # Create temp dir
-  while True:
-    try:
-      basename_random = f"{basename}-{shortuuid.ShortUUID().random(length=7)}"
-      temp_dir_name = os.path.join(tmp_dir, basename_random)
-      Path(temp_dir_name).mkdir()
-      break
-    except FileExistsError:
-      continue
+
+@app.post("/")
+async def receive_video(topic: str = Form(...), basename: str = Form(...), random: str = Form(...)):
+  basename_random = f"{basename}-{random}"
+  temp_dir_name = os.path.join(TMP_DIR, basename_random)
 
   Item = {"id": {"S": basename_random}, "topic": {"S": topic}}
 
@@ -77,17 +67,8 @@ async def receive_video(topic: str = Form(...), file: Union[UploadFile, str] = F
     return os.path.join(temp_dir_name, "-".join(arg_ls))
 
   # Save file to temp
-  temp_arg_ls = ["temp.mp4"]
+  temp_arg_ls = [f"{TMP_FILENAME}.mp4"]
   temp_file_name = tempName(temp_arg_ls)
-  if file_is_ytid:
-    try:
-      downloadVideo(file, temp_file_name)
-    except CalledProcessError:
-      raise HTTPException(status_code=400, detail="Invalid YouTube ID")
-  else:
-    with open(temp_file_name, "wb") as f:
-      f.write(await file.read())
-  print(os.listdir(temp_dir_name))
 
   mp4_arg_ls = ["og.mp4"]
   temp_mp4_name = tempName(mp4_arg_ls)

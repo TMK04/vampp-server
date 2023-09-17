@@ -166,7 +166,6 @@ async def receive_video(topic: str = Form(...), file: Union[UploadFile, str] = F
       for j, key in enumerate(multitask_key_ls):
         multitask_df_dict[key].extend(multitask_pred[:, j])
     multitask_df = pd.DataFrame(multitask_df_dict).set_index("i")
-    print(multitask_df)
 
     if USE_AWS:
       multitask_arg_ls = ["frame", "multitask.csv"]

@@ -133,7 +133,7 @@ For example, {"topic": "Topic", "summary": "Summary"} is a valid instance of the
 
 summary_topic_prompt = PromptTemplate(
     template=("""{h_instruction}
-Summarize the following pitch:
+Summarize the following project pitch.
 
 {format_instruction}
 

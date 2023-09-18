@@ -40,22 +40,13 @@ llm = Exllama(
 score_parser = RetryWithErrorOutputParser.from_llm(parser=score_parser, llm=llm)
 summary_topic_parser = RetryWithErrorOutputParser.from_llm(parser=summary_topic_parser, llm=llm)
 
-summary_chain = LLMChain(
-    llm=llm,
-    prompt=prompt,
-)
-summary_topic_chain = LLMChain(
-    llm=llm,
-    prompt=summary_topic_prompt,
-)
-
 
 def summarizeWithTopic(topic, pitch):
-  prompt_value_str = summary_prompt.format_prompt(topic=topic, pitch=pitch)
+  prompt_value_str = summary_prompt.format(topic=topic, pitch=pitch)
   failures = 0
   while failures < 3:
     try:
-      summary_response = summary_chain.run(input=prompt_value_str)
+      summary_response = llm(prompt_value_str)
       return summary_response
     except Exception as e:
       failures += 1
@@ -73,7 +64,7 @@ def summarizeWithoutTopic(pitch):
   failures = 0
   while failures < 3:
     try:
-      summary_topic_response_str = summary_topic_chain.run(input=prompt_value_str)
+      summary_topic_response_str = llm(prompt_value_str)
     except Exception as e:
       failures += 1
       str_e = str(e)
@@ -86,6 +77,7 @@ def summarizeWithoutTopic(pitch):
     try:
       summary_topic_response = summary_topic_parser.parse_with_prompt(summary_topic_response_str,
                                                                       prompt_value)
+      print(summary_topic_response)
       return summary_topic_response
     except Exception as e:
       failures += 1
@@ -96,7 +88,6 @@ def summarizeWithoutTopic(pitch):
 
 
 def summarize(pitch, topic):
-  print("What is happening...")
   if topic:
     print(f"Summarizing with topic: {topic}")
     summary_response = summarizeWithTopic(topic=topic, pitch=pitch)

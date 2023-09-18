@@ -50,7 +50,7 @@ summary_topic_chain = LLMChain(
 )
 
 
-def SummaryChain(topic, pitch):
+def summarizeWithTopic(topic, pitch):
   prompt_value_str = summary_prompt.format_prompt(topic=topic, pitch=pitch)
   failures = 0
   while failures < 3:
@@ -67,7 +67,7 @@ def SummaryChain(topic, pitch):
       print("Retrying...")
 
 
-def SummaryTopicChain(pitch):
+def summarizeWithoutTopic(pitch):
   prompt_value = summary_topic_prompt.format_prompt(pitch=pitch)
   prompt_value_str = prompt_value.to_string()
   failures = 0
@@ -96,11 +96,14 @@ def SummaryTopicChain(pitch):
 
 
 def summarize(pitch, topic):
+  print("What is happening...")
   if topic:
-    summary_response = SummaryChain(topic=topic, pitch=pitch)
+    print(f"Summarizing with topic: {topic}")
+    summary_response = summarizeWithTopic(topic=topic, pitch=pitch)
     return topic, summary_response
 
-  summary_topic_response = SummaryTopicChain(pitch=pitch)
+  print("Summarizing without topic...")
+  summary_topic_response = summarizeWithoutTopic(pitch=pitch)
   return summary_topic_response["topic"], summary_topic_response["summary"]
 
 

@@ -46,8 +46,8 @@ def summarizeWithTopic(topic, pitch):
   failures = 0
   while failures < 3:
     try:
-      summary_response = llm(prompt_value_str)
-      return summary_response
+      summary = llm(prompt_value_str)
+      return summary
     except Exception as e:
       failures += 1
       str_e = str(e)
@@ -77,7 +77,6 @@ def summarizeWithoutTopic(pitch):
     try:
       summary_topic_response = summary_topic_parser.parse_with_prompt(summary_topic_response_str,
                                                                       prompt_value)
-      print(summary_topic_response)
       return summary_topic_response
     except Exception as e:
       failures += 1
@@ -90,12 +89,12 @@ def summarizeWithoutTopic(pitch):
 def summarize(pitch, topic):
   if topic:
     print(f"Summarizing with topic: {topic}")
-    summary_response = summarizeWithTopic(topic=topic, pitch=pitch)
-    return topic, summary_response
+    summary = summarizeWithTopic(topic=topic, pitch=pitch)
+    return topic, summary
 
   print("Summarizing without topic...")
   summary_topic_response = summarizeWithoutTopic(pitch=pitch)
-  return summary_topic_response["topic"], summary_topic_response["summary"]
+  return summary_topic_response.topic, summary_topic_response.summary
 
 
 dict_id_chain = {}

@@ -191,15 +191,15 @@ async def receive_video(topic: str = Form(""), basename: str = Form(...), random
       setItem(Item_key, "N", value)
 
   def predictPitch():
+    nonlocal topic
     pitch_arg_ls = ["pitch.txt"]
     temp_pitch_name = tempName(pitch_arg_ls)
     pitch = transcribe(temp_wav_name)
     setItem("pitch", "S", pitch)
 
-    summary_topic = summarize(pitch, topic)
-    print(summary_topic)
-    # setItem("topic", "S", topic)
-    # setItem("summary", "S", summary)
+    topic, summary = summarize(pitch, topic)
+    setItem("topic", "S", topic)
+    setItem("summary", "S", summary)
 
     chain = Chain(basename_random)
     try:

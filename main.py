@@ -29,22 +29,6 @@ tmp_dir = Path("tmp/")
 tmp_dir.mkdir(parents=True, exist_ok=True)
 
 
-@app.get("/")
-def get_histories():
-  histories = dynamo_client.scan(
-      TableName=AWS_DYNAMO_TABLE,
-      FilterExpression=
-      "attribute_exists(ec) AND attribute_exists(pa) AND attribute_exists(speech_clarity) AND attribute_exists(beholder_clarity) AND attribute_exists(beholder_clarity_justification) AND attribute_exists(pe)"
-  )["Items"]
-  return histories
-
-
-@app.delete("/{id}")
-def delete_history(id: str):
-  result = dynamo_client.delete_item(TableName=AWS_DYNAMO_TABLE, Key={"id": {"S": id}})
-  return result
-
-
 @app.post("/")
 async def receive_video(topic: str = Form(...), basename: str = Form(...), random: str = Form(...)):
   basename_random = f"{basename}-{random}"

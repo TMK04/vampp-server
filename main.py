@@ -21,10 +21,8 @@ import numpy as np
 import pandas as pd
 from pathlib import Path
 import re
-from re_patterns import pattern_mp4_suffix
 import shutil
-from subprocess import CalledProcessError
-from video_commands import compressVideo, downloadVideo, extractAudio
+from video_commands import compressVideo, extractAudio
 
 app = FastAPI()
 tmp_dir = Path("tmp/")

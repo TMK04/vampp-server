@@ -11,7 +11,7 @@ import cv2
 from fastapi import FastAPI, HTTPException, UploadFile, Form
 from models.components import device, infer, toTensor
 from models.face_restorer import restoreFaces
-from models.llm import Chain, runBeholderFirst
+from models.llm import Chain, runBeholderFirst, summarize
 from models.presenter_localizer import calculatePresenterXYXYN, localizePresenter
 from models.rfr import rfr_bv, rfr_clarity, rfr_pe, rfrInfer
 from models.speech_stats import preprocess, speech_stats_model
@@ -195,6 +195,11 @@ async def receive_video(topic: str = Form(...), basename: str = Form(...), rando
     temp_pitch_name = tempName(pitch_arg_ls)
     pitch = transcribe(temp_wav_name)
     Item["pitch"] = {"S": pitch}
+
+    topic, summary = summarize(pitch, topic)
+    Item["topic"] = {"S": topic}
+    Item["summary"] = {"S": summary}
+
     chain = Chain(basename_random)
     try:
       beholder_response = runBeholderFirst(chain, topic, pitch)

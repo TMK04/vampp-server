@@ -95,6 +95,15 @@ def SummaryTopicChain(pitch):
       print("Retrying...")
 
 
+def summarize(pitch, topic):
+  if topic:
+    summary_response = SummaryChain(topic=topic, pitch=pitch)
+    return topic, summary_response
+
+  summary_topic_response = SummaryTopicChain(pitch=pitch)
+  return summary_topic_response["topic"], summary_topic_response["summary"]
+
+
 dict_id_chain = {}
 
 

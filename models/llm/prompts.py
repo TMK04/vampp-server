@@ -107,7 +107,7 @@ Topic: {topic}
 
 {h_response}
 """),
-    input_variables=["topic", "pitch", "response"],
+    input_variables=["topic", "pitch"],
     partial_variables={
         "h_instruction": dict_h_base_h["Instruction"],
         "h_user": dict_h_base_h["User"],

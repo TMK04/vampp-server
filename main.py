@@ -30,7 +30,7 @@ tmp_dir.mkdir(parents=True, exist_ok=True)
 
 
 @app.post("/")
-async def receive_video(topic: str = Form(...), basename: str = Form(...), random: str = Form(...)):
+async def receive_video(topic: str = Form(""), basename: str = Form(...), random: str = Form(...)):
   basename_random = f"{basename}-{random}"
   temp_dir_name = os.path.join(TMP_DIR, basename_random)
 

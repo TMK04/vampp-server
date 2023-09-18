@@ -215,31 +215,30 @@ async def receive_video(topic: str = Form(""), basename: str = Form(...), random
 
   # Create a ThreadPoolExecutor to run the functions in parallel
   with concurrent.futures.ThreadPoolExecutor() as executor:
-    concurrent.futures.wait([
-        executor.submit(fn) for fn in [
-            # framesFn,
-            # predictSpeechStats,
+    concurrent.futures.wait(
+        [executor.submit(fn) for fn in [
+            framesFn,
+            predictSpeechStats,
             predictPitch,
-        ]
-    ])
+        ]])
   print(Item)
 
-  # X_pe = [
-  #     *[Item[key]["N"] for key in ["moving", "smiling", "upright", "ec"]],
-  #     Item["pa"]["BOOL"],
-  #     Item["speech_enthusiasm"]["N"],
-  # ]
-  # Item["pe"] = {"N": str(rfrInfer(rfr_pe, X_pe))}
-  # X_clarity = [Item[key]["N"] for key in ["speech_clarity", "beholder_clarity"]]
-  # Item["clarity"] = {"N": str(rfrInfer(rfr_clarity, X_clarity))}
-  # X_bv = [
-  #     Item[key]["N"] for key in ["beholder_creativity", "beholder_feasibility", "beholder_impact"]
-  # ]
-  # Item["bv"] = {"N": str(rfrInfer(rfr_bv, X_bv))}
+  X_pe = [
+      *[Item[key]["N"] for key in ["moving", "smiling", "upright", "ec"]],
+      Item["pa"]["BOOL"],
+      Item["speech_enthusiasm"]["N"],
+  ]
+  Item["pe"] = {"N": str(rfrInfer(rfr_pe, X_pe))}
+  X_clarity = [Item[key]["N"] for key in ["speech_clarity", "beholder_clarity"]]
+  Item["clarity"] = {"N": str(rfrInfer(rfr_clarity, X_clarity))}
+  X_bv = [
+      Item[key]["N"] for key in ["beholder_creativity", "beholder_feasibility", "beholder_impact"]
+  ]
+  Item["bv"] = {"N": str(rfrInfer(rfr_bv, X_bv))}
 
-  # print(Item)
-  # if USE_AWS:
-  #   dynamo_client.put_item(TableName=AWS_DYNAMO_TABLE, Item=Item)
+  print(Item)
+  if USE_AWS:
+    dynamo_client.put_item(TableName=AWS_DYNAMO_TABLE, Item=Item)
 
   shutil.rmtree(temp_dir_name, ignore_errors=True)
   return Item

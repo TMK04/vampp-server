@@ -1,8 +1,8 @@
 from .exllama_loader import Exllama
-from .prompts import dict_h_base_h, pitch_prompt, prompt, score_parser
+from .prompts import dict_h_base_h, pitch_prompt, prompt, score_parser, summary_prompt, summary_topic_prompt, summary_topic_parser
 from aws import AWS_DYNAMO_TABLE
 from config import MODEL_LLM_CONTEXT_LEN, MODEL_LLM_PATH, MODEL_LLM_GS
-from langchain.chains import ConversationChain
+from langchain.chains import ConversationChain, LLMChain
 from langchain.memory import ConversationSummaryBufferMemory, DynamoDBChatMessageHistory
 from langchain.output_parsers import RetryWithErrorOutputParser
 from langchain.schema import SystemMessage
@@ -38,6 +38,62 @@ llm = Exllama(
     token_repetition_penalty_max=1.15,
 )
 score_parser = RetryWithErrorOutputParser.from_llm(parser=score_parser, llm=llm)
+summary_topic_parser = RetryWithErrorOutputParser.from_llm(parser=summary_topic_parser, llm=llm)
+
+summary_chain = LLMChain(
+    llm=llm,
+    prompt=prompt,
+)
+summary_topic_chain = LLMChain(
+    llm=llm,
+    prompt=summary_topic_prompt,
+)
+
+
+def SummaryChain(topic, pitch):
+  prompt_value_str = summary_prompt.format_prompt(topic=topic, pitch=pitch)
+  failures = 0
+  while failures < 3:
+    try:
+      summary_response = summary_chain.run(input=prompt_value_str)
+      return summary_response
+    except Exception as e:
+      failures += 1
+      str_e = str(e)
+      if (str_e.endswith(f"exceeds dimension size ({MODEL_LLM_CONTEXT_LEN}).")):
+        raise ValueError(str_e)
+      print(str_e)
+      print(prompt_value_str)
+      print("Retrying...")
+
+
+def SummaryTopicChain(pitch):
+  prompt_value = summary_topic_prompt.format_prompt(pitch=pitch)
+  prompt_value_str = prompt_value.to_string()
+  failures = 0
+  while failures < 3:
+    try:
+      summary_topic_response_str = summary_topic_chain.run(input=prompt_value_str)
+    except Exception as e:
+      failures += 1
+      str_e = str(e)
+      if (str_e.endswith(f"exceeds dimension size ({MODEL_LLM_CONTEXT_LEN}).")):
+        raise ValueError(str_e)
+      print(str_e)
+      print(prompt_value_str)
+      print("Retrying...")
+      continue
+    try:
+      summary_topic_response = summary_topic_parser.parse_with_prompt(summary_topic_response_str,
+                                                                      prompt_value)
+      return summary_topic_response
+    except Exception as e:
+      failures += 1
+      str_e = str(e)
+      print(str_e)
+      print(summary_topic_response_str)
+      print("Retrying...")
+
 
 dict_id_chain = {}
 
@@ -78,7 +134,7 @@ def runBeholderFirst(chain, topic, pitch):
       str_e = str(e)
       if (str_e.endswith(f"exceeds dimension size ({MODEL_LLM_CONTEXT_LEN}).")):
         chain.memory.chat_memory.prune()
-        raise ValueError(f"Input length exceeds the maximum length of {MODEL_LLM_CONTEXT_LEN}.")
+        raise ValueError(str_e)
       print(str_e)
       print(prompt_value_str)
       print("Retrying...")

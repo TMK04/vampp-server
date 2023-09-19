@@ -117,7 +117,7 @@ Topic: {topic}
 
 
 class SummaryTopicOutput(BaseModel):
-  topic: str = Field(description="topic of the pitch", max_length=100)
+  topic: str = Field(description="main idea of the pitch", max_length=100)
   summary: str = Field(description="summary of the pitch", max_length=1000)
 
 
@@ -126,7 +126,7 @@ summary_topic_parser = PydanticOutputParser(pydantic_object=SummaryTopicOutput)
 summary_topic_format_instruction = (
     """The output should be formatted as a JSON instance that conforms to the JSON schema below:
 ```
-{"topic": {"title": "Topic", "description": "topic of the pitch", "maxLength": 100, "type": "string"}, "summary": {"title": "Summary", "description": "summary of the pitch", "maxLength": 1000, "type": "string"}}
+{"topic": {"title": "Topic", "description": "main idea of the pitch", "maxLength": 100, "type": "string"}, "summary": {"title": "Summary", "description": "summary of the pitch", "maxLength": 1000, "type": "string"}}
 ```
 
 For example, {"topic": "Topic", "summary": "Summary"} is a valid instance of the schema above.""")

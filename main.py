@@ -236,7 +236,7 @@ async def receive_video(topic: str = Form(""), basename: str = Form(...), random
   ]
   setItem("bv", "N", str(rfrInfer(rfr_bv, X_bv)))
 
-  setItem("timestamp", "N", str(int(time())))
+  setItem("ts", "N", str(int(time())))
   print(Item)
   if USE_AWS:
     dynamo_client.put_item(TableName=AWS_DYNAMO_TABLE, Item=Item)

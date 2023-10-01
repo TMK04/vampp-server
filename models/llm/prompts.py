@@ -150,3 +150,24 @@ Summarize the following project pitch.
         "h_response": dict_h_base_h["Response"],
     },
 )
+
+summary_topic_prompt_w_title = PromptTemplate(
+    template=("""{h_instruction}
+Summarize the following project pitch.
+
+{format_instruction}
+
+{h_user}
+{title}
+{pitch}
+
+{h_response}
+"""),
+    input_variables=["pitch", "title"],
+    partial_variables={
+        "h_instruction": dict_h_base_h["Instruction"],
+        "format_instruction": summary_topic_format_instruction,
+        "h_user": dict_h_base_h["User"],
+        "h_response": dict_h_base_h["Response"],
+    },
+)

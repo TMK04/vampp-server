@@ -1,5 +1,5 @@
 from .exllama_loader import Exllama
-from .prompts import dict_h_base_h, pitch_prompt, prompt, score_parser, summary_prompt, summary_topic_prompt, summary_topic_parser
+from .prompts import dict_h_base_h, pitch_prompt, prompt, score_parser, summary_prompt, summary_topic_prompt, summary_topic_prompt_w_title, summary_topic_parser
 from aws import AWS_DYNAMO_TABLE
 from config import MODEL_LLM_CONTEXT_LEN, MODEL_LLM_PATH, MODEL_LLM_GS
 from langchain.chains import ConversationChain, LLMChain
@@ -58,8 +58,11 @@ def summarizeWithTopic(topic, pitch):
       print("Retrying...")
 
 
-def summarizeWithoutTopic(pitch):
-  prompt_value = summary_topic_prompt.format_prompt(pitch=pitch)
+def summarizeWithoutTopic(pitch, title):
+  if title:
+    prompt_value = summary_topic_prompt_w_title.format_prompt(pitch=pitch, title=title)
+  else:
+    prompt_value = summary_topic_prompt.format_prompt(pitch=pitch)
   prompt_value_str = prompt_value.to_string()
   failures = 0
   while failures < 3:
@@ -86,14 +89,14 @@ def summarizeWithoutTopic(pitch):
       print("Retrying...")
 
 
-def summarize(pitch, topic):
+def summarize(pitch, topic, title):
   if topic:
     print(f"Summarizing with topic: {topic}")
     summary = summarizeWithTopic(topic=topic, pitch=pitch)
     return topic, summary
 
   print("Summarizing without topic...")
-  summary_topic_response = summarizeWithoutTopic(pitch=pitch)
+  summary_topic_response = summarizeWithoutTopic(pitch=pitch, title=title)
   return summary_topic_response.topic, summary_topic_response.summary
 
 

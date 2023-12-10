@@ -1,0 +1,24 @@
+https://download.pytorch.org/whl/cu118/torchaudio-2.1.1%2Bcu118-cp310-cp310-linux_x86_64.whl#sha256=46d671337ffa0dd926bf60cfb01f12daad0a99007e20a7d1d9fdb6b72c180abf
+
+# CV
+realesrgan
+ultralytics
+
+# Audio
+librosa
+openai-whisper
+
+# NLP
+langchain
+loralib
+https://github.com/turboderp/exllamav2/releases/download/v0.0.10/exllamav2-0.0.10+cu118-cp310-cp310-linux_x86_64.whl
+
+# Server
+boto3
+fastapi
+ffmpeg-python
+python-dotenv
+python-multipart
+uvicorn[standard]
+websockets
+yt-dlp

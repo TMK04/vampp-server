@@ -1,8 +1,0 @@
-boto3
-fastapi
-ffmpeg-python
-python-dotenv
-python-multipart
-uvicorn[standard]
-websockets
-yt-dlp

@@ -1,3 +1,4 @@
+.vscode/
 res/
 tmp/
 
@@ -7,3 +8,5 @@ tmp/
 *.pth
 
 .env
+.env.*
+!.env.example

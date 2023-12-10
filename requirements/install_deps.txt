@@ -10,7 +10,7 @@ openai-whisper
 # NLP
 langchain
 loralib
-https://github.com/turboderp/exllamav2/releases/download/v0.0.10/exllamav2-0.0.10+cu118-cp310-cp310-linux_x86_64.whl
+https://github.com/jllllll/exllama/releases/download/0.0.18/exllama-0.0.18+cu118-cp310-cp310-linux_x86_64.whl
 
 # Server
 boto3

@@ -10,5 +10,4 @@ rm models.7z
 ### CodeFormer
 
 cd "$ROOT_DIR/models/face_restorer/CodeFormer"
-python basicsr/setup.py develop
 python scripts/download_pretrained_models.py CodeFormer

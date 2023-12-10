@@ -8,6 +8,8 @@
 
 ## Installation
 
+Note: Replace ROOT_DIR with the directory of this repository
+
 1. Clone
 
 ```sh
@@ -23,7 +25,7 @@ cp .env.example .env # then edit .env
 3. Install setup dependencies
 
 ```sh
-pip install -r "requirements/setup.txt"
+ROOT_DIR=/ ./script_setup.sh # Replace "/" with this directory
 ```
 
 4. Download models

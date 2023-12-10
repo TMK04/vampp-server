@@ -6,7 +6,10 @@ tmp/
 *.pkl
 *.pt
 *.pth
+models/llm/models/*
 
 .env
 .env.*
 !.env.example
+
+!**/.gitkeep

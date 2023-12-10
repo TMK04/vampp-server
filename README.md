@@ -2,8 +2,9 @@
 
 ## Prerequisites
 
-- [AWS CLI](https://aws.amazon.com/cli)
 - [7zip](https://www.7-zip.org)
+- [AWS CLI](https://aws.amazon.com/cli)
+- [Huggingface CLI](https://huggingface.co/docs/huggingface_hub/guides/cli)
 
 ## Installation
 
@@ -28,7 +29,11 @@ pip install -r "requirements/setup.txt"
 4. Download models
 
 ```sh
-ROOT_DIR=/ ./script_download_large.sh # Replace / w/ this directory
+ROOT_DIR=/ ./script_download_large.sh # Replace "/" with this directory
+cd models/llm/models/
+# Feel free to use another model; The dir should match MODEL_LLM_DIR in .env
+mkdir deepseek-llm-67b-chat-GPTQ/
+huggingface-cli download TheBloke/deepseek-llm-67b-chat-GPTQ --revision gptq-4bit-32g-actorder_True --local-dir deepseek-llm-67b-chat-GPTQ --local-dir-use-symlinks False
 ```
 
 5. Install dependencies

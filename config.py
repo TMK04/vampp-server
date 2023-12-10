@@ -16,14 +16,12 @@ FRAME_ATTIRE_MASK = np.concatenate((FRAME_ATTIRE_MASK, -(FRAME_ATTIRE_MASK + 1))
 FRAME_BATCH = int(os.environ.get("FRAME_BATCH", "1"))
 FRAME_INTERVAL = int(os.environ.get("FRAME_INTERVAL", "1"))
 
-for key in ["MODEL_FR_PATH", "MODEL_LLM_PATH"]:
+for key in ["MODEL_LLM_DIR"]:
   env_var = os.environ.get(key)
   if env_var is None:
     raise ValueError(f"env_var {key} is unset")
 
-MODEL_FR_PATH = os.environ.get("MODEL_FR_PATH")
-
-MODEL_LLM_PATH = os.environ.get("MODEL_LLM_PATH")
+MODEL_LLM_DIR = os.environ.get("MODEL_LLM_DIR")
 # gpu_split
 MODEL_LLM_GS = os.environ.get("MODEL_LLM_GS", "46")
 MODEL_LLM_CONTEXT_LEN = int(os.environ.get("MODEL_LLM_CONTEXT_LEN", "4096"))

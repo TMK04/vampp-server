@@ -1,13 +1,15 @@
 from .exllama_loader import Exllama
 from .prompts import dict_h_base_h, pitch_prompt, prompt, score_parser, summary_prompt, summary_topic_prompt, summary_topic_prompt_w_title, summary_topic_parser
 from aws import AWS_DYNAMO_TABLE
-from config import MODEL_LLM_CONTEXT_LEN, MODEL_LLM_PATH, MODEL_LLM_GS
+from config import MODEL_LLM_CONTEXT_LEN, MODEL_LLM_DIR, MODEL_LLM_GS
 from langchain.chains import ConversationChain, LLMChain
 from langchain.memory import ConversationSummaryBufferMemory, DynamoDBChatMessageHistory
 from langchain.output_parsers import RetryWithErrorOutputParser
 from langchain.schema import SystemMessage
 import numpy as np
+import os
 import pandas as pd
+from pathlib import Path
 import re
 import torch
 
@@ -22,10 +24,11 @@ shared_kwargs = dict(
     sdp_thd=8,
     fused_attn=True,
 )
+models_dir = Path(__file__).parent / "./models/"
 llm = Exllama(
     **shared_kwargs,
     #streaming = True,
-    model_path=MODEL_LLM_PATH,
+    model_path=os.path.join(models_dir, MODEL_LLM_DIR),
     # lora_path = os.path.abspath(sys.argv[2]) if len(sys.argv) > 2 else None,
     # callbacks=[
     #     handler,

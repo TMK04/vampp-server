@@ -1,5 +1,4 @@
 from basicsr.utils import imwrite, img2tensor, tensor2img
-from config import MODEL_FR_PATH
 import cv2
 import glob
 import os

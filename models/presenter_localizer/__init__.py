@@ -1,9 +1,10 @@
-from config import MODEL_PL_PATH
 from cv_helpers import OG_HEIGHT, OG_WIDTH, TO_LOCALIZE_HEIGHT, TO_LOCALIZE_WIDTH, resizeWithPad
 import numpy as np
 import os
+from pathlib import Path
 from ultralytics import YOLO
 
+model_pl_path = Path(__file__).parent / "model.pt"
 model = YOLO(MODEL_PL_PATH, task="detect")
 
 LOCALIZED_HEIGHT = LOCALIZED_WIDTH = 224

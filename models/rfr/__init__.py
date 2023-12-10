@@ -1,10 +1,12 @@
-from config import MODEL_RFR_PATH
 import numpy as np
+from pathlib import Path
 import pickle
 
+wd = Path(__file__).parent
 
-def load(suffix):
-  with open(f"{MODEL_RFR_PATH}{suffix}.pkl", "rb") as f:
+
+def load(path):
+  with open(wd / f"{path}.pkl", "rb") as f:
     return pickle.load(f)
 
 

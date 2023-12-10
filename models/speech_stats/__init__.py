@@ -1,7 +1,7 @@
-from .components import _Classifier, device
-from config import MODEL_SS_PATH, MODEL_SS_PRETRAINED_PATH
+from ..components import _Classifier, device
 from audio import AUDIO_SR
 import os
+from pathlib import Path
 import torch
 import torch.nn as nn
 from transformers import Wav2Vec2Model, Wav2Vec2PreTrainedModel, Wav2Vec2Processor
@@ -67,7 +67,11 @@ class Head(nn.Module):
     return logits
 
 
-processor = Wav2Vec2Processor.from_pretrained(MODEL_SS_PRETRAINED_PATH)
+wd = Path(__file__).parent
+model_ss_pretrained_path = wd / "./pretrained"
+model_ss_path = wd / "./model"
+
+processor = Wav2Vec2Processor.from_pretrained(model_ss_pretrained_path)
 
 
 def preprocess(x):
@@ -76,8 +80,8 @@ def preprocess(x):
   return y
 
 
-emotion_model = EmotionModel.from_pretrained(MODEL_SS_PRETRAINED_PATH)
+emotion_model = EmotionModel.from_pretrained(model_ss_pretrained_path)
 speech_stats_model = nn.Sequential(
     emotion_model.wav2vec2,
     Head(emotion_model.config.hidden_size, 0, emotion_model.config.final_dropout)).to(device)
-speech_stats_model.load_state_dict(torch.load(MODEL_SS_PATH)["model"])
+speech_stats_model.load_state_dict(torch.load(model_ss_path)["model"])

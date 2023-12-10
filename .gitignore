@@ -1,4 +1,9 @@
 res/
 tmp/
 
+*.7z
+*.pkl
+*.pt
+*.pth
+
 .env

@@ -10,6 +10,8 @@ openai-whisper
 # NLP
 langchain
 loralib
+ninja==1.11.1
+sentencepiece>=0.1.97
 transformers
 https://github.com/jllllll/exllama/releases/download/0.0.18/exllama-0.0.18+cu118-cp310-cp310-linux_x86_64.whl
 

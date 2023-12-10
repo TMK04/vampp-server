@@ -10,4 +10,4 @@ rm models.7z
 ### CodeFormer
 
 cd "$ROOT_DIR/models/face_restorer/CodeFormer"
-python scripts/download_pretrained_models.py CodeFormer
+python scripts/download_pretrained_models.py all

@@ -6,6 +6,7 @@ tmp/
 *.pkl
 *.pt
 *.pth
+facelib/
 models/llm/models/*
 
 .env

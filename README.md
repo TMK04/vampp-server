@@ -41,7 +41,7 @@ huggingface-cli download TheBloke/deepseek-llm-67b-chat-GPTQ --revision gptq-4bi
 5. Install dependencies
 
 ```sh
-pip install -r "requirements/install_deps.txt"
+ROOT_DIR=/ ./script_install_deps.sh # Replace "/" with this directory
 ```
 
 ## Models used

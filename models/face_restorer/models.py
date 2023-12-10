@@ -1,8 +1,8 @@
 from basicsr.utils.registry import ARCH_REGISTRY
-from facelib.utils.face_restoration_helper import FaceRestoreHelper
 from pathlib import Path
 import torch
 from ..components import device
+from facelib.utils.face_restoration_helper import FaceRestoreHelper
 
 net = ARCH_REGISTRY.get('CodeFormer')(dim_embd=512,
                                       codebook_size=1024,

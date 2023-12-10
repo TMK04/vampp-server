@@ -69,7 +69,7 @@ class Head(nn.Module):
 
 wd = Path(__file__).parent
 model_ss_pretrained_path = wd / "./pretrained"
-model_ss_path = wd / "./model"
+model_ss_path = wd / "./model.pth"
 
 processor = Wav2Vec2Processor.from_pretrained(model_ss_pretrained_path)
 

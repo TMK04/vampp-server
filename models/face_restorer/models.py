@@ -10,7 +10,7 @@ net = ARCH_REGISTRY.get('CodeFormer')(dim_embd=512,
                                       n_layers=9,
                                       connect_list=['32', '64', '128', '256']).to(device)
 
-ckpt_path = Path(__file__) / './CodeFormer/weights/CodeFormer/codeformer.pth'
+ckpt_path = Path(__file__).parent / './CodeFormer/weights/CodeFormer/codeformer.pth'
 checkpoint = torch.load(ckpt_path)['params_ema']
 net.load_state_dict(checkpoint)
 net.eval()

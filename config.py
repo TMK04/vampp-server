@@ -21,6 +21,8 @@ for key in ["MODEL_LLM_DIR", "MODEL_LLM2_DIR"]:
   if env_var is None:
     raise ValueError(f"env_var {key} is unset")
 
+MODEL_FR_W = float(os.environ.get("MODEL_FR_W", "0.5"))
+
 MODEL_LLM_DIR = os.environ.get("MODEL_LLM_DIR")
 MODEL_LLM_CONTEXT_LEN = int(os.environ.get("MODEL_LLM_CONTEXT_LEN", "8192"))
 MODEL_LLM_SCALE_POS_EMB = float(os.environ.get("MODEL_LLM_SCALE_POS_EMB", "3.0"))

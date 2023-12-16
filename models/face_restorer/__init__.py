@@ -1,4 +1,5 @@
 from basicsr.utils import imwrite, img2tensor, tensor2img
+from config import MODEL_FR_W
 import cv2
 import glob
 import os
@@ -41,7 +42,7 @@ def restoreFaces(input_dir, output_dir):
 
       try:
         with torch.no_grad():
-          output = net(cropped_face_t, w=w, adain=True)[0]
+          output = net(cropped_face_t, w=MODEL_FR_W, adain=True)[0]
           restored_face = tensor2img(output, rgb2bgr=True, min_max=(-1, 1))
         del output
         torch.cuda.empty_cache()

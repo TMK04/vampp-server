@@ -34,8 +34,8 @@ ROOT_DIR=/ ./script_setup.sh # Replace "/" with this directory
 ROOT_DIR=/ ./script_download_large.sh # Replace "/" with this directory
 cd models/llm/models/
 # Feel free to use another model; The dir should match MODEL_LLM_DIR in .env
-mkdir deepseek-llm-67b-chat-GPTQ/
-huggingface-cli download TheBloke/deepseek-llm-67b-chat-GPTQ --revision gptq-4bit-32g-actorder_True --local-dir deepseek-llm-67b-chat-GPTQ --local-dir-use-symlinks False
+mkdir SUS-Chat-34B-4.65bpw-h6-exl2/
+huggingface-cli download LoneStriker/SUS-Chat-34B-4.65bpw-h6-exl2 --local-dir SUS-Chat-34B-4.65bpw-h6-exl2 --local-dir-use-symlinks False
 ```
 
 5. Install dependencies
@@ -46,10 +46,10 @@ ROOT_DIR=/ ./script_install_deps.sh # Replace "/" with this directory
 
 ## Models used
 
-| Task                       | Model                                                                                                                                                                                                          |
-|----------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Crop Posture               | Finetuned [YOLOv8n](https://github.com/ultralytics/ultralytics)                                                                                                                                                |
-| Enhance cropped posture    | [CodeFormer](https://github.com/sczhou/CodeFormer) + [Real-ESRGAN](https://github.com/xinntao/Real-ESRGAN)                                                                                                     |
-| Speech Emotion Recognition | Finetuned [wav2vec2-large-robust-12-ft-emotion-msp-dim](https://huggingface.co/audeering/wav2vec2-large-robust-12-ft-emotion-msp-dim)                                                                          |
-| Text Recognition           | [Whisper](https://github.com/openai/whisper)                                                                                                                                                                   |
-| Text Analysis              | [deepseek-llm-67b-chat](https://huggingface.co/deepseek-ai/deepseek-llm-67b-chat) ([GPTQ 4bit-32g-actorder_True](https://huggingface.co/TheBloke/deepseek-llm-67b-chat-GPTQ/tree/gptq-4bit-32g-actorder_True)) |
+| Task                       | Model                                                                                                                                            |
+|----------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------|
+| Crop Posture               | Finetuned [YOLOv8n](https://github.com/ultralytics/ultralytics)                                                                                  |
+| Enhance cropped posture    | [CodeFormer](https://github.com/sczhou/CodeFormer) + [Real-ESRGAN](https://github.com/xinntao/Real-ESRGAN)                                       |
+| Speech Emotion Recognition | Finetuned [wav2vec2-large-robust-12-ft-emotion-msp-dim](https://huggingface.co/audeering/wav2vec2-large-robust-12-ft-emotion-msp-dim)            |
+| Text Recognition           | [Whisper](https://github.com/openai/whisper)                                                                                                     |
+| Text Analysis              | [SUS-Chat-34B](https://huggingface.co/SUSTech/SUS-Chat-34B) ([4.65bpw-h6-exl2](https://huggingface.co/LoneStriker/SUS-Chat-34B-4.65bpw-h6-exl2)) |

@@ -1,7 +1,7 @@
 from .exllamav2_loader import ExllamaV2
 from .prompts import dict_h_base_h, pitch_prompt, prompt, score_parser, summary_prompt, summary_topic_prompt, summary_topic_prompt_w_title, summary_topic_parser
 from aws import AWS_DYNAMO_TABLE
-from config import MODEL_LLM_CONTEXT_LEN, MODEL_LLM_DIR
+from config import MODEL_LLM_CONTEXT_LEN, MODEL_LLM_DIR, MODEL_LLM2_CONTEXT_LEN, MODEL_LLM2_DIR
 from langchain.chains import ConversationChain, LLMChain
 from langchain.memory import ConversationSummaryBufferMemory, DynamoDBChatMessageHistory
 from langchain.output_parsers import RetryWithErrorOutputParser
@@ -15,28 +15,44 @@ import torch
 
 shared_kwargs = dict(
     stop_strings=[*dict_h_base_h.values()],
-    max_seq_len=MODEL_LLM_CONTEXT_LEN,
-    max_input_len=MODEL_LLM_CONTEXT_LEN,
     top_p=.9,
+    verbose=True,
 )
 models_dir = Path(__file__).parent / "./models/"
 llm = ExllamaV2(
     **shared_kwargs,
-    scale_pos_emb=2.,
-    #streaming = True,
     model_path=os.path.join(models_dir, MODEL_LLM_DIR),
+    scale_pos_emb=3.,
+    max_seq_len=MODEL_LLM_CONTEXT_LEN,
+    max_input_len=MODEL_LLM_CONTEXT_LEN,
+    #streaming = True,
     # lora_path = os.path.abspath(sys.argv[2]) if len(sys.argv) > 2 else None,
     # callbacks=[
     #     handler,
     # ],
-    verbose=True,
     temperature=.7,
     top_k=50,
     typical=.95,
     token_repetition_penalty=1.15,
 )
-score_parser = RetryWithErrorOutputParser.from_llm(parser=score_parser, llm=llm)
-summary_topic_parser = RetryWithErrorOutputParser.from_llm(parser=summary_topic_parser, llm=llm)
+llm2 = ExllamaV2(
+    **shared_kwargs,
+    model_path=os.path.join(models_dir, MODEL_LLM2_DIR),
+    scale_pos_emb=2.,
+    max_seq_len=MODEL_LLM2_CONTEXT_LEN,
+    max_input_len=MODEL_LLM2_CONTEXT_LEN,
+    #streaming = True,
+    # lora_path = os.path.abspath(sys.argv[2]) if len(sys.argv) > 2 else None,
+    # callbacks=[
+    #     handler,
+    # ],
+    temperature=.5,
+    top_k=40,
+    typical=.2,
+    token_repetition_penalty_max=1.1,
+)
+score_parser = RetryWithErrorOutputParser.from_llm(parser=score_parser, llm=llm2)
+summary_topic_parser = RetryWithErrorOutputParser.from_llm(parser=summary_topic_parser, llm=llm2)
 
 
 def summarizeWithTopic(topic, pitch):

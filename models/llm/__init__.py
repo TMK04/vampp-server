@@ -22,6 +22,7 @@ shared_kwargs = dict(
 models_dir = Path(__file__).parent / "./models/"
 llm = ExllamaV2(
     **shared_kwargs,
+    scale_pos_emb=2.,
     #streaming = True,
     model_path=os.path.join(models_dir, MODEL_LLM_DIR),
     # lora_path = os.path.abspath(sys.argv[2]) if len(sys.argv) > 2 else None,

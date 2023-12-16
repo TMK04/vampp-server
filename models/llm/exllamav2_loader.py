@@ -57,7 +57,12 @@ class ExllamaV2(LLM):
   max_seq_len: Optional[int] = Field(
       2048,
       decription=
-      "Reduce to save memory. Can also be increased, ideally while also using compress_pos_emn and a compatible model/LoRA"
+      "Reduce to save memory. Can also be increased, ideally while also using scale_pos_emn and a compatible model/LoRA"
+  )
+  scale_pos_emb: Optional[float] = Field(
+      1.0,
+      description=
+      "Factor by which to scale positional embeddings, e.g. for 4096-token sequence use a scaling factor of 2.0, requires finetuned model or LoRA"
   )
   # alpha_value: Optional[float] = Field(1.0, description="Rope context extension alpha") #Old Param
   scale_alpha_value: Optional[float] = Field(1.0,

@@ -23,5 +23,4 @@ for key in ["MODEL_LLM_DIR"]:
 
 MODEL_LLM_DIR = os.environ.get("MODEL_LLM_DIR")
 # gpu_split
-MODEL_LLM_GS = os.environ.get("MODEL_LLM_GS", "46")
 MODEL_LLM_CONTEXT_LEN = int(os.environ.get("MODEL_LLM_CONTEXT_LEN", "4096"))

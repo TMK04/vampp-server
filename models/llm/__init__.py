@@ -1,7 +1,7 @@
 from .exllamav2_loader import ExllamaV2
 from .prompts import dict_h_base_h, pitch_prompt, prompt, score_parser, summary_prompt, summary_topic_prompt, summary_topic_prompt_w_title, summary_topic_parser
 from aws import AWS_DYNAMO_TABLE
-from config import MODEL_LLM_CONTEXT_LEN, MODEL_LLM_DIR, MODEL_LLM_GS
+from config import MODEL_LLM_CONTEXT_LEN, MODEL_LLM_DIR
 from langchain.chains import ConversationChain, LLMChain
 from langchain.memory import ConversationSummaryBufferMemory, DynamoDBChatMessageHistory
 from langchain.output_parsers import RetryWithErrorOutputParser
@@ -29,7 +29,6 @@ llm = ExllamaV2(
     #     handler,
     # ],
     verbose=True,
-    gpu_split=MODEL_LLM_GS,
     temperature=.7,
     top_k=50,
     typical=.95,

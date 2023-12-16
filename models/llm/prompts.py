@@ -8,9 +8,9 @@ def hS(n, h_n=3):
 
 
 dict_h_base_h = {
-    "Instruction": hS("Instruction"),
-    "User": hS("User"),
-    "Response": hS("Response"),
+    "Instruction": hS("System"),
+    "User": hS("Human"),
+    "Response": hS("Assistant"),
     "History": hS("Summary of Conversation History"),
 }
 print(dict_h_base_h)

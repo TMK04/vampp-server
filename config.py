@@ -23,8 +23,8 @@ for key in ["MODEL_LLM_DIR", "MODEL_LLM2_DIR"]:
 
 MODEL_LLM_DIR = os.environ.get("MODEL_LLM_DIR")
 MODEL_LLM_CONTEXT_LEN = int(os.environ.get("MODEL_LLM_CONTEXT_LEN", "8192"))
-MODEL_LLM_SCALE_POS_EMB = int(os.environ.get("MODEL_LLM_SCALE_POS_EMB", "3.0"))
+MODEL_LLM_SCALE_POS_EMB = float(os.environ.get("MODEL_LLM_SCALE_POS_EMB", "3.0"))
 
 MODEL_LLM2_DIR = os.environ.get("MODEL_LLM2_DIR")
 MODEL_LLM2_CONTEXT_LEN = int(os.environ.get("MODEL_LLM2_CONTEXT_LEN", "4096"))
-MODEL_LLM2_SCALE_POS_EMB = int(os.environ.get("MODEL_LLM2_SCALE_POS_EMB", "2.0"))
+MODEL_LLM2_SCALE_POS_EMB = float(os.environ.get("MODEL_LLM2_SCALE_POS_EMB", "2.0"))

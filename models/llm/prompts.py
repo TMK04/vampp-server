@@ -35,14 +35,14 @@ class ScoreOutput(BaseModel):
 
 score_parser = PydanticOutputParser(pydantic_object=ScoreOutput)
 
-score_format_instruction = (
-    """The output should be formatted as a JSON instance that conforms to the JSON schema below:
+score_format_instruction = ("""Format a response that conforms to the JSON schema below:
 ```
 {"creativity": {"title": "Creativity", "description": "creativity score", "minimum": 1, "maximum": 10, "type": "integer"}, "creativity_justification": {"title": "Creativity Justification", "description": "justification for creativity score", "maxLength": 700, "type": "string"}, "feasibility": {"title": "Feasibility", "description": "feasibility score", "minimum": 1, "maximum": 10, "type": "integer"}, "feasibility_justification": {"title": "Feasibility Justification", "description": "justification for feasibility score", "maxLength": 700, "type": "string"}, "impact": {"title": "Impact", "description": "impact score", "minimum": 1, "maximum": 10, "type": "integer"}, "impact_justification": {"title": "Impact Justification", "description": "justification for impact score", "maxLength": 700, "type": "string"}, "clarity": {"title": "Clarity", "description": "clarity score", "minimum": 1, "maximum": 10, "type": "integer"}, "clarity_justification": {"title": "Clarity Justification", "description": "justification for clarity score", "maxLength": 700, "type": "string"}}
 ```
 
-For example, {"creativity": 1, "creativity_justification": "", "feasibility": 1, "feasibility_justification": "", "impact": 1, "impact_justification": "", "clarity": 1, "clarity_justification": ""} is a valid instance of the schema above."""
-)
+For example,
+{"creativity": 1, "creativity_justification": "", "feasibility": 1, "feasibility_justification": "", "impact": 1, "impact_justification": "", "clarity": 1, "clarity_justification": ""}"""
+                            )
 
 prompt = PromptTemplate(
     template=("""{h_history}

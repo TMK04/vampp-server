@@ -1,4 +1,4 @@
-from .exllama_loader import Exllama
+from .exllamav2_loader import ExllamaV2
 from .prompts import dict_h_base_h, pitch_prompt, prompt, score_parser, summary_prompt, summary_topic_prompt, summary_topic_prompt_w_title, summary_topic_parser
 from aws import AWS_DYNAMO_TABLE
 from config import MODEL_LLM_CONTEXT_LEN, MODEL_LLM_DIR, MODEL_LLM_GS
@@ -25,7 +25,7 @@ shared_kwargs = dict(
     fused_attn=True,
 )
 models_dir = Path(__file__).parent / "./models/"
-llm = Exllama(
+llm = ExllamaV2(
     **shared_kwargs,
     #streaming = True,
     model_path=os.path.join(models_dir, MODEL_LLM_DIR),

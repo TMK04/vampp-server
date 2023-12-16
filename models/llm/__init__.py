@@ -1,7 +1,7 @@
 from .exllamav2_loader import ExllamaV2
 from .prompts import dict_h_base_h, pitch_prompt, prompt, score_parser, summary_prompt, summary_topic_prompt, summary_topic_prompt_w_title, summary_topic_parser
 from aws import AWS_DYNAMO_TABLE
-from config import MODEL_LLM_CONTEXT_LEN, MODEL_LLM_DIR, MODEL_LLM2_CONTEXT_LEN, MODEL_LLM2_DIR
+from config import MODEL_LLM_CONTEXT_LEN, MODEL_LLM_DIR, MODEL_LLM_SCALE_POS_EMB, MODEL_LLM2_CONTEXT_LEN, MODEL_LLM2_DIR, MODEL_LLM2_SCALE_POS_EMB
 from langchain.chains import ConversationChain, LLMChain
 from langchain.memory import ConversationSummaryBufferMemory, DynamoDBChatMessageHistory
 from langchain.output_parsers import RetryWithErrorOutputParser
@@ -22,7 +22,7 @@ models_dir = Path(__file__).parent / "./models/"
 llm = ExllamaV2(
     **shared_kwargs,
     model_path=os.path.join(models_dir, MODEL_LLM_DIR),
-    scale_pos_emb=3.,
+    scale_pos_emb=MODEL_LLM_SCALE_POS_EMB,
     max_seq_len=MODEL_LLM_CONTEXT_LEN,
     max_input_len=MODEL_LLM_CONTEXT_LEN,
     #streaming = True,
@@ -38,7 +38,7 @@ llm = ExllamaV2(
 llm2 = ExllamaV2(
     **shared_kwargs,
     model_path=os.path.join(models_dir, MODEL_LLM2_DIR),
-    scale_pos_emb=2.,
+    scale_pos_emb=MODEL_LLM2_SCALE_POS_EMB,
     max_seq_len=MODEL_LLM2_CONTEXT_LEN,
     max_input_len=MODEL_LLM2_CONTEXT_LEN,
     #streaming = True,

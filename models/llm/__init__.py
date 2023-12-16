@@ -23,7 +23,7 @@ models_dir = Path(__file__).parent / "./models/"
 llm = ExllamaV2(
     **shared_kwargs,
     #streaming = True,
-    model_dir=os.path.join(models_dir, MODEL_LLM_DIR),
+    model_path=os.path.join(models_dir, MODEL_LLM_DIR),
     # lora_path = os.path.abspath(sys.argv[2]) if len(sys.argv) > 2 else None,
     # callbacks=[
     #     handler,

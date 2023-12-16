@@ -59,28 +59,9 @@ class ExllamaV2(LLM):
       decription=
       "Reduce to save memory. Can also be increased, ideally while also using compress_pos_emn and a compatible model/LoRA"
   )
-  # compress_pos_emb: Optional[float] = Field(1.0, description="Amount of compression to apply to the positional embedding.")
-  set_auto_map: Optional[str] = Field(
-      None,
-      description=
-      "Comma-separated list of VRAM (in GB) to use per GPU device for model layers, e.g. 20,7,7")
-  gpu_peer_fix: Optional[bool] = Field(None,
-                                       description="Prevent direct copies of data between GPUs")
   # alpha_value: Optional[float] = Field(1.0, description="Rope context extension alpha") #Old Param
   scale_alpha_value: Optional[float] = Field(1.0,
                                              description="Rope context extension alpha")  #New Param
-
-  ##Tuning
-  matmul_recons_thd: Optional[int] = Field(None)
-  fused_mlp_thd: Optional[int] = Field(None)
-  sdp_thd: Optional[int] = Field(None)
-  fused_attn: Optional[bool] = Field(None)
-  matmul_fused_remap: Optional[bool] = Field(None)
-  rmsnorm_no_half2: Optional[bool] = Field(None)
-  rope_no_half2: Optional[bool] = Field(None)
-  matmul_no_half2: Optional[bool] = Field(None)
-  silu_no_half2: Optional[bool] = Field(None)
-  concurrent_streams: Optional[bool] = Field(None)
 
   ##Lora Parameters
   # lora_path: Optional[str] = Field(None, description="Path to your lora.") #Exllamav2 doesn't yet support loras
@@ -153,35 +134,13 @@ class ExllamaV2(LLM):
 
     config_param_names = [
         "max_seq_len",
-        # "compress_pos_emb",
-        "gpu_peer_fix",
         # "alpha_value"
         "scale_alpha_value"
     ]
 
-    tuning_parameters = [
-        "matmul_recons_thd",
-        "fused_mlp_thd",
-        "sdp_thd",
-        "matmul_fused_remap",
-        "rmsnorm_no_half2",
-        "rope_no_half2",
-        "matmul_no_half2",
-        "silu_no_half2",
-        "concurrent_streams",
-        "fused_attn",
-    ]
-
     configure_config = ExllamaV2.configure_object(config_param_names, values, logfunc)
     configure_config(config)
-    configure_tuning = ExllamaV2.configure_object(tuning_parameters, values, logfunc)
-    configure_tuning(config)
     configure_model = ExllamaV2.configure_object(model_param_names, values, logfunc)
-
-    ##Special parameter, set auto map, it's a function
-    if values['set_auto_map']:
-      config.set_auto_map(values['set_auto_map'])
-      logfunc(f"set_auto_map {values['set_auto_map']}")
 
     model = ExLlamaV2(config)
     model.load()

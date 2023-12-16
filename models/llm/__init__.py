@@ -14,21 +14,16 @@ import re
 import torch
 
 shared_kwargs = dict(
-    stop_sequences=[*dict_h_base_h.values()],
+    stop_strings=[*dict_h_base_h.values()],
     max_seq_len=MODEL_LLM_CONTEXT_LEN,
     max_input_len=MODEL_LLM_CONTEXT_LEN,
-    compress_pos_emb=1.0,
     top_p=.9,
-    matmul_recons_thd=8,
-    fused_mlp_thd=2,
-    sdp_thd=8,
-    fused_attn=True,
 )
 models_dir = Path(__file__).parent / "./models/"
 llm = ExllamaV2(
     **shared_kwargs,
     #streaming = True,
-    model_path=os.path.join(models_dir, MODEL_LLM_DIR),
+    model_dir=os.path.join(models_dir, MODEL_LLM_DIR),
     # lora_path = os.path.abspath(sys.argv[2]) if len(sys.argv) > 2 else None,
     # callbacks=[
     #     handler,
@@ -38,7 +33,7 @@ llm = ExllamaV2(
     temperature=.7,
     top_k=50,
     typical=.95,
-    token_repetition_penalty_max=1.15,
+    token_repetition_penalty=1.15,
 )
 score_parser = RetryWithErrorOutputParser.from_llm(parser=score_parser, llm=llm)
 summary_topic_parser = RetryWithErrorOutputParser.from_llm(parser=summary_topic_parser, llm=llm)

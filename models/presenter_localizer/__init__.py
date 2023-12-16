@@ -5,7 +5,7 @@ from pathlib import Path
 from ultralytics import YOLO
 
 model_pl_path = Path(__file__).parent / "model.pt"
-model = YOLO(MODEL_PL_PATH, task="detect")
+model = YOLO(model_pl_path, task="detect")
 
 LOCALIZED_HEIGHT = LOCALIZED_WIDTH = 224
 

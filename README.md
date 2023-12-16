@@ -36,6 +36,9 @@ cd models/llm/models/
 # Feel free to use another model; The dir should match MODEL_LLM_DIR in .env
 mkdir SUS-Chat-34B-5.0bpw-h6-exl2/
 huggingface-cli download LoneStriker/SUS-Chat-34B-5.0bpw-h6-exl2 --local-dir SUS-Chat-34B-5.0bpw-h6-exl2 --local-dir-use-symlinks False
+# dir should match MODEL_LLM2_DIR in .env
+mkdir loyal-piano-m7-8.0bpw-h8-exl2/
+huggingface-cli download LoneStriker/loyal-piano-m7-8.0bpw-h8-exl2 --local-dir loyal-piano-m7-8.0bpw-h8-exl2 --local-dir-use-symlinks False
 ```
 
 5. Install dependencies

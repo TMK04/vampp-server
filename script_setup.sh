@@ -2,7 +2,7 @@
 
 ## Main
 
-pip install -r "requirements/setup.txt"
+pip install -r "$ROOT_DIR/requirements/setup.txt"
 
 ## CodeFormer
 

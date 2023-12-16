@@ -2,7 +2,7 @@
 
 ## Main
 
-pip install -r "requirements/install_deps.txt"
+pip install -r "$ROOT_DIR/requirements/install_deps.txt"
 
 ## CodeFormer
 

@@ -5,8 +5,7 @@ load_dotenv()
 import numpy as np
 import os
 
-TMP_DIR = os.environ.get("TMP_DIR", "/tmp")
-TMP_FILENAME = os.environ.get("TMP_FILENAME", "temp")
+OUT_DIR = os.environ.get("OUT_DIR", "/tmp")
 
 AUDIO_BATCH = int(os.environ.get("AUDIO_BATCH", "1"))
 AUDIO_SR = int(os.environ.get("AUDIO_SR", "16000"))

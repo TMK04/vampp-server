@@ -5,7 +5,7 @@ from typing import Union
 from audio import transcribe, splitAudio, splitAudioBatch
 from aws import AWS_DYNAMO_TABLE, AWS_S3_BUCKET, USE_AWS, dynamo_client, s3_client
 import concurrent.futures
-from config import FRAME_ATTIRE_MASK, TMP_DIR, TMP_FILENAME
+from config import FRAME_ATTIRE_MASK, OUT_DIR
 from cv_helpers import batchRestoredFrames, extractFrames, resizeToLocalize
 import cv2
 from fastapi import FastAPI, HTTPException, UploadFile, Form
@@ -33,7 +33,7 @@ tmp_dir.mkdir(parents=True, exist_ok=True)
 @app.post("/")
 async def receive_video(topic: str = Form(""), title: str = Form(""), basename: str = Form(...), random: str = Form(...)):
   basename_random = f"{basename}-{random}"
-  temp_dir_name = os.path.join(TMP_DIR, basename_random)
+  temp_dir_name = os.path.join(OUT_DIR, basename_random)
 
   Item = {"id": {"S": basename_random}, "topic": {"S": topic}}
 
@@ -50,7 +50,7 @@ async def receive_video(topic: str = Form(""), title: str = Form(""), basename: 
     return os.path.join(temp_dir_name, "-".join(arg_ls))
 
   # Save file to temp
-  temp_arg_ls = [f"{TMP_FILENAME}.mp4"]
+  temp_arg_ls = ["temp.mp4"]
   temp_file_name = tempName(temp_arg_ls)
 
   mp4_arg_ls = ["og.mp4"]

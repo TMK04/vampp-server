@@ -1,12 +1,12 @@
 import cv2
 import os
+import pandas as pd
 
 from server.config import FRAME_BATCH, FRAME_INTERVAL
+from server.models.presenter_localizer import batchInfer, calculatePresenterXYXY, localizePresenter
 
 OG_WIDTH = 1280
 OG_HEIGHT = 720
-TO_LOCALIZE_WIDTH = 426
-TO_LOCALIZE_HEIGHT = 240
 
 
 def resizeWithPad(image, target_width: int, target_height: int, print_diff=False):
@@ -28,8 +28,9 @@ def resizeWithPad(image, target_width: int, target_height: int, print_diff=False
   return cv2.copyMakeBorder(resized, top, bottom, left, right, cv2.BORDER_CONSTANT, value=color)
 
 
-def extractFrames(input_file: str):
+def extractFrameBatchLs(input_file: str):
   cap = cv2.VideoCapture(input_file)
+  batch_ls = []
   current_batch = []
   i = -1
   while cap.isOpened():
@@ -41,22 +42,32 @@ def extractFrames(input_file: str):
       frame = resizeWithPad(frame, OG_WIDTH, OG_HEIGHT)
       current_batch.append((i, frame))
       if len(current_batch) == FRAME_BATCH:
-        yield current_batch
+        batch_ls.append(current_batch)
         current_batch = []
-  # Yield the last batch (may be smaller than FRAME_BATCH)
   if len(current_batch) > 0:
-    yield current_batch
+    batch_ls.append(current_batch)
   cap.release()
+  return batch_ls
 
 
-def grayscale(frame):
-  return cv2.cvtColor(cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY), cv2.COLOR_GRAY2BGR)
+def localizeFrames(temp_mp4_path, temp_localized_dir, temp_xyxyn_path):
+  xyxy_df = {key: [] for key in ["i", "x1", "y1", "x2", "y2"]}
+  for batch in extractFrameBatchLs(temp_mp4_path):
+    for inferred_i, result in enumerate(batchInfer(batch)):
+      xyxy_dict = calculatePresenterXYXY(result)
+      if xyxy_dict is None:
+        continue
+      i, frame = batch[inferred_i]
+      localized_frame = localizePresenter(frame, xyxy_dict)
 
-
-def resizeToLocalize(frame):
-  to_localize_frame = cv2.resize(frame, (TO_LOCALIZE_WIDTH, TO_LOCALIZE_HEIGHT))
-  to_localize_frame = grayscale(to_localize_frame)
-  return to_localize_frame
+      i_jpg = f"{i}.jpg"
+      temp_localized_name = os.path.join(temp_localized_dir, i_jpg)
+      cv2.imwrite(temp_localized_name, localized_frame)
+      xyxy_df["i"].append(i)
+      for key in xyxy_dict:
+        xyxy_df[key].append(xyxy_dict[key])
+  xyxy_df = pd.DataFrame(xyxy_df).set_index("i")
+  xyxy_df.to_csv(temp_xyxyn_path)
 
 
 def batchRestoredFrames(gen_restored_frames):

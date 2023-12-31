@@ -9,29 +9,26 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-from typing import Union
-
 import concurrent.futures
 import cv2
-from fastapi import FastAPI, HTTPException, UploadFile, Form
+from fastapi import FastAPI, HTTPException, Form
 import numpy as np
 import pandas as pd
 from pathlib import Path
-import re
 import shutil
 from time import time
 
 from server.audio import transcribe, splitAudio, splitAudioBatch
 from server.aws import AWS_DYNAMO_TABLE, AWS_S3_BUCKET, USE_AWS, dynamo_client, s3_client
 from server.config import FRAME_ATTIRE_MASK, OUT_DIR
-from server.cv_helpers import batchRestoredFrames, extractFrames, resizeToLocalize
 from server.models.components import device, infer, toTensor
 from server.models.face_restorer import restoreFaces
 from server.models.llm import Chain, runBeholderFirst, summarize
-from server.models.presenter_localizer import calculatePresenterXYXYN, localizePresenter
+import server.models.presenter_localizer as pl
 from server.models.rfr import rfr_bv, rfr_clarity, rfr_pe, rfrInfer
 from server.models.speech_stats import preprocess, speech_stats_model
 from server.models.xdensenet import attire_model, multitask_model
+from server.services.cv import localizeFrames, batchRestoredFrames
 from server.video_commands import compressVideo, extractAudio
 
 app = FastAPI()
@@ -40,14 +37,10 @@ tmp_dir.mkdir(parents=True, exist_ok=True)
 
 
 @app.post("/")
-async def receive_video(topic: str = Form(""),
-                        title: str = Form(""),
-                        basename: str = Form(...),
-                        random: str = Form(...)):
-  basename_random = f"{basename}-{random}"
-  temp_dir_name = os.path.join(OUT_DIR, basename_random)
+async def receive_video(topic: str = Form(""), title: str = Form(""), id: str = Form(...)):
+  temp_dir_name = os.path.join(OUT_DIR, id)
 
-  Item = {"id": {"S": basename_random}, "topic": {"S": topic}}
+  Item = {"id": {"S": id}, "topic": {"S": topic}}
 
   def setItem(key, type_code, value):
     Item[key] = {type_code: value}
@@ -56,65 +49,29 @@ async def receive_video(topic: str = Form(""),
   if USE_AWS:
 
     def s3Key(arg_ls):
-      return os.path.join(basename_random, *arg_ls)
+      return os.path.join(id, *arg_ls)
 
-  def tempName(arg_ls):
+  def tempPath(arg_ls):
     return os.path.join(temp_dir_name, "-".join(arg_ls))
 
   # Save file to temp
   temp_arg_ls = ["temp.mp4"]
-  temp_file_name = tempName(temp_arg_ls)
+  temp_file_name = tempPath(temp_arg_ls)
 
-  mp4_arg_ls = ["og.mp4"]
-  temp_mp4_name = tempName(mp4_arg_ls)
-  compressVideo(temp_file_name, temp_mp4_name)
+  temp_mp4_path = tempPath(["og.mp4"])
+  compressVideo(temp_file_name, temp_mp4_path)
   os.remove(temp_file_name)
-  # if USE_AWS:
-  #   video_key = s3Key(mp4_arg_ls)
-  #   s3_client.upload_file(temp_mp4_name, AWS_S3_BUCKET, video_key)
 
   wav_arg_ls = ["audio", "og.wav"]
-  temp_wav_name = tempName(wav_arg_ls)
-  extractAudio(temp_mp4_name, temp_wav_name)
+  temp_wav_name = tempPath(wav_arg_ls)
+  extractAudio(temp_mp4_path, temp_wav_name)
 
   if USE_AWS:
     audio_key = s3Key(wav_arg_ls)
     s3_client.upload_file(temp_wav_name, AWS_S3_BUCKET, audio_key)
 
-  def localizeFrames(temp_localized_dir_name):
-    if USE_AWS:
-      xyxyn_df = {key: [] for key in ["i", "x1", "y1", "x2", "y2"]}
-    for batch in extractFrames(temp_mp4_name):
-      to_localize_frame_batch = []
-      for i, frame in batch:
-        to_localize_frame = resizeToLocalize(frame)
-        to_localize_frame_batch.append(to_localize_frame)
-
-      gen_xyxyn = calculatePresenterXYXYN(to_localize_frame_batch)
-      for j, xyxyn in enumerate(gen_xyxyn):
-        i, frame = batch[j]
-        localized_frame = localizePresenter(frame, xyxyn)
-
-        i_jpg = f"{i}.jpg"
-        temp_localized_name = os.path.join(temp_localized_dir_name, i_jpg)
-        cv2.imwrite(temp_localized_name, localized_frame)
-        if USE_AWS:
-          xyxyn_df["i"].append(i)
-          xyxyn_df["x1"].append(xyxyn[0])
-          xyxyn_df["y1"].append(xyxyn[1])
-          xyxyn_df["x2"].append(xyxyn[2])
-          xyxyn_df["y2"].append(xyxyn[3])
-    if USE_AWS:
-      xyxyn_df = pd.DataFrame(xyxyn_df).set_index("i")
-      xyxyn_arg_ls = ["frame", "xyxyn.csv"]
-      temp_xyxyn_name = tempName(xyxyn_arg_ls)
-      xyxyn_df.to_csv(temp_xyxyn_name)
-      xyxyn_key = s3Key(xyxyn_arg_ls)
-      s3_client.upload_file(temp_xyxyn_name, AWS_S3_BUCKET, xyxyn_key)
-      os.remove(temp_xyxyn_name)
-
   def restoreFrames(temp_localized_dir_name):
-    temp_restored_dir_name = tempName(["frame", "restored"])
+    temp_restored_dir_name = tempPath(["frame", "restored"])
     Path(temp_restored_dir_name).mkdir()
     restoreFaces(temp_localized_dir_name, temp_restored_dir_name)
     temp_restored_dir_name = os.path.join(temp_restored_dir_name, "restored_imgs")
@@ -145,7 +102,7 @@ async def receive_video(topic: str = Form(""),
 
     if USE_AWS:
       multitask_arg_ls = ["frame", "multitask.csv"]
-      temp_multitask_name = tempName(multitask_arg_ls)
+      temp_multitask_name = tempPath(multitask_arg_ls)
       multitask_df.to_csv(temp_multitask_name)
       multitask_key = s3Key(multitask_arg_ls)
       s3_client.upload_file(temp_multitask_name, AWS_S3_BUCKET, multitask_key)
@@ -164,7 +121,7 @@ async def receive_video(topic: str = Form(""),
     attire_df = pd.DataFrame(attire_df_dict).set_index("i")
     if USE_AWS:
       attire_arg_ls = ["frame", "attire.csv"]
-      temp_attire_name = tempName(attire_arg_ls)
+      temp_attire_name = tempPath(attire_arg_ls)
       attire_df.to_csv(temp_attire_name)
       attire_key = s3Key(attire_arg_ls)
       s3_client.upload_file(temp_attire_name, AWS_S3_BUCKET, attire_key)
@@ -174,12 +131,13 @@ async def receive_video(topic: str = Form(""),
 
   def framesFn():
     localized_dir_arg_ls = ["frame", "localized"]
-    temp_localized_dir_name = tempName(localized_dir_arg_ls)
-    Path(temp_localized_dir_name).mkdir()
+    temp_localized_dir = tempPath(localized_dir_arg_ls)
+    Path(temp_localized_dir).mkdir()
 
-    localizeFrames(temp_localized_dir_name)
-    os.remove(temp_mp4_name)
-    predictFrames(batchRestoredFrames(restoreFrames(temp_localized_dir_name)))
+    temp_xyxyn_path = tempPath(["frame", "xyxy.csv"])
+    localizeFrames(temp_mp4_path, temp_localized_dir, temp_xyxyn_path)
+    os.remove(temp_mp4_path)
+    predictFrames(batchRestoredFrames(restoreFrames(temp_localized_dir)))
 
   def predictSpeechStats():
     speech_stats_key_ls = ["enthusiasm", "clarity"]
@@ -193,7 +151,7 @@ async def receive_video(topic: str = Form(""),
     speech_stats_df = pd.DataFrame(speech_stats_df_dict).set_index("i")
     if USE_AWS:
       speech_stats_arg_ls = ["audio", "stats.csv"]
-      temp_speech_stats_name = tempName(speech_stats_arg_ls)
+      temp_speech_stats_name = tempPath(speech_stats_arg_ls)
       speech_stats_df.to_csv(temp_speech_stats_name)
       speech_stats_key = s3Key(speech_stats_arg_ls)
       s3_client.upload_file(temp_speech_stats_name, AWS_S3_BUCKET, speech_stats_key)
@@ -206,7 +164,7 @@ async def receive_video(topic: str = Form(""),
   def predictPitch():
     nonlocal topic, title
     pitch_arg_ls = ["pitch.txt"]
-    temp_pitch_name = tempName(pitch_arg_ls)
+    temp_pitch_name = tempPath(pitch_arg_ls)
     pitch = transcribe(temp_wav_name)
     setItem("pitch", "S", pitch)
 
@@ -214,7 +172,7 @@ async def receive_video(topic: str = Form(""),
     setItem("topic", "S", topic)
     setItem("summary", "S", summary)
 
-    chain = Chain(basename_random)
+    chain = Chain(id)
     try:
       beholder_response = runBeholderFirst(chain, topic, pitch)
     except ValueError as e:

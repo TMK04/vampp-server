@@ -7,7 +7,7 @@ if module_path not in sys.path:
 
 from dotenv import load_dotenv
 
-load_dotenv()
+load_dotenv(os.path.join(module_path, "server/.env"))
 
 import concurrent.futures
 import cv2
@@ -24,7 +24,6 @@ from server.config import FRAME_ATTIRE_MASK, OUT_DIR
 from server.models.components import device, infer, toTensor
 from server.models.face_restorer import restoreFaces
 from server.models.llm import Chain, runBeholderFirst, summarize
-import server.models.presenter_localizer as pl
 from server.models.rfr import rfr_bv, rfr_clarity, rfr_pe, rfrInfer
 from server.models.speech_stats import preprocess, speech_stats_model
 from server.models.xdensenet import attire_model, multitask_model

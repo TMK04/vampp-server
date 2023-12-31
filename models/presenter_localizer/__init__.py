@@ -1,10 +1,8 @@
 import cv2
 
-from server.services.cv import OG_HEIGHT, OG_WIDTH, resizeWithPad
+from server.utils.cv import OG_HEIGHT, OG_WIDTH, resizeWithPad
 from .model import model
 
-OG_WIDTH = 1280
-OG_HEIGHT = 720
 TO_LOCALIZE_WIDTH = 426
 TO_LOCALIZE_HEIGHT = 240
 LOCALIZED_HEIGHT = LOCALIZED_WIDTH = 224

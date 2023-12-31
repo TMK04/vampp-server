@@ -19,7 +19,7 @@ import shutil
 from time import time
 
 from server.audio import transcribe, splitAudio, splitAudioBatch
-from server.aws import AWS_DYNAMO_TABLE, AWS_S3_BUCKET, USE_AWS, dynamo_client, s3_client
+from server.aws import AWS_DYNAMO_TABLE, USE_AWS, dynamo_client
 from server.config import FRAME_ATTIRE_MASK, OUT_DIR
 from server.models.components import device, infer, toTensor
 from server.models.face_restorer import restoreFaces
@@ -38,7 +38,7 @@ tmp_dir.mkdir(parents=True, exist_ok=True)
 
 @app.post("/")
 async def receive_video(topic: str = Form(""), title: str = Form(""), id: str = Form(...)):
-  temp_dir_name = os.path.join(OUT_DIR, id)
+  temp_dir = os.path.join(OUT_DIR, id)
 
   Item = {"id": {"S": id}, "topic": {"S": topic}}
 
@@ -46,44 +46,29 @@ async def receive_video(topic: str = Form(""), title: str = Form(""), id: str = 
     Item[key] = {type_code: value}
     print(f"{key}: {value}")
 
-  if USE_AWS:
-
-    def s3Key(arg_ls):
-      return os.path.join(id, *arg_ls)
-
   def tempPath(arg_ls):
-    return os.path.join(temp_dir_name, "-".join(arg_ls))
+    return os.path.join(temp_dir, "-".join(arg_ls))
 
   # Save file to temp
-  temp_arg_ls = ["temp.mp4"]
-  temp_file_name = tempPath(temp_arg_ls)
+  temp_file_path = tempPath(["temp.mp4"])
 
   temp_mp4_path = tempPath(["og.mp4"])
-  compressVideo(temp_file_name, temp_mp4_path)
-  os.remove(temp_file_name)
+  compressVideo(temp_file_path, temp_mp4_path)
+  os.remove(temp_file_path)
 
-  wav_arg_ls = ["audio", "og.wav"]
-  temp_wav_name = tempPath(wav_arg_ls)
-  extractAudio(temp_mp4_path, temp_wav_name)
+  temp_wav_path = tempPath(["audio", "og.wav"])
+  extractAudio(temp_mp4_path, temp_wav_path)
 
-  if USE_AWS:
-    audio_key = s3Key(wav_arg_ls)
-    s3_client.upload_file(temp_wav_name, AWS_S3_BUCKET, audio_key)
-
-  def restoreFrames(temp_localized_dir_name):
-    temp_restored_dir_name = tempPath(["frame", "restored"])
-    Path(temp_restored_dir_name).mkdir()
-    restoreFaces(temp_localized_dir_name, temp_restored_dir_name)
-    temp_restored_dir_name = os.path.join(temp_restored_dir_name, "restored_imgs")
-    temp_restored_basename_ls = os.listdir(temp_restored_dir_name)
+  def restoreFrames(temp_localized_dir):
+    temp_restored_dir = tempPath(["frame", "restored"])
+    Path(temp_restored_dir).mkdir()
+    restoreFaces(temp_localized_dir, temp_restored_dir)
+    temp_restored_dir = os.path.join(temp_restored_dir, "restored_imgs")
+    temp_restored_basename_ls = os.listdir(temp_restored_dir)
     for temp_restored_basename in temp_restored_basename_ls:
-      temp_restored_name = os.path.join(temp_restored_dir_name, temp_restored_basename)
-      restored_frame = cv2.imread(temp_restored_name, cv2.IMREAD_GRAYSCALE)
+      temp_restored_path = os.path.join(temp_restored_dir, temp_restored_basename)
+      restored_frame = cv2.imread(temp_restored_path, cv2.IMREAD_GRAYSCALE)
       restored_frame = np.expand_dims(restored_frame, axis=0)
-      if USE_AWS:
-        restored_key = s3Key(["frame", "restored", temp_restored_basename])
-        s3_client.upload_file(temp_restored_name, AWS_S3_BUCKET, restored_key)
-      os.remove(temp_restored_name)
       i = temp_restored_basename.replace(".jpg", "")
       yield i, restored_frame
 
@@ -102,11 +87,8 @@ async def receive_video(topic: str = Form(""), title: str = Form(""), id: str = 
 
     if USE_AWS:
       multitask_arg_ls = ["frame", "multitask.csv"]
-      temp_multitask_name = tempPath(multitask_arg_ls)
-      multitask_df.to_csv(temp_multitask_name)
-      multitask_key = s3Key(multitask_arg_ls)
-      s3_client.upload_file(temp_multitask_name, AWS_S3_BUCKET, multitask_key)
-      os.remove(temp_multitask_name)
+      temp_multitask_path = tempPath(multitask_arg_ls)
+      multitask_df.to_csv(temp_multitask_path)
     for key in multitask_key_ls:
       value = str(multitask_df[key].mean())
       setItem(key, "N", value)
@@ -121,11 +103,8 @@ async def receive_video(topic: str = Form(""), title: str = Form(""), id: str = 
     attire_df = pd.DataFrame(attire_df_dict).set_index("i")
     if USE_AWS:
       attire_arg_ls = ["frame", "attire.csv"]
-      temp_attire_name = tempPath(attire_arg_ls)
-      attire_df.to_csv(temp_attire_name)
-      attire_key = s3Key(attire_arg_ls)
-      s3_client.upload_file(temp_attire_name, AWS_S3_BUCKET, attire_key)
-      os.remove(temp_attire_name)
+      temp_attire_path = tempPath(attire_arg_ls)
+      attire_df.to_csv(temp_attire_path)
     attire_mode = bool(attire_df["attire"].mode()[0])
     setItem("pa", "BOOL", attire_mode)
 
@@ -142,20 +121,16 @@ async def receive_video(topic: str = Form(""), title: str = Form(""), id: str = 
   def predictSpeechStats():
     speech_stats_key_ls = ["enthusiasm", "clarity"]
     speech_stats_df_dict = {key: [] for key in ["i", *speech_stats_key_ls]}
-    for batch_i, batch_window in splitAudioBatch(splitAudio(temp_wav_name)):
+    for batch_i, batch_window in splitAudioBatch(splitAudio(temp_wav_path)):
       batch_window_tensor = toTensor(batch_window)
       speech_stats = infer(speech_stats_model, batch_window_tensor)
       speech_stats_df_dict["i"].extend(batch_i)
       for j, key in enumerate(speech_stats_key_ls):
         speech_stats_df_dict[key].extend(speech_stats[:, j])
     speech_stats_df = pd.DataFrame(speech_stats_df_dict).set_index("i")
-    if USE_AWS:
-      speech_stats_arg_ls = ["audio", "stats.csv"]
-      temp_speech_stats_name = tempPath(speech_stats_arg_ls)
-      speech_stats_df.to_csv(temp_speech_stats_name)
-      speech_stats_key = s3Key(speech_stats_arg_ls)
-      s3_client.upload_file(temp_speech_stats_name, AWS_S3_BUCKET, speech_stats_key)
-      os.remove(temp_speech_stats_name)
+    speech_stats_arg_ls = ["audio", "stats.csv"]
+    temp_speech_stats_path = tempPath(speech_stats_arg_ls)
+    speech_stats_df.to_csv(temp_speech_stats_path)
     for key in speech_stats_key_ls:
       Item_key = f"speech_{key}"
       value = str(speech_stats_df[key].mean())
@@ -164,8 +139,8 @@ async def receive_video(topic: str = Form(""), title: str = Form(""), id: str = 
   def predictPitch():
     nonlocal topic, title
     pitch_arg_ls = ["pitch.txt"]
-    temp_pitch_name = tempPath(pitch_arg_ls)
-    pitch = transcribe(temp_wav_name)
+    temp_pitch_path = tempPath(pitch_arg_ls)
+    pitch = transcribe(temp_wav_path)
     setItem("pitch", "S", pitch)
 
     topic, summary = summarize(pitch, topic, title)
@@ -211,5 +186,5 @@ async def receive_video(topic: str = Form(""), title: str = Form(""), id: str = 
   if USE_AWS:
     dynamo_client.put_item(TableName=AWS_DYNAMO_TABLE, Item=Item)
 
-  shutil.rmtree(temp_dir_name, ignore_errors=True)
+  shutil.rmtree(temp_dir, ignore_errors=True)
   return Item

@@ -1,29 +1,38 @@
-import config
+import os
+import sys
+
+module_path = os.path.abspath(os.path.join('..'))
+if module_path not in sys.path:
+  sys.path.append(module_path)
+
+from dotenv import load_dotenv
+
+load_dotenv()
 
 from typing import Union
 
-from audio import transcribe, splitAudio, splitAudioBatch
-from aws import AWS_DYNAMO_TABLE, AWS_S3_BUCKET, USE_AWS, dynamo_client, s3_client
 import concurrent.futures
-from config import FRAME_ATTIRE_MASK, OUT_DIR
-from cv_helpers import batchRestoredFrames, extractFrames, resizeToLocalize
 import cv2
 from fastapi import FastAPI, HTTPException, UploadFile, Form
-from models.components import device, infer, toTensor
-from models.face_restorer import restoreFaces
-from models.llm import Chain, runBeholderFirst, summarize
-from models.presenter_localizer import calculatePresenterXYXYN, localizePresenter
-from models.rfr import rfr_bv, rfr_clarity, rfr_pe, rfrInfer
-from models.speech_stats import preprocess, speech_stats_model
-from models.xdensenet import attire_model, multitask_model
-import os
 import numpy as np
 import pandas as pd
 from pathlib import Path
 import re
 import shutil
 from time import time
-from video_commands import compressVideo, extractAudio
+
+from server.audio import transcribe, splitAudio, splitAudioBatch
+from server.aws import AWS_DYNAMO_TABLE, AWS_S3_BUCKET, USE_AWS, dynamo_client, s3_client
+from server.config import FRAME_ATTIRE_MASK, OUT_DIR
+from server.cv_helpers import batchRestoredFrames, extractFrames, resizeToLocalize
+from server.models.components import device, infer, toTensor
+from server.models.face_restorer import restoreFaces
+from server.models.llm import Chain, runBeholderFirst, summarize
+from server.models.presenter_localizer import calculatePresenterXYXYN, localizePresenter
+from server.models.rfr import rfr_bv, rfr_clarity, rfr_pe, rfrInfer
+from server.models.speech_stats import preprocess, speech_stats_model
+from server.models.xdensenet import attire_model, multitask_model
+from server.video_commands import compressVideo, extractAudio
 
 app = FastAPI()
 tmp_dir = Path("tmp/")
@@ -31,7 +40,10 @@ tmp_dir.mkdir(parents=True, exist_ok=True)
 
 
 @app.post("/")
-async def receive_video(topic: str = Form(""), title: str = Form(""), basename: str = Form(...), random: str = Form(...)):
+async def receive_video(topic: str = Form(""),
+                        title: str = Form(""),
+                        basename: str = Form(...),
+                        random: str = Form(...)):
   basename_random = f"{basename}-{random}"
   temp_dir_name = os.path.join(OUT_DIR, basename_random)
 

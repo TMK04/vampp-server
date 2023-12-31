@@ -1,6 +1,7 @@
-from config import FRAME_BATCH, FRAME_INTERVAL
 import cv2
 import os
+
+from server.config import FRAME_BATCH, FRAME_INTERVAL
 
 OG_WIDTH = 1280
 OG_HEIGHT = 720

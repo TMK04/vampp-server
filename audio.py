@@ -1,11 +1,8 @@
-from config import AUDIO_BATCH, AUDIO_SR
-import os
-import sys
-import torch
 import librosa
-from models.speech_stats import preprocess
-import os
 import whisper
+
+from server.config import AUDIO_BATCH, AUDIO_SR
+from server.models.speech_stats import preprocess
 
 model = whisper.load_model("base.en")
 

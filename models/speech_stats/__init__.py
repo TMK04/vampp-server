@@ -1,10 +1,10 @@
-from ..components import _Classifier, device
 from audio import AUDIO_SR
-import os
 from pathlib import Path
 import torch
 import torch.nn as nn
 from transformers import Wav2Vec2Model, Wav2Vec2PreTrainedModel, Wav2Vec2Processor
+
+from ..components import _Classifier, device
 
 
 class RegressionHead(nn.Module):

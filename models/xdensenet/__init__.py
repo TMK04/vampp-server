@@ -1,12 +1,10 @@
-from ..components import _Classifier, _ConvNormAct, _DepthwiseSeparableConv2d, _GAP, _NormAct, autocast, device, init_weights
-import numpy as np
-import os
 from pathlib import Path
 import torch
-from torch import Tensor
 import torch.nn as nn
 import torch.nn.functional as F
 from typing import List, Tuple
+
+from ..components import _Classifier, _ConvNormAct, _DepthwiseSeparableConv2d, _GAP, _NormAct, device, init_weights
 
 
 class _Stem(nn.Sequential):
@@ -33,7 +31,7 @@ class _DenseLayer(nn.Module):
                                             k=k)
     self.drop_rate = float(drop_rate)
 
-  def forward(self, features: Tensor) -> Tensor:
+  def forward(self, features: torch.Tensor) -> torch.Tensor:
     bottleneck_output = self.bn(self.norm_act(features))
     new_features = self.dsconv(bottleneck_output)
 
@@ -55,7 +53,7 @@ class _DenseBlock(nn.ModuleDict):
       channels_in += growth_rate
       self.add_module(f"denselayer{n}", layer)
 
-  def forward(self, init_features: Tensor) -> Tensor:
+  def forward(self, init_features: torch.Tensor) -> torch.Tensor:
     features = [init_features]
     for name, layer in self.items():
       new_features = layer(torch.cat(features, 1))

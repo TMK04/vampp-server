@@ -1,12 +1,12 @@
 from basicsr.utils import imwrite, img2tensor, tensor2img
-from config import MODEL_FR_W
 import cv2
 import glob
 import os
-import subprocess
 import torch
 import torch.nn.functional as F
 from torchvision.transforms.functional import normalize
+
+from server.config import MODEL_FR_W
 from ..components import device
 from .models import face_helper, net
 

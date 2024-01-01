@@ -9,6 +9,6 @@ def load(path):
     return pickle.load(f)
 
 
-rfr_pe = load("pe")
-rfr_clarity = load("clarity")
-rfr_bv = load("bv")
+model_pe = load("pe")
+model_clarity = load("clarity")
+model_bv = load("bv")

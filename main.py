@@ -14,7 +14,7 @@ from fastapi import FastAPI, HTTPException, Form
 from pathlib import Path
 
 from server.config import OUT_DIR
-from server.models.rfr import inferPe
+from server.models.ridge import inferPe
 from server.services.audio import predictSpeechStats
 from server.services.cv import localizeFrames, predictFrames, restoreAndBatchFrames
 

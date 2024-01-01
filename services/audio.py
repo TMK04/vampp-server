@@ -20,15 +20,14 @@ speech_stats_key_ls = ["enthusiasm", "clarity"]
 
 
 def predictSpeechStats(wav_path: str, speech_stats_path: str):
-  speech_stats_df_dict = DictKeyArr(speech_stats_key_ls)
+  speech_stats_df = DictKeyArr(speech_stats_key_ls)
   for i_batch, window_batch in splitAndBatchAudio(wav_path):
-    print(i_batch)
     speech_stats = batchInferSpeechStats(window_batch)
-    speech_stats_df_dict["i"].extend(i_batch)
+    speech_stats_df["i"].extend(i_batch)
     for j, key in enumerate(speech_stats_key_ls):
-      speech_stats_df_dict[key].extend(speech_stats[:, j])
-  speech_stats_df = pd.DataFrame(speech_stats_df_dict).set_index("i")
+      speech_stats_df[key].extend(speech_stats[:, j])
+  speech_stats_df = pd.DataFrame(speech_stats_df).set_index("i")
   speech_stats_df.to_csv(speech_stats_path)
 
-  for key in speech_stats_df_dict:
-    yield key, speech_stats_df_dict[key].mean()
+  for key in speech_stats_key_ls:
+    yield key, speech_stats_df[key].mean()

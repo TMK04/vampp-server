@@ -29,7 +29,7 @@ tmp_dir.mkdir(parents=True, exist_ok=True)
 async def receive_video(id: str = Form(...), topic: str = Form(""), title: str = Form("")):
   temp_dir = os.path.join(OUT_DIR, id)
 
-  Item: Dict[str, Any] = dict(id=id, )
+  Item: Dict[str, Any] = {}
 
   def tempPath(arg_ls):
     return os.path.join(temp_dir, "-".join(arg_ls))
@@ -43,6 +43,7 @@ async def receive_video(id: str = Form(...), topic: str = Form(""), title: str =
   temp_wav_path = tempPath(["og.wav"])
 
   def framesFn():
+    nonlocal Item, temp_mkv_path, temp_wav_path
     temp_localized_dir = tempDir(["frame", "localized"])
     localizeFrames(temp_mkv_path, temp_localized_dir, tempPath(["frame", "xyxy.csv"]))
     temp_restored_dir = tempDir(["frame", "restored"])
@@ -52,8 +53,9 @@ async def receive_video(id: str = Form(...), topic: str = Form(""), title: str =
       Item[k] = v
 
   def speechStatsFn():
+    nonlocal Item, temp_wav_path
     for k, v in predictSpeechStats(temp_wav_path, tempPath(["audio", "speech_stats.csv"])):
-      Item[k] = v
+      Item[f"speech_{k}"] = v
 
   # def predictPitch():
   #   nonlocal topic, title
@@ -80,13 +82,16 @@ async def receive_video(id: str = Form(...), topic: str = Form(""), title: str =
 
   # Create a ThreadPoolExecutor to run the functions in parallel
   with concurrent.futures.ThreadPoolExecutor() as executor:
-    concurrent.futures.wait([
+    done, not_done = concurrent.futures.wait([
         executor.submit(fn) for fn in [
             framesFn,
             speechStatsFn,
             # predictPitch,
         ]
     ])
+  if len(not_done) > 0:
+    raise HTTPException(status_code=500, detail="Some tasks failed")
+  print(f"After concurrent models, before Ridge:", Item, sep="\n")
 
   X_pe = [
       *[Item[key] for key in ["moving", "smiling", "upright", "ec"]],
@@ -103,5 +108,6 @@ async def receive_video(id: str = Form(...), topic: str = Form(""), title: str =
 
   # setItem("ts", "N", str(int(time())))
 
-  print(Item)
+  print(f"After Ridge:", Item, sep="\n")
+
   return Item

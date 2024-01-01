@@ -64,18 +64,18 @@ attire_key_ls = ["pa"]
 
 
 def predictFrames(restored_batch_gen, multitask_path: str, attire_path: str):
-  multitask_df_dict = DictKeyArr(multitask_key_ls)
+  multitask_df = DictKeyArr(multitask_key_ls)
   attire_df_dict = DictKeyArr(attire_key_ls)
   for i_batch, frame_batch in restored_batch_gen:
     multitask_pred = batchInferMultitask(frame_batch)
-    multitask_df_dict["i"].extend(i_batch)
+    multitask_df["i"].extend(i_batch)
     for j, key in enumerate(multitask_key_ls):
-      multitask_df_dict[key].extend(multitask_pred[:, j])
+      multitask_df[key].extend(multitask_pred[:, j])
     for i_i, i in enumerate(i_batch):
       if i_i in FRAME_ATTIRE_MASK:
         attire_df_dict["i"].append(i)
         attire_df_dict["pa"].append(frame_batch[i_i])
-  multitask_df = pd.DataFrame(multitask_df_dict).set_index("i")
+  multitask_df = pd.DataFrame(multitask_df).set_index("i")
   multitask_df.to_csv(multitask_path)
 
   attire_pred = batchInferAttire(attire_df_dict["pa"])
@@ -84,5 +84,5 @@ def predictFrames(restored_batch_gen, multitask_path: str, attire_path: str):
   attire_df.to_csv(attire_path)
 
   for key in multitask_key_ls:
-    yield key, multitask_df_dict[key].mean()
-  yield "pa", attire_df_dict["pa"].mode()[0]
+    yield key, multitask_df[key].mean()
+  yield "pa", bool(attire_df["pa"].mode()[0])

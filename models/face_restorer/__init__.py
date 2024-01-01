@@ -2,8 +2,9 @@ from basicsr.utils import imwrite, img2tensor, tensor2img
 import cv2
 import glob
 import os
+import numpy as np
+from server.models.presenter_localizer import LOCALIZED_HEIGHT, LOCALIZED_WIDTH
 import torch
-import torch.nn.functional as F
 from torchvision.transforms.functional import normalize
 
 from server.config import MODEL_FR_W
@@ -59,5 +60,10 @@ def restoreFaces(input_dir, output_dir):
 
     # save restored img
     if restored_img is not None:
-      save_restore_path = os.path.join(output_dir, f'{basename}.png')
+      save_restore_path = os.path.join(output_dir, f'{basename}.jpg')
+      restored_img = cv2.resize(restored_img, (LOCALIZED_HEIGHT, LOCALIZED_WIDTH),
+                                interpolation=cv2.INTER_CUBIC)
       imwrite(restored_img, save_restore_path)
+      restored_img = cv2.cvtColor(restored_img, cv2.COLOR_BGR2GRAY)
+      restored_img = np.expand_dims(restored_img, axis=0)
+      yield basename, restored_img

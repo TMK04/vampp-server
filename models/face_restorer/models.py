@@ -20,6 +20,6 @@ face_helper = FaceRestoreHelper(1,
                                 face_size=512,
                                 crop_ratio=(1, 1),
                                 det_model='YOLOv5n',
-                                save_ext='png',
+                                save_ext='jpg',
                                 use_parse=True,
                                 device=device)

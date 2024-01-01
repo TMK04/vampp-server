@@ -38,10 +38,10 @@ def calculatePresenterXYXY(result):
 
   xyxyn = xyxyn_ls[best_k]
   xyxy_dict = dict(
-      x1=xyxyn[0] * OG_WIDTH,
-      y1=xyxyn[1] * OG_HEIGHT,
-      x2=xyxyn[2] * OG_WIDTH,
-      y2=xyxyn[3] * OG_HEIGHT,
+      x1=int(xyxyn[0] * OG_WIDTH),
+      y1=int(xyxyn[1] * OG_HEIGHT),
+      x2=int(xyxyn[2] * OG_WIDTH),
+      y2=int(xyxyn[3] * OG_HEIGHT),
   )
   return xyxy_dict
 

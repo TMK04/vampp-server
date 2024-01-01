@@ -5,7 +5,7 @@ https://download.pytorch.org/whl/cu118/torchaudio-2.1.2%2Bcu118-cp310-cp310-win_
 ultralytics
 
 # Audio
-librosa
+soundfile
 openai-whisper
 
 # NLP

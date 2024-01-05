@@ -8,9 +8,12 @@ import os
 from pathlib import Path
 
 from server.aws import AWS_DYNAMO_TABLE
-from server.config import MODEL_LLM_CONTEXT_LEN, MODEL_LLM_DIR, MODEL_LLM_SCALE_POS_EMB, MODEL_LLM2_CONTEXT_LEN, MODEL_LLM2_DIR, MODEL_LLM2_SCALE_POS_EMB
+from server.config import MODEL_LLM_CONTEXT_LEN, MODEL_LLM_DIR, MODEL_LLM_SCALE_POS_EMB, MODEL_SD_DIR
 
 shared_kwargs = dict(
+    max_input_len=MODEL_LLM_CONTEXT_LEN,
+    max_seq_len=MODEL_LLM_CONTEXT_LEN,
+    scale_pos_emb=MODEL_LLM_SCALE_POS_EMB,
     stop_strings=[*dict_h_base_h.values()],
     top_p=.9,
     verbose=True,
@@ -19,9 +22,6 @@ models_dir = Path(__file__).parent / "./models/"
 llm = ExllamaV2(
     **shared_kwargs,
     model_path=os.path.join(models_dir, MODEL_LLM_DIR),
-    scale_pos_emb=MODEL_LLM_SCALE_POS_EMB,
-    max_seq_len=MODEL_LLM_CONTEXT_LEN,
-    max_input_len=MODEL_LLM_CONTEXT_LEN,
     #streaming = True,
     # lora_path = os.path.abspath(sys.argv[2]) if len(sys.argv) > 2 else None,
     # callbacks=[
@@ -32,12 +32,9 @@ llm = ExllamaV2(
     typical=.95,
     token_repetition_penalty=1.15,
 )
-llm2 = ExllamaV2(
+sd = ExllamaV2(
     **shared_kwargs,
-    model_path=os.path.join(models_dir, MODEL_LLM2_DIR),
-    scale_pos_emb=MODEL_LLM2_SCALE_POS_EMB,
-    max_seq_len=MODEL_LLM2_CONTEXT_LEN,
-    max_input_len=MODEL_LLM2_CONTEXT_LEN,
+    model_path=os.path.join(models_dir, MODEL_SD_DIR),
     #streaming = True,
     # lora_path = os.path.abspath(sys.argv[2]) if len(sys.argv) > 2 else None,
     # callbacks=[
@@ -48,8 +45,8 @@ llm2 = ExllamaV2(
     typical=.2,
     token_repetition_penalty_max=1.1,
 )
-score_parser = RetryWithErrorOutputParser.from_llm(parser=score_parser, llm=llm2)
-summary_topic_parser = RetryWithErrorOutputParser.from_llm(parser=summary_topic_parser, llm=llm2)
+score_parser = RetryWithErrorOutputParser.from_llm(parser=score_parser, llm=llm)
+summary_topic_parser = RetryWithErrorOutputParser.from_llm(parser=summary_topic_parser, llm=llm)
 
 
 def summarizeWithTopic(topic, pitch):

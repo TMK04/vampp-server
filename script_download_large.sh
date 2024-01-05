@@ -1,17 +1,15 @@
 # Download Large Files
 
+. "$ROOT_DIR/.env"
+
 ## Models
 
-cd "$ROOT_DIR"
-aws s3 cp s3://vampp/models.7z models.7z
-7z x models.7z -omodels/
-rm models.7z
+ROOT_DIR="$ROOT_DIR/models/presenter_localizer" . "$ROOT_DIR/models/presenter_localizer/download.sh"
+ROOT_DIR="$ROOT_DIR/models/ridge" . "$ROOT_DIR/models/ridge/download.sh"
+ROOT_DIR="$ROOT_DIR/models/speech_stats" . "$ROOT_DIR/models/speech_stats/download.sh"
+ROOT_DIR="$ROOT_DIR/models/xdensenet" . "$ROOT_DIR/models/xdensenet/download.sh"
 
-cd "$ROOT_DIR/models/llm/models"
-mkdir notux-8x7b-v1-5.0bpw-h6-exl2 && huggingface-cli download LoneStriker/notux-8x7b-v1-5.0bpw-h6-exl2 --local-dir notux-8x7b-v1-5.0bpw-h6-exl2 --local-dir-use-symlinks False
-mkdir TinyLlama-1.1B-Chat-v1.0-5.0bpw-h6-exl2 && huggingface-cli download LoneStriker/TinyLlama-1.1B-Chat-v1.0-5.0bpw-h6-exl2 --local-dir TinyLlama-1.1B-Chat-v1.0-5.0bpw-h6-exl2 --local-dir-use-symlinks False
+### Larger Models
 
-### CodeFormer
-
-cd "$ROOT_DIR/models/face_restorer/CodeFormer"
-python scripts/download_pretrained_models.py all
+ROOT_DIR="$ROOT_DIR/models/face_restorer" . "$ROOT_DIR/models/face_restorer/download.sh"
+ROOT_DIR="$ROOT_DIR/models/llm" MODEL_LLM_DIR="$MODEL_LLM_AUTHOR/$MODEL_LLM_NAME" MODEL_SD_DIR="$MODEL_SD_AUTHOR/$MODEL_SD_NAME" . "$ROOT_DIR/models/llm/download.sh"

@@ -8,6 +8,7 @@ from ..components import _Classifier, device
 
 class RegressionHead(nn.Module):
   r"""Classification head."""
+
   def __init__(self, config):
 
     super().__init__()
@@ -34,6 +35,7 @@ def calcHiddenStates(x):
 
 class EmotionModel(Wav2Vec2PreTrainedModel):
   r"""Speech emotion classifier."""
+
   def __init__(self, config):
 
     super().__init__(config)
@@ -56,6 +58,7 @@ class EmotionModel(Wav2Vec2PreTrainedModel):
 
 
 class Head(nn.Module):
+
   def __init__(self, num_features, hidden_size, dropout):
     super().__init__()
     self.classifier = _Classifier(num_features, 2, hidden_size)
@@ -68,7 +71,7 @@ class Head(nn.Module):
 
 wd = Path(__file__).parent
 model_ss_pretrained_path = wd / "./pretrained"
-model_ss_path = wd / "./model.pth"
+model_ss_path = wd / "./models/model.pth"
 
 processor = Wav2Vec2Processor.from_pretrained(model_ss_pretrained_path)
 

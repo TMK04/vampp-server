@@ -2,12 +2,11 @@
 res/
 tmp/
 
-*.7z
 *.pkl
 *.pt
 *.pth
 facelib/
-models/llm/models/*
+models/*/models/
 
 .env
 .env.*

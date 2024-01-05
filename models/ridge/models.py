@@ -5,7 +5,7 @@ wd = Path(__file__).parent
 
 
 def load(path):
-  with open(wd / f"{path}.pkl", "rb") as f:
+  with open(wd / f"models/{path}.pkl", "rb") as f:
     return pickle.load(f)
 
 

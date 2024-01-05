@@ -2,8 +2,6 @@
 
 ## Prerequisites
 
-- [7zip](https://www.7-zip.org)
-- [AWS CLI](https://aws.amazon.com/cli)
 - [Huggingface CLI](https://huggingface.co/docs/huggingface_hub/guides/cli)
 
 ## Installation
@@ -32,11 +30,6 @@ ROOT_DIR=/ ./script_setup.sh # Replace "/" with this directory
 
 ```sh
 ROOT_DIR=/ ./script_download_large.sh # Replace "/" with this directory
-cd models/llm/models/
-# Feel free to use another model; The dir should match MODEL_LLM_DIR in .env
-mkdir notux-8x7b-v1-5.0bpw-h6-exl2 && huggingface-cli download LoneStriker/notux-8x7b-v1-5.0bpw-h6-exl2 --local-dir notux-8x7b-v1-5.0bpw-h6-exl2 --local-dir-use-symlinks False
-# Feel free to use another model; The dir should match MODEL_SD_DIR in .env
-mkdir TinyLlama-1.1B-Chat-v1.0-5.0bpw-h6-exl2 && huggingface-cli download LoneStriker/TinyLlama-1.1B-Chat-v1.0-5.0bpw-h6-exl2 --local-dir TinyLlama-1.1B-Chat-v1.0-5.0bpw-h6-exl2 --local-dir-use-symlinks False
 ```
 
 5. Install dependencies

@@ -8,6 +8,7 @@ from ..components import _Classifier, _ConvNormAct, _DepthwiseSeparableConv2d, _
 
 
 class _Stem(nn.Sequential):
+
   def __init__(self, channels_in: int, channels_out: int):
     super().__init__()
     self.conv = _ConvNormAct(channels_in,
@@ -20,6 +21,7 @@ class _Stem(nn.Sequential):
 
 
 class _DenseLayer(nn.Module):
+
   def __init__(self, channels_in: int, growth_rate: int, bn_size: int, k: int,
                drop_rate: float) -> None:
     super().__init__()
@@ -41,6 +43,7 @@ class _DenseLayer(nn.Module):
 
 
 class _DenseBlock(nn.ModuleDict):
+
   def __init__(self, num_layers: int, channels_in: int, growth_rate: int, bn_size: int, k: int,
                drop_rate: int) -> None:
     super().__init__()
@@ -62,6 +65,7 @@ class _DenseBlock(nn.ModuleDict):
 
 
 class _Transition(nn.Sequential):
+
   def __init__(self, channels_in: int, channels_out: int) -> None:
     super().__init__()
     self.norm_act = _NormAct(channels_in)
@@ -70,6 +74,7 @@ class _Transition(nn.Sequential):
 
 
 class XDenseNet(nn.Module):
+
   def __init__(
       self,
       block_config: List[int] = [6, 12, 24, 16],
@@ -105,6 +110,7 @@ class XDenseNet(nn.Module):
 
 
 class Head(nn.Sequential):
+
   def __init__(self,
                num_features: int,
                num_labels: int,
@@ -121,7 +127,7 @@ class Head(nn.Sequential):
 wd = Path(__file__).parent
 
 multitask_model = nn.Sequential(XDenseNet(block_config=[6, 12, 32, 32]), Head(1664, 4, 3, (1, 1)))
-multitask_state_dict = torch.load(wd / "./multitask.pth")["model"]
+multitask_state_dict = torch.load(wd / "./models/multitask.pth")["model"]
 for key in list(multitask_state_dict.keys()):
   if key.startswith('1.fc'):
     multitask_state_dict[key.replace('1.fc', '1.classifier.fc')] = multitask_state_dict.pop(key)
@@ -133,6 +139,6 @@ multitask_model = multitask_model.to(device)
 multitask_model.eval()
 
 attire_model = nn.Sequential(XDenseNet(block_config=[3, 6, 12, 8]), Head(516, 1, 1, (1, 1)))
-attire_model.load_state_dict(torch.load(wd / "./attire.pth")["model"])
+attire_model.load_state_dict(torch.load(wd / "./models/attire.pth")["model"])
 attire_model = attire_model.to(device)
 attire_model.eval()

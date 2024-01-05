@@ -7,7 +7,6 @@ from langchain.schema import SystemMessage
 import os
 from pathlib import Path
 
-from server.aws import AWS_DYNAMO_TABLE
 from server.config import MODEL_LLM_CONTEXT_LEN, MODEL_LLM_DIR, MODEL_LLM_SCALE_POS_EMB, MODEL_SD_DIR
 
 shared_kwargs = dict(

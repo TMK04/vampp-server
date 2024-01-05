@@ -1,7 +1,11 @@
 import numpy as np
 import os
 
-OUT_DIR = os.environ.get("OUT_DIR", "/tmp")
+OUT_DIR = os.environ.get("OUT_DIR", "/notebooks/out")
+
+HOST = os.environ.get("HOST", "0.0.0.0")
+LOGLVL = os.environ.get("LOGLVL", "info")
+PORT = int(os.environ.get("PORT", "8000"))
 
 AUDIO_BATCH = int(os.environ.get("AUDIO_BATCH", "1"))
 AUDIO_SR = int(os.environ.get("AUDIO_SR", "16000"))

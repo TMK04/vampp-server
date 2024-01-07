@@ -4,24 +4,30 @@ import os
 
 from server.models.ridge import inferPe
 from server.services.audio import predictSpeechStats
-from server.services.cv import localizeFrames, predictFrames, restoreAndBatchFrames
+from server.services.cv import localizeFrames, predictFrames, readFrames, restoreAndBatchFrames
 from server.utils.common import tempDir, tempPath
 
 from typing import Any, Dict
 
 
-async def fn(temp_mp4_path, temp_wav_path, topic: str):
-  temp_dir = os.path.dirname(temp_mp4_path)
-  print(f"temp_dir: {temp_dir}")
+async def fn(id: str, _temp_mp4_path: str, _temp_wav_path: str, topic: str):
+  if id == "":
+    raise gr.Error("id cannot be empty")
+
+  temp_dir = tempDir(id, [])
+  temp_mp4_path = tempPath(temp_dir, ["og.mp4"])
+  temp_wav_path = tempPath(temp_dir, ["og.wav"])
+  os.rename(_temp_mp4_path, temp_mp4_path)
+  os.rename(_temp_wav_path, temp_wav_path)
 
   Item: Dict[str, Any] = {}
 
   def framesFn():
     nonlocal Item, temp_mp4_path, temp_wav_path
-    temp_localized_dir = tempDir(temp_dir, ["frame", "localized"])
-    localizeFrames(temp_mp4_path, temp_localized_dir, tempPath(temp_dir, ["frame", "xyxy.csv"]))
+    readFrames_gen = readFrames(temp_mp4_path)
+    localizeFrames_gen = localizeFrames(readFrames_gen, tempPath(temp_dir, ["frame", "xyxy.csv"]))
     temp_restored_dir = tempDir(temp_dir, ["frame", "restored"])
-    for k, v in predictFrames(restoreAndBatchFrames(temp_localized_dir, temp_restored_dir),
+    for k, v in predictFrames(restoreAndBatchFrames(localizeFrames_gen, temp_restored_dir),
                               tempPath(temp_dir, ["frame", "multitask.csv"]),
                               tempPath(temp_dir, ["frame", "attire.csv"])):
       Item[k] = v
@@ -102,6 +108,7 @@ async def fn(temp_mp4_path, temp_wav_path, topic: str):
 receive_video_demo = gr.Interface(
     fn=fn,
     inputs=[
+        gr.Textbox(label="id"),
         gr.Video(label="video", sources="upload", max_length=300, format="mp4",
                  include_audio=False),
         gr.Audio(label="audio", sources="upload", max_length=300, type="filepath"),

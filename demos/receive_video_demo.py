@@ -109,9 +109,8 @@ receive_video_demo = gr.Interface(
     fn=fn,
     inputs=[
         gr.Textbox(label="id"),
-        gr.Video(label="video", sources="upload", max_length=300, format="mp4",
-                 include_audio=False),
-        gr.Audio(label="audio", sources="upload", max_length=300, type="filepath"),
+        gr.File(label="video", file_types=[".mp4"]),
+        gr.File(label="audio", file_types=[".wav"]),
         gr.Textbox(label="topic", value=""),
     ],
     outputs=gr.JSON(label="Item"),

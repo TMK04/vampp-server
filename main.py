@@ -9,36 +9,38 @@ from dotenv import load_dotenv
 
 load_dotenv(os.path.join(module_path, "server/.env"))
 
-import asyncio
-import uvicorn
+import gradio as gr
 
-from server.config import HOST, LOGLVL, PORT
+from server.config import DEBUG, HOST, PORT, SHARE
+from server.demos.receive_video_demo import receive_video_demo
 
-
-# Adapted from https://gist.github.com/tenuki/ff67f87cba5c4c04fd08d9c800437477?permalink_comment_id=4236491#gistcomment-4236491
-async def create_webserver(**kwargs):
-  server_config = uvicorn.Config(**kwargs, host=HOST, log_level=LOGLVL)
-  server = uvicorn.Server(server_config)
-  await server.serve()
-
-
-async def main():
-  apps = [create_webserver(app="apps.api:api", port=PORT)]
-  done, pending = await asyncio.wait(
-      apps,
-      return_when=asyncio.FIRST_COMPLETED,
-  )
-  print("done")
-  print(done)
-  print("pending")
-  print(pending)
-  for pending_task in pending:
-    pending_task.cancel("Another service died, server is shutting down")
-
+demo = gr.TabbedInterface([
+    receive_video_demo,
+], ["Receive Video"])
 
 if __name__ == "__main__":
-  try:
-    asyncio.run(main())
-  except Exception as e:
-    print(e)
-    sys.exit(0)
+  demo.launch(server_name=HOST, server_port=PORT, debug=DEBUG, share=SHARE)
+
+# # Adapted from https://gist.github.com/tenuki/ff67f87cba5c4c04fd08d9c800437477?permalink_comment_id=4236491#gistcomment-4236491
+# async def create_webserver(**kwargs):
+#   server_config = uvicorn.Config(**kwargs, host=HOST, log_level=LOGLVL)
+#   server = uvicorn.Server(server_config)
+#   await server.serve()
+# async def main():
+#   apps = [create_webserver("main:app")]
+#   done, pending = await asyncio.wait(
+#       apps,
+#       return_when=asyncio.FIRST_COMPLETED,
+#   )
+#   print("done")
+#   print(done)
+#   print("pending")
+#   print(pending)
+#   for pending_task in pending:
+#     pending_task.cancel("Another service died, server is shutting down")
+# if __name__ == "__main__":
+#   try:
+#     asyncio.run(main())
+#   except Exception as e:
+#     print(e)
+#     sys.exit(0)

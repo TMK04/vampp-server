@@ -1,3 +1,8 @@
+import os
+from pathlib import Path
+
+from server.config import OUT_DIR
+
 from typing import Any, Dict, Generator, List, Tuple
 
 
@@ -20,3 +25,13 @@ def batchGen(gen: Generator[Tuple[str, Any], None, None], batch_size: int):
       x_batch = []
   if l > 0:
     yield i_batch, x_batch
+
+
+def tempPath(temp_dir: str, arg_ls: List[str]):
+  return os.path.join(temp_dir, "-".join(arg_ls))
+
+
+def tempDir(temp_dir: str, arg_ls: List[str]):
+  temp_path = tempPath(temp_dir, arg_ls)
+  Path(temp_path).mkdir()
+  return temp_path

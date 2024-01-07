@@ -35,9 +35,9 @@ def extractFrameBatchLs(input_file: str):
   return batch_ls
 
 
-def localizeFrames(temp_mkv_path, temp_localized_dir, temp_xyxyn_path):
+def localizeFrames(temp_mp4_path: str, temp_localized_dir: str, temp_xyxyn_path: str):
   xyxy_df = {key: [] for key in ["i", "x1", "y1", "x2", "y2"]}
-  for batch in extractFrameBatchLs(temp_mkv_path):
+  for batch in extractFrameBatchLs(temp_mp4_path):
     for inferred_i, result in enumerate(batchInfer(batch)):
       xyxy_dict = calculatePresenterXYXY(result)
       if xyxy_dict is None:
@@ -55,7 +55,7 @@ def localizeFrames(temp_mkv_path, temp_localized_dir, temp_xyxyn_path):
   xyxy_df.to_csv(temp_xyxyn_path)
 
 
-def restoreAndBatchFrames(temp_localized_dir, temp_restored_dir):
+def restoreAndBatchFrames(temp_localized_dir: str, temp_restored_dir: str):
   return batchGen(restoreFaces(temp_localized_dir, temp_restored_dir), FRAME_BATCH)
 
 

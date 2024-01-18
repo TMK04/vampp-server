@@ -12,13 +12,26 @@ load_dotenv(os.path.join(module_path, "server/.env"))
 import gradio as gr
 
 from server.config import DEBUG, HOST, PORT, SHARE
-from server.demos.receive_video_demo import receive_video_demo
+from server.demos import (  #
+    # predictAudio_demo,  #
+    # predictScores_demo,  #
+    predictVideo_demo  #
+)
 
-demo = gr.TabbedInterface([
-    receive_video_demo,
-], ["Receive Video"])
+demo = gr.TabbedInterface(
+    [
+        predictVideo_demo.demo,  #
+        # predictAudio_demo.demo,  #
+        # predictScores_demo.demo,  #
+    ],
+    [
+        predictVideo_demo.name,  #
+        # predictAudio_demo.name,  #
+        # predictScores_demo.name  #
+    ])
 
 if __name__ == "__main__":
+  demo.queue()
   demo.launch(server_name=HOST, server_port=PORT, debug=DEBUG, share=SHARE)
 
 # # Adapted from https://gist.github.com/tenuki/ff67f87cba5c4c04fd08d9c800437477?permalink_comment_id=4236491#gistcomment-4236491

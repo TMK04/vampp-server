@@ -37,7 +37,7 @@ def tempPath(id: str, arg_ls: List[str]):
   return os.path.join(os.path.join(OUT_DIR, id), "-".join(arg_ls))
 
 
-def tempDir(id: str, arg_ls: List[str]):
+def tempDir(id: str, arg_ls: List[str], **mkdir_kwargs):
   temp_path = tempPath(id, arg_ls)
-  Path(temp_path).mkdir()
+  Path(temp_path).mkdir(**mkdir_kwargs)
   return temp_path

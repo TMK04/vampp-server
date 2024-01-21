@@ -4,6 +4,7 @@ import soundfile as sf
 
 from server.config import AUDIO_BATCH, AUDIO_SR
 from server.models.speech_stats import batchInferSpeechStats, preprocess
+from server.models.transcriber import transcribe
 from server.utils.common import DictKeyArr, batchGen, toCsv
 
 
@@ -31,3 +32,8 @@ def predictSpeechStats(wav_path: str, speech_stats_path: str):
 
   for key in speech_stats_key_ls:
     yield key, speech_stats_df[key].mean()
+
+
+def predictPitch(wav_path: str):
+  pitch = transcribe(wav_path)
+  yield "pitch", pitch

@@ -4,7 +4,7 @@ import json
 import shutil
 from tempfile import _TemporaryFileWrapper
 
-from server.services.audio import predictSpeechStats
+from server.services.audio import predictPitch, predictSpeechStats
 from server.utils.common import tempDir, tempPath
 
 from typing import Any, Dict
@@ -34,12 +34,11 @@ async def fn(id: str, _temp_wav: _TemporaryFileWrapper, topic: str):
   except Exception as e:
     raise gr.Error(str(e))
 
-  # def predictPitch():
-  #   nonlocal topic, title
-  #   pitch_arg_ls = ["pitch.txt"]
-  #   temp_pitch_path = tempPath(temp_dir, pitch_arg_ls)
-  #   pitch = transcribe(temp_wav_path)
-  #   setsubscores("pitch", "S", pitch)
+  def pitchFn():
+    nonlocal temp_wav_path
+    # nonlocal topic, title
+    for k, v in predictPitch(temp_wav_path):
+      print(k, v)
 
   #   topic, summary = summarize(pitch, topic, title)
   #   setsubscores("topic", "S", topic)

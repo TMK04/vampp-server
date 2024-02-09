@@ -38,7 +38,13 @@ async def fn(id: str, _temp_wav: _TemporaryFileWrapper, topic: str):
     nonlocal temp_wav_path
     # nonlocal topic, title
     for k, v in predictPitch(temp_wav_path):
-      print(k, v)
+      yield json.dumps({"k": f"pitch_{k}", "v": v})
+
+  try:
+    for subscore in pitchFn():
+      yield subscore
+  except Exception as e:
+    raise gr.Error(str(e))
 
   #   topic, summary = summarize(pitch, topic, title)
   #   setsubscores("topic", "S", topic)

@@ -35,5 +35,5 @@ def predictSpeechStats(wav_path: str, speech_stats_path: str):
 
 
 def predictPitch(wav_path: str):
-  pitch = transcribe(wav_path)
-  yield "pitch", pitch
+  content = transcribe(wav_path)
+  yield "content", content

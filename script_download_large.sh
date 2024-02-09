@@ -1,16 +1,18 @@
 # Download Large Files
 
-. "$ROOT_DIR/.env"
+SERVER_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+. "$SERVER_DIR/.env"
+SERVER_MODELS_DIR="$SERVER_DIR/models"
 
 ## Models
 
-ROOT_DIR="$ROOT_DIR/models/presenter_localizer" . "$ROOT_DIR/models/presenter_localizer/download.sh"
-ROOT_DIR="$ROOT_DIR/models/ridge" . "$ROOT_DIR/models/ridge/download.sh"
-ROOT_DIR="$ROOT_DIR/models/speech_stats" . "$ROOT_DIR/models/speech_stats/download.sh"
-ROOT_DIR="$ROOT_DIR/models/xdensenet" . "$ROOT_DIR/models/xdensenet/download.sh"
+. "$SERVER_MODELS_DIR/presenter_localizer/download.sh"
+. "$SERVER_MODELS_DIR/ridge/download.sh"
+. "$SERVER_MODELS_DIR/speech_stats/download.sh"
+. "$SERVER_MODELS_DIR/xdensenet/download.sh"
 
 ### Larger Models
 
-ROOT_DIR="$ROOT_DIR/models/face_restorer" . "$ROOT_DIR/models/face_restorer/download.sh"
-ROOT_DIR="$ROOT_DIR/models/transcriber" MODEL_TRANSCRIBER_DIR="$MODEL_TRANSCRIBER_AUTHOR/$MODEL_TRANSCRIBER_NAME" . "$ROOT_DIR/models/transcriber/download.sh"
-ROOT_DIR="$ROOT_DIR/models/llm" MODEL_LLM_DIR="$MODEL_LLM_AUTHOR/$MODEL_LLM_NAME" MODEL_SD_DIR="$MODEL_SD_AUTHOR/$MODEL_SD_NAME" . "$ROOT_DIR/models/llm/download.sh"
+. "$SERVER_MODELS_DIR/face_restorer/download.sh"
+MODEL_TRANSCRIBER_DIR="$MODEL_TRANSCRIBER_AUTHOR/$MODEL_TRANSCRIBER_NAME" . "$SERVER_MODELS_DIR/transcriber/download.sh"
+MODEL_LLM_DIR="$MODEL_LLM_AUTHOR/$MODEL_LLM_NAME" MODEL_SD_DIR="$MODEL_SD_AUTHOR/$MODEL_SD_NAME" . "$SERVER_MODELS_DIR/llm/download.sh"

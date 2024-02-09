@@ -46,7 +46,7 @@ ROOT_DIR=/ ./script_install_deps.sh # Replace "/" with this directory
 | Enhance cropped posture    | [CodeFormer](https://github.com/sczhou/CodeFormer) + [Real-ESRGAN](https://github.com/xinntao/Real-ESRGAN)                                                                           |
 | Speech Emotion Recognition | Finetuned [wav2vec2-large-robust-12-ft-emotion-msp-dim](https://huggingface.co/audeering/wav2vec2-large-robust-12-ft-emotion-msp-dim)                                                |
 | Text Recognition           | [Whisper](https://github.com/openai/whisper)                                                                                                                                         |
-| Text Analysis              | [notux-8x7b-v1](https://huggingface.co/argilla/notux-8x7b-v1) ([5.0bpw-h6-exl2](https://huggingface.co/LoneStriker/notux-8x7b-v1-5.0bpw-h6-exl2))                                    |
+| Text Analysis              | [notux-8x7b-v1](https://huggingface.co/jondurbin/bagel-dpo-7b-v0.4) ([5.0bpw-h6-exl2](https://huggingface.co/LoneStriker/bagel-dpo-7b-v0.4-5.0bpw-h6-exl2))                          |
 | [Speculative Decoder][SD]  | [TinyLlama-1.1B-Chat-v1.0](https://huggingface.co/TinyLlama/TinyLlama-1.1B-Chat-v1.0) ([5.0bpw-h6-exl2](https://huggingface.co/LoneStriker/TinyLlama-1.1B-Chat-v1.0-5.0bpw-h6-exl2)) |
 
 [SD]: https://arxiv.org/abs/2211.17192

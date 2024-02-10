@@ -33,7 +33,7 @@ for key in ["MODEL_LLM_AUTHOR", "MODEL_LLM_NAME", "MODEL_SD_AUTHOR", "MODEL_SD_N
     raise ValueError(f"env_var {key} is unset")
 
 MODEL_LLM_DIR = os.path.join(os.environ.get("MODEL_LLM_AUTHOR"), os.environ.get("MODEL_LLM_NAME"))
-MODEL_LLM_CONTEXT_LEN = parseInt("MODEL_LLM_CONTEXT_LEN", "8192")
-MODEL_LLM_SCALE_POS_EMB = float(os.environ.get("MODEL_LLM_SCALE_POS_EMB", "3.0"))
+MODEL_LLM_CONTEXT_LEN = parseInt("MODEL_LLM_CONTEXT_LEN", "2048")
+MODEL_LLM_SCALE_POS_EMB = float(os.environ.get("MODEL_LLM_SCALE_POS_EMB", "1.0"))
 
 MODEL_SD_DIR = os.path.join(os.environ.get("MODEL_SD_AUTHOR"), os.environ.get("MODEL_SD_NAME"))

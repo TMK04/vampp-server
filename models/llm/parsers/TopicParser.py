@@ -1,3 +1,5 @@
+import torch
+
 from server.models.llm.prompts.TopicPrompt import append, prepend
 from .Parser import Parser, PretokenizeStart, PretokenizeContinue
 
@@ -6,7 +8,9 @@ class TopicParser(Parser):
 
   def __init__(self, input: str):
     super().__init__()
-    self.first_tokens = prepend_pretokenized + PretokenizeStart(input) + append_pretokenized
+    input_pretokenized = PretokenizeStart(input)
+    print(prepend_pretokenized.shape, input_pretokenized.shape, append_pretokenized.shape)
+    self.first_tokens = torch.cat((prepend_pretokenized, input_pretokenized, append_pretokenized))
     self.output = None
 
   def setCurrentV(self):

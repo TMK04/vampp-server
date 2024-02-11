@@ -28,7 +28,7 @@ class Parser:
 
 
 def PretokenizeStart(str):
-  pretokenized = tokenizer.encode(str)[0, 1:]
+  pretokenized = tokenizer.encode(str)[0]
   return pretokenized
 
 

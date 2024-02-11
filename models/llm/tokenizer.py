@@ -2,7 +2,7 @@ from exllamav2 import ExLlamaV2Tokenizer as _ExLlamaV2Tokenizer
 import re
 import torch
 
-from .configs import llm_config
+from .config import config
 
 
 class ExLlamaV2Tokenizer(_ExLlamaV2Tokenizer):
@@ -18,7 +18,7 @@ class ExLlamaV2Tokenizer(_ExLlamaV2Tokenizer):
       self.comment_token_id = None
 
 
-tokenizer = ExLlamaV2Tokenizer(llm_config)
+tokenizer = ExLlamaV2Tokenizer(config)
 
 response_sep = f"""{tokenizer.eos_token}
 

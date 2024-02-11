@@ -27,13 +27,18 @@ class Parser:
     return v
 
 
-def PretokenizeStart(str):
-  pretokenized = tokenizer.encode(str)[0]
+def PretokenizePrepend(prepend: str):
+  pretokenized = tokenizer.encode(prepend, add_bos=True, encode_special_tokens=True)[0]
   return pretokenized
 
 
-def PretokenizeContinue(str):
-  pretokenized = tokenizer.encode(f"\n{str}")[0, 2:]
+def PretokenizeInput(input: str):
+  pretokenized = tokenizer.encode(input)[0]
+  return pretokenized
+
+
+def PretokenizeAppend(append: str):
+  pretokenized = tokenizer.encode(f"\n{append}", encode_special_tokens=True)[0, 2:]
   return pretokenized
 
 
@@ -47,5 +52,5 @@ def PretokenizeDict(d: Dict):
     if isinstance(d[k], dict):
       pretokenized[k] = PretokenizeDict(d[k])
       continue
-    pretokenized[k] = PretokenizeContinue(d[k])
+    pretokenized[k] = PretokenizeAppend(d[k])
   return pretokenized

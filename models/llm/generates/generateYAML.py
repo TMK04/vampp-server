@@ -47,26 +47,32 @@ def generateYAML(
       generated_tokens += 1
       token = token_tensor.item()
       # ? handle comments
-      if (token == tokenizer.newline_token_id) and (len(parser.current_v) > 0):
-        printEOS("matched newline_token_id")
-        done, next_tokens = parser.setCurrentV()
-        if done:
-          printEOS("done")
+      match token:
+        case tokenizer.newline_token_id:
+          if len(parser.current_v) > 0:
+            printEOS("matched newline_token_id")
+            done, next_tokens = parser.setCurrentV()
+            if done:
+              printEOS("done")
+              eos = True
+              break
+            if next_tokens is None:
+              input_ids = generator.sequence_ids
+            else:
+              printChunks(col_default, tokenizer.decode(next_tokens), col_bot, sep="")
+              input_ids = torch.cat((generator.sequence_ids, next_tokens.unsqueeze(0)), dim=1)
+            generator.begin_stream(input_ids, settings)
+            continue
+        case tokenizer.eos_token_id:
           eos = True
-          break
-        if next_tokens is None:
-          input_ids = generator.sequence_ids
-        else:
-          printChunks(col_default, tokenizer.decode(next_tokens), col_bot, sep="")
-          input_ids = torch.cat((generator.sequence_ids, next_tokens.unsqueeze(0)), dim=1)
-        generator.begin_stream(input_ids, settings)
-        continue
-      parser.appendCurrentV(token)
-    if generated_tokens == max_new_tokens:
-      printEOS("max_new_tokens")
-      break
+          print("How did we get here?")
+        case _:
+          parser.appendCurrentV(token)
     if eos:
       print()
+      break
+    if generated_tokens == max_new_tokens:
+      printEOS("max_new_tokens")
       break
 
   output = parser.output

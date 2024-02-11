@@ -9,7 +9,6 @@ class TopicParser(Parser):
   def __init__(self, input: str):
     super().__init__()
     input_pretokenized = PretokenizeStart(input)
-    print(prepend_pretokenized.shape, input_pretokenized.shape, append_pretokenized.shape)
     self.first_tokens = torch.cat((prepend_pretokenized, input_pretokenized, append_pretokenized))
     self.output = None
 

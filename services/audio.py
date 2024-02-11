@@ -40,5 +40,4 @@ def predictPitch(wav_path: str):
   yield "content", content
 
   topic = generateTopic(content)
-  print(topic)
   yield "topic", topic

@@ -27,22 +27,22 @@ class Parser:
 
 
 def PretokenizeAndWrap(prepend: torch.Tensor, input: str, append: torch.Tensor):
-  pretokenized = torch.cat((prepend, PretokenizeInput(input), append))
+  pretokenized = torch.cat((prepend, PretokenizeInput(input), append), dim=1)
   return pretokenized
 
 
 def PretokenizePrepend(prepend: str):
-  pretokenized = tokenizer.encode(prepend, add_bos=True, encode_special_tokens=True)[0]
+  pretokenized = tokenizer.encode(prepend, add_bos=True, encode_special_tokens=True)
   return pretokenized
 
 
 def PretokenizeInput(input: str):
-  pretokenized = tokenizer.encode(input)[0]
+  pretokenized = tokenizer.encode(input)
   return pretokenized
 
 
 def PretokenizeAppend(append: str):
-  pretokenized = tokenizer.encode(f"\n{append}", encode_special_tokens=True)[0, 2:]
+  pretokenized = tokenizer.encode(f"\n{append}", encode_special_tokens=True)[:, 2:]
   return pretokenized
 
 

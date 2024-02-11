@@ -15,8 +15,6 @@ loralib
 ninja
 sentencepiece>=0.1.97
 transformers
-https://github.com/turboderp/exllamav2/releases/download/v0.0.11/exllamav2-0.0.11+cu118-cp310-cp310-linux_x86_64.whl; platform_system == "Linux" and platform_machine == "x86_64"
-https://github.com/turboderp/exllamav2/releases/download/v0.0.11/exllamav2-0.0.11+cu118-cp310-cp310-win_amd64.whl; platform_system == "Windows"
 
 # Server
 gradio<4.0.0

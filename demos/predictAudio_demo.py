@@ -36,7 +36,7 @@ async def fn(id: str, _temp_wav: _TemporaryFileWrapper, topic: str):
 
   def pitchFn():
     nonlocal temp_wav_path
-    # nonlocal topic, title
+    # nonlocal topic
     for k, v in predictPitch(temp_wav_path):
       yield json.dumps({"k": f"pitch_{k}", "v": v})
 

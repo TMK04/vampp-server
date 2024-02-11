@@ -3,6 +3,7 @@ import pandas as pd
 import soundfile as sf
 
 from server.config import AUDIO_BATCH, AUDIO_SR
+from server.models.llm import generateTopic
 from server.models.speech_stats import batchInferSpeechStats, preprocess
 from server.models.transcriber import transcribe
 from server.utils.common import DictKeyArr, batchGen, toCsv
@@ -37,3 +38,7 @@ def predictSpeechStats(wav_path: str, speech_stats_path: str):
 def predictPitch(wav_path: str):
   content = transcribe(wav_path)
   yield "content", content
+
+  topic = generateTopic(content)
+  print(topic)
+  yield "topic", topic

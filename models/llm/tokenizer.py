@@ -4,10 +4,12 @@ import torch
 
 from .config import config
 
+from typing import Union
+
 
 class ExLlamaV2Tokenizer(_ExLlamaV2Tokenizer):
   comment_token: str = "#"
-  comment_token_id: int or None
+  comment_token_id: Union[int, None]
 
   def __init__(self, *args, **kwargs):
     super().__init__(*args, **kwargs)
@@ -23,13 +25,14 @@ tokenizer = ExLlamaV2Tokenizer(config)
 response_sep = f"""{tokenizer.eos_token}
 
 {tokenizer.bos_token}"""
+field_sep = f"""
+[SEP]
+"""
+subfield_sep = f"""
+========
+"""
 
-stop_conditions = {
-    tokenizer.bos_token_id,
-    tokenizer.eos_token_id,
-    "INPUT:",
-    "RESPONSE:",
-}
+stop_conditions = {tokenizer.bos_token_id, tokenizer.eos_token_id, "INPUT:", "RESPONSE:", "===="}
 
 
 def StopStringsRe():

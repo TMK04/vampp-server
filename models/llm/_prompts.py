@@ -80,11 +80,9 @@
 #     },
 # )
 
-
 # class SummaryTopicOutput(BaseModel):
 #   topic: str = Field(description="main idea of the pitch", max_length=100)
 #   summary: str = Field(description="summary of the pitch", max_length=1000)
-
 
 # summary_topic_parser = PydanticOutputParser(pydantic_object=SummaryTopicOutput)
 

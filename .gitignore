@@ -6,7 +6,7 @@ tmp/
 *.pt
 *.pth
 facelib/
-models/*/models/*
+models/*/models
 
 .env
 .env.*

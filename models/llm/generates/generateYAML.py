@@ -21,7 +21,7 @@ def generateYAML(
 
   first_tokens = parser.first_tokens
   if first_tokens is not None:
-    printChunks(tokenizer.decode(first_tokens), sep="")
+    printChunks(tokenizer.decode(first_tokens, decode_special_tokens=True), sep="")
     input_ids = torch.cat((input_ids, first_tokens.unsqueeze(0)), dim=1)
 
   # Send prompt to generator to begin stream
@@ -59,7 +59,10 @@ def generateYAML(
             if next_tokens is None:
               input_ids = generator.sequence_ids
             else:
-              printChunks(col_default, tokenizer.decode(next_tokens), col_bot, sep="")
+              printChunks(col_default,
+                          tokenizer.decode(next_tokens, decode_special_tokens=True),
+                          col_bot,
+                          sep="")
               input_ids = torch.cat((generator.sequence_ids, next_tokens.unsqueeze(0)), dim=1)
             generator.begin_stream(input_ids, settings)
             continue

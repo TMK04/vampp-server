@@ -63,9 +63,6 @@ def generateYAML(
               input_ids = torch.cat((generator.sequence_ids, next_tokens.unsqueeze(0)), dim=1)
             generator.begin_stream(input_ids, settings)
             continue
-        case tokenizer.eos_token_id:
-          eos = True
-          print("How did we get here?")
         case _:
           parser.appendCurrentV(token)
     if eos:

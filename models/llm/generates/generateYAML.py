@@ -17,13 +17,6 @@ def generateYAML(
     input_ids: torch.Tensor = empty_ids,
     max_new_tokens: int = 128,
 ):
-  # Prompt
-
-  first_tokens = parser.first_tokens
-  if first_tokens is not None:
-    printChunks(tokenizer.decode(first_tokens, decode_special_tokens=True), sep="")
-    input_ids = torch.cat((input_ids, first_tokens.unsqueeze(0)), dim=1)
-
   # Send prompt to generator to begin stream
 
   generator.begin_stream(input_ids, settings)

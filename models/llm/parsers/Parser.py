@@ -9,7 +9,6 @@ class Parser:
 
   def __init__(self):
     self.current_v = []
-    self.first_tokens = None
     self.output = None
 
   def appendCurrentV(self, token):
@@ -25,6 +24,11 @@ class Parser:
     v = tokenizer.decode(torch.tensor(self.current_v, dtype=torch.long))
     self.current_v = []
     return v
+
+
+def PretokenizeAndWrap(prepend: torch.Tensor, input: str, append: torch.Tensor):
+  pretokenized = torch.cat((prepend, PretokenizeInput(input), append))
+  return pretokenized
 
 
 def PretokenizePrepend(prepend: str):

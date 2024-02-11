@@ -1,8 +1,10 @@
 from .generates.generateYAML import generateYAML
-from .parsers.TopicParser import TopicParser
+from .parsers.Parser import PretokenizeAndWrap
+from .parsers.TopicParser import TopicParser, append_pretokenized, prepend_pretokenized
 
 
 def generateTopic(content: str):
-  parser = TopicParser(content)
-  topic = generateYAML(parser)
+  content_pretokenized = PretokenizeAndWrap(prepend_pretokenized, content, append_pretokenized)
+  parser = TopicParser()
+  topic = generateYAML(parser, content_pretokenized)
   return topic

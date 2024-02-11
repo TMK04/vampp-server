@@ -5,7 +5,7 @@ from exllamav2.generator import ExLlamaV2Sampler
 from server.models.llm.generator import generator
 from server.models.llm.tokenizer import tokenizer
 from server.models.llm.parsers.Parser import Parser
-from server.models.llm.utils import col_bot, col_default, empty_ids, printChunks, printEOS, tokenizePrompt
+from server.models.llm.utils import col_bot, col_default, empty_ids, printChunks, printEOS
 
 settings = ExLlamaV2Sampler.Settings()
 settings.token_repetition_penalty = 1.1
@@ -46,7 +46,8 @@ def generateYAML(
     for token_tensor in chunk_tokens[0]:
       generated_tokens += 1
       token = token_tensor.item()
-      if token in {tokenizer.newline_token_id, tokenizer.comment_token_id}:
+      # ? handle comments
+      if (token == tokenizer.newline_token_id) and (len(parser.current_v) > 0):
         printEOS("matched newline_token_id")
         done, next_tokens = parser.setCurrentV()
         if done:

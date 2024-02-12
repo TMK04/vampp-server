@@ -1,6 +1,6 @@
 import torch
 
-from .cogenerate import TopicCogenerator, cogenerateSingle
+from .cogenerate import SummaryCogenerator, TopicCogenerator, cogenerateSingle, cogenerateMulti
 from .cogenerate.Cogenerator import PretokenizeInput
 
 
@@ -8,8 +8,9 @@ def generate(content: str):
   content_pretokenized = PretokenizeInput(content)
   for topic in generateTopic(content_pretokenized):
     yield "topic", topic
-  # for summary in generateSummary(content_pretokenized, topic):
-  #   yield "summary", summary
+  topic_pretokenized = PretokenizeInput(topic)
+  for summary in generateSummary(content_pretokenized, topic_pretokenized):
+    yield "summary", summary
 
 
 def generateTopic(content_pretokenized: torch.Tensor):
@@ -18,12 +19,11 @@ def generateTopic(content_pretokenized: torch.Tensor):
   return cogenerateSingle(cogenerator, input)
 
 
-# def generateSummary(content_pretokenized: torch.Tensor):
-#   input = torch.cat((SummaryCogenerator.prepend_pretokenized, content_pretokenized,
-#                      SummaryCogenerator.append_pretokenized),
-#                     dim=1)
-#   cogenerator = SummaryCogenerator.SummaryCogenerator()
-#   return cogenerateMulti(cogenerator, content_pretokenized)
+def generateSummary(content_pretokenized: torch.Tensor, topic_pretokenized: torch.Tensor):
+  input = SummaryCogenerator.Wrap(content_pretokenized, topic_pretokenized)
+  cogenerator = SummaryCogenerator.SummaryCogenerator()
+  return cogenerateMulti(cogenerator, input)
+
 
 # Test
 for kv in generate(

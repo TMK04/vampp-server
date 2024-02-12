@@ -107,4 +107,4 @@ def cogenerate(score_name: str, content_pretokenized: torch.Tensor,
                topic_pretokenized: torch.Tensor):
   input = Wrap(score_name, content_pretokenized, topic_pretokenized)
   cogenerator = ScoreJustificationCogenerator()
-  return cogenerateMulti(cogenerator, input)
+  return cogenerateMulti(cogenerator, input, 512)

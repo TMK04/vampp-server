@@ -48,4 +48,4 @@ def Wrap(content_pretokenized: torch.Tensor):
 def cogenerate(content_pretokenized: torch.Tensor):
   input = Wrap(content_pretokenized)
   cogenerator = TopicCogenerator()
-  return cogenerateSingle(cogenerator, input)
+  return cogenerateSingle(cogenerator, input, 32)

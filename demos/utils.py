@@ -7,4 +7,4 @@ X_keys = set(X_pe_keys + X_clarity_keys + X_bv_keys)
 
 
 def dumpKv(k: str, v):
-  return json.dumps({"k": k, "v": v})
+  return json.dumps({k: v})

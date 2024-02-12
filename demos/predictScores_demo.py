@@ -40,7 +40,7 @@ async def fn(id: str):
   X_bv = SubsetArr(subscores, X_bv_keys)
   scores["bv"] = inferBv(X_bv)
 
-  return scores
+  return json.dumps(scores)
 
 
 name = "predictScores"
@@ -48,5 +48,5 @@ demo = gr.Interface(
     api_name=name,
     fn=fn,
     inputs=gr.Textbox(label="id"),
-    outputs=gr.JSON(label="scores"),
+    outputs=gr.Textbox(label="scores"),
 )

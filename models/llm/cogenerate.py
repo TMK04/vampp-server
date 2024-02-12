@@ -27,6 +27,7 @@ def cogenerateSingle(
   generated_tokens = 0
 
   printChunks(col_bot)
+  chunk_prev = ""
   while True:
     chunk, eos, chunk_tokens = generator.stream()
     if eos:
@@ -36,6 +37,9 @@ def cogenerateSingle(
 
     printChunks(chunk)
     sys.stdout.flush()
+    chunk_prev += chunk
+    yield chunk_prev
+
     for token_tensor in chunk_tokens[0]:
       generated_tokens += 1
       token = token_tensor.item()
@@ -70,7 +74,7 @@ def cogenerateSingle(
 
   output = parser.output
   print(col_bot, output, col_default, sep="")
-  return output
+  yield output
 
 
 def cogenerateMulti(

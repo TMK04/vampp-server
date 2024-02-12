@@ -39,5 +39,5 @@ def predictPitch(wav_path: str):
   content = transcribe(wav_path)
   yield "content", content
 
-  topic = generateTopic(content)
-  yield "topic", topic
+  for topic in generateTopic(content):
+    yield "topic", topic

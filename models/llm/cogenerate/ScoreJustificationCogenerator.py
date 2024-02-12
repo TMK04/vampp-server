@@ -35,7 +35,7 @@ dict_append_short = {score_name: AppendShort(score_name) for score_name in score
 def Prepend(score_name: str, score_justification_eg: str):
   return f"""Analyze the following project pitches based on {score_name}.
 Use all the provided guiding questions: (+ for good, - for bad)
-Do NOT come up with new guiding questions.""" + response_sep + f"""INPUT:
+Do NOT come up with, consider, or use new guiding questions.""" + response_sep + f"""INPUT:
 Example Pitch{TopicCogenerator.append_short}Example Topic{dict_append_short[score_name]}{score_justification_eg}""" + response_sep + """INPUT:
 """
 

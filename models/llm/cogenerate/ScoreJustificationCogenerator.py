@@ -25,6 +25,7 @@ def ScoreJustificationAppend(score_name: str, points: str):
   return f"""
 [SEP]
 {score_name} Justification
+* concise (20-60 words)
 {points}
 ====
 """

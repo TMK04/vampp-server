@@ -22,7 +22,7 @@ class SummaryCogenerator(Cogenerator):
 append_pretokenized = """
 ========
 Summary
-* brief (max 1000 characters)
+* brief (20-60 words)
 ====
 """
 prepend_pretokenized = """Summarize the following project pitches.""" + response_sep + f"""INPUT:

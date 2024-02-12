@@ -21,9 +21,8 @@ class TopicCogenerator(Cogenerator):
 append_pretokenized = """
 
 RESPONSE:
-Topic
-* main idea of the pitch
-* short (max 100 characters)
+Topic (main idea)
+* short (3-10 words)
 ====
 """
 append_short = """

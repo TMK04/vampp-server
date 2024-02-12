@@ -26,7 +26,7 @@ Summary
 ====
 """
 prepend_pretokenized = """Summarize the following project pitches.""" + response_sep + f"""INPUT:
-Hello, I'm Alex Turner, presenting a project to address the lack of accessible platforms for hands-on learning in space exploration. My solution is the Space Exploration Simulation Platform (SESP). This platform offers an immersive and interactive environment for enthusiasts to conduct experiments, simulate space missions, and enhance their skills. Modeled after successful concepts like Cybersecurity Capture The Flag, SESP provides a user-friendly interface, step-by-step learning, and a live scoreboard for real-time progress tracking. The goal is to empower users to bridge the gap between theoretical knowledge and practical experience, preparing them for the challenges of space exploration. Thank you for considering my proposal.{TopicCogenerator.append_short}Space Exploration Simulation Platform{append_pretokenized}Alex Turner proposes the Space Exploration Simulation Platform (SESP) to provide accessible hands-on learning in space exploration. SESP offers an immersive environment for simulating missions and experiments, bridging the gap between theory and practice.""" + response_sep + """INPUT:
+Example Pitch{TopicCogenerator.append_short}Example Topic{append_pretokenized}Example Summary""" + response_sep + """INPUT:
 """
 
 prepend_pretokenized = PretokenizePrepend(prepend_pretokenized)

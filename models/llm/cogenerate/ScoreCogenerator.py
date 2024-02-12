@@ -39,7 +39,7 @@ dict_append_short = {
 
 def Prepend(score_name: str):
   return f"""Analyze the following project pitches based on {score_name}.""" + response_sep + f"""INPUT:
-Example Pitch{TopicCogenerator.append_short}Example Topic{ScoreJustificationCogenerator.dict_append_short[score_name]}Example {score_name} Justification{dict_append_short[score_name]}1""" + response_sep + """INPUT:
+Example Pitch{TopicCogenerator.append_short}Example Topic{ScoreJustificationCogenerator.dict_append_short[score_name]}{ScoreJustificationCogenerator.dict_prepend[score_name]}{dict_append_short[score_name]}10""" + response_sep + """INPUT:
 """
 
 

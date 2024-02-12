@@ -36,16 +36,22 @@ dict_append_short_pretokenized = {
 }
 
 
-def Prepend(score_name: str):
+def Prepend(score_name: str, score_justification_eg: str):
   return f"""Analyze the following project pitches based on {score_name}.
 Use all guiding questions (+ for good, - for bad)""" + response_sep + f"""INPUT:
-Example Pitch{TopicCogenerator.append_short}Example Topic{dict_append_short[score_name]}Example {score_name} Justification""" + response_sep + """INPUT:
+Example Pitch{TopicCogenerator.append_short}Example Topic{dict_append_short[score_name]}{score_justification_eg}""" + response_sep + """INPUT:
 """
 
 
+dict_prepend = {
+    "Clarity": "The pitch uses clear language.",
+    "Creativity": "The pitch shows creativity",
+    "Feasibility": "The project is feasible",
+    "Impact": "The project positively impacts the target audience."
+}
 dict_prepend_pretokenized = {
-    score_name: PretokenizePrepend(Prepend(score_name))
-    for score_name in score_names
+    score_name: PretokenizePrepend(Prepend(score_name, score_justification_eg))
+    for score_name, score_justification_eg in dict_prepend.items()
 }
 
 

@@ -55,8 +55,7 @@ dict_prepend_pretokenized = {
 def Append(score_name: str, points: str):
   return f"""
 ========
-{score_name} Justification
-* concise (20-60 words)
+{score_name} Justification (20-60 words)
 {points}
 ====
 """

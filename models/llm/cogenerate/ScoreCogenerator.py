@@ -53,8 +53,7 @@ dict_prepend_pretokenized = {
 def Append(score_name: str):
   return f"""
 ========
-{score_name}
-* score between 1-10
+{score_name} (integer between 1-10)
 ====
 """
 

@@ -33,8 +33,7 @@ Example Pitch{TopicCogenerator.append_short}Example Topic{append_short}Example S
 
 append_pretokenized = PretokenizeAppend("""
 ========
-Summary
-* brief (20-60 words)
+Summary (20-60 words)
 ====
 """)
 

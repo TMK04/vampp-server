@@ -33,8 +33,7 @@ Example Pitch{append_short}Example Topic""" + response_sep + """INPUT:
 append_pretokenized = PretokenizeAppend("""
 
 RESPONSE:
-Topic (main idea)
-* short (3-10 words)
+Topic (3-10 words)
 ====
 """)
 

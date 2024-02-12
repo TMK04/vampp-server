@@ -38,7 +38,8 @@ dict_append_short = {
 
 
 def Prepend(score_name: str):
-  return f"""Analyze the following project pitches based on {score_name}.""" + response_sep + f"""INPUT:
+  return f"""Analyze the following project pitches based on {score_name}.
+Use all the provided guiding questions: (+ for good, - for bad)""" + response_sep + f"""INPUT:
 Example Pitch{TopicCogenerator.append_short}Example Topic{ScoreJustificationCogenerator.dict_append_short[score_name]}{ScoreJustificationCogenerator.dict_prepend[score_name]}{dict_append_short[score_name]}10""" + response_sep + """INPUT:
 """
 
@@ -68,7 +69,7 @@ def Wrap(score_name: str, content_pretokenized: torch.Tensor, topic_pretokenized
          score_justification_pretokenized: torch.Tensor):
   return torch.cat((dict_prepend_pretokenized[score_name], content_pretokenized,
                     TopicCogenerator.append_short_pretokenized, topic_pretokenized,
-                    ScoreJustificationCogenerator.dict_append_short_pretokenized[score_name],
+                    ScoreJustificationCogenerator.dict_append_pretokenized[score_name],
                     score_justification_pretokenized, dict_append_pretokenized[score_name]),
                    dim=1)
 

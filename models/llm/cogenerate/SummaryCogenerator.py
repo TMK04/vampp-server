@@ -1,5 +1,6 @@
 import torch
 
+from server.models.llm.cogenerate.fns import cogenerateMulti
 from server.models.llm.tokenizer import response_sep
 
 from .Cogenerator import Cogenerator, PretokenizeAppend, PretokenizePrepend
@@ -42,3 +43,9 @@ def Wrap(content_pretokenized: torch.Tensor, topic_pretokenized: torch.Tensor):
   return torch.cat((prepend_pretokenized, content_pretokenized, topic_append_pretokenized,
                     topic_pretokenized, summary_append_pretokenized),
                    dim=1)
+
+
+def cogenerate(content_pretokenized: torch.Tensor, topic_pretokenized: torch.Tensor):
+  input = Wrap(content_pretokenized, topic_pretokenized)
+  cogenerator = SummaryCogenerator()
+  return cogenerateMulti(cogenerator, input)

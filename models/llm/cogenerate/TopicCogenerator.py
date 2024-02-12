@@ -1,5 +1,6 @@
 import torch
 
+from server.models.llm.cogenerate.fns import cogenerateSingle
 from server.models.llm.tokenizer import response_sep
 
 from .Cogenerator import Cogenerator, PretokenizeAppend, PretokenizePrepend
@@ -35,3 +36,9 @@ append_pretokenized = PretokenizeAppend(append)
 
 def Wrap(content_pretokenized: torch.Tensor):
   return torch.cat((prepend_pretokenized, content_pretokenized, append_pretokenized), dim=1)
+
+
+def cogenerate(content_pretokenized: torch.Tensor):
+  input = Wrap(content_pretokenized)
+  cogenerator = TopicCogenerator()
+  return cogenerateSingle(cogenerator, input)

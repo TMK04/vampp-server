@@ -1,28 +1,13 @@
-import torch
-
-from .cogenerate import SummaryCogenerator, TopicCogenerator, cogenerateSingle, cogenerateMulti
-from .cogenerate.Cogenerator import PretokenizeInput
+from .cogenerate import Cogenerator, SummaryCogenerator, TopicCogenerator
 
 
 def generate(content: str):
-  content_pretokenized = PretokenizeInput(content)
-  for topic in generateTopic(content_pretokenized):
+  content_pretokenized = Cogenerator.PretokenizeInput(content)
+  for topic in TopicCogenerator.cogenerate(content_pretokenized):
     yield "topic", topic
-  topic_pretokenized = PretokenizeInput(topic)
-  for summary in generateSummary(content_pretokenized, topic_pretokenized):
+  topic_pretokenized = Cogenerator.PretokenizeInput(topic)
+  for summary in SummaryCogenerator.cogenerate(content_pretokenized, topic_pretokenized):
     yield "summary", summary
-
-
-def generateTopic(content_pretokenized: torch.Tensor):
-  input = TopicCogenerator.Wrap(content_pretokenized)
-  cogenerator = TopicCogenerator.TopicCogenerator()
-  return cogenerateSingle(cogenerator, input)
-
-
-def generateSummary(content_pretokenized: torch.Tensor, topic_pretokenized: torch.Tensor):
-  input = SummaryCogenerator.Wrap(content_pretokenized, topic_pretokenized)
-  cogenerator = SummaryCogenerator.SummaryCogenerator()
-  return cogenerateMulti(cogenerator, input)
 
 
 # Test

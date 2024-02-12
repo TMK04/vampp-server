@@ -1,11 +1,11 @@
 from .cogenerate import cogenerateSingle
-from .parsers.Parser import PretokenizeAndWrap
-from .parsers.TopicParser import TopicParser, append_pretokenized, prepend_pretokenized
+from .cogenerate.Cogenerator import PretokenizeAndWrap
+from .cogenerate.TopicCogenerator import TopicCogenerator, append_pretokenized, prepend_pretokenized
 
 
 def generateTopic(content: str):
   content_pretokenized = PretokenizeAndWrap(prepend_pretokenized, content, append_pretokenized)
-  parser = TopicParser()
+  parser = TopicCogenerator()
   return cogenerateSingle(parser, content_pretokenized)
 
 

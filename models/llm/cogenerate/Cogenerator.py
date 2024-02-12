@@ -5,7 +5,7 @@ from server.models.llm.tokenizer import tokenizer
 from typing import Dict
 
 
-class Parser:
+class Cogenerator:
 
   def __init__(self):
     self.current_v = []

@@ -1,8 +1,8 @@
 from server.models.llm.prompts.TopicPrompt import append, prepend
-from .Parser import Parser, PretokenizeAppend, PretokenizePrepend
+from .Cogenerator import Cogenerator, PretokenizeAppend, PretokenizePrepend
 
 
-class TopicParser(Parser):
+class TopicCogenerator(Cogenerator):
 
   def __init__(self):
     super().__init__()

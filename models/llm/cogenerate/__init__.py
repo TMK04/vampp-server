@@ -4,8 +4,9 @@ from exllamav2.generator import ExLlamaV2Sampler
 
 from server.models.llm.generator import generator
 from server.models.llm.tokenizer import tokenizer
-from server.models.llm.parsers.Parser import Parser
 from server.models.llm.utils import col_bot, col_default, empty_ids, printChunks, printEOS
+
+from .Cogenerator import Cogenerator
 
 settings = ExLlamaV2Sampler.Settings()
 settings.token_repetition_penalty = 1.1
@@ -13,7 +14,7 @@ settings.top_k = 1
 
 
 def cogenerateSingle(
-    parser: Parser,
+    cogenerator: Cogenerator,
     input_ids: torch.Tensor = empty_ids,
     max_new_tokens: int = 64,
 ):
@@ -32,7 +33,7 @@ def cogenerateSingle(
     chunk, eos, chunk_tokens = generator.stream()
     if eos:
       printEOS("exllamav2")
-      parser.setCurrentV()
+      cogenerator.setCurrentV()
       break
 
     printChunks(chunk)
@@ -46,9 +47,9 @@ def cogenerateSingle(
       # ? handle comments
       match token:
         case tokenizer.newline_token_id:
-          if len(parser.current_v) > 0:
+          if len(cogenerator.current_v) > 0:
             printEOS("matched newline_token_id")
-            done, next_tokens = parser.setCurrentV()
+            done, next_tokens = cogenerator.setCurrentV()
             if done:
               printEOS("done")
               eos = True
@@ -64,7 +65,7 @@ def cogenerateSingle(
             generator.begin_stream(input_ids, settings)
             continue
         case _:
-          parser.appendCurrentV(token)
+          cogenerator.appendCurrentV(token)
     if eos:
       print()
       break
@@ -72,13 +73,13 @@ def cogenerateSingle(
       printEOS("max_new_tokens")
       break
 
-  output = parser.output
+  output = cogenerator.output
   print(col_bot, output, col_default, sep="")
   yield output
 
 
 def cogenerateMulti(
-    parser: Parser,
+    cogenerator: Cogenerator,
     input_ids: torch.Tensor = empty_ids,
     max_new_tokens: int = 512,
 ):
@@ -96,7 +97,7 @@ def cogenerateMulti(
     chunk, eos, chunk_tokens = generator.stream()
     if eos:
       printEOS("exllamav2")
-      parser.setCurrentV()
+      cogenerator.setCurrentV()
       break
 
     printChunks(chunk)
@@ -104,11 +105,11 @@ def cogenerateMulti(
     for token_tensor in chunk_tokens[0]:
       generated_tokens += 1
       token = token_tensor.item()
-      parser.appendCurrentV(token)
+      cogenerator.appendCurrentV(token)
     if generated_tokens == max_new_tokens:
       printEOS("max_new_tokens")
       break
 
-  output = parser.output
+  output = cogenerator.output
   print(col_bot, output, col_default, sep="")
   return output

@@ -23,7 +23,7 @@ class Cogenerator:
   def popCurrentV(self):
     v = tokenizer.decode(torch.tensor(self.current_v, dtype=torch.long))
     self.current_v = []
-    return v
+    return v.strip()
 
 
 def PretokenizePrepend(prepend: str):
@@ -32,7 +32,7 @@ def PretokenizePrepend(prepend: str):
 
 
 def PretokenizeInput(input: str):
-  pretokenized = tokenizer.encode(input)
+  pretokenized = tokenizer.encode(f"\n{input}")[:, 2:]
   return pretokenized
 
 

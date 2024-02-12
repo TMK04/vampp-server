@@ -42,8 +42,6 @@ def cogenerate(_iter: Callable):
 
       printChunks(chunk)
       sys.stdout.flush()
-      chunk_prev += chunk
-      yield chunk_prev
 
       _break, _generated_tokens = _iter(cogenerator, chunk_tokens)
 
@@ -54,6 +52,9 @@ def cogenerate(_iter: Callable):
       if generated_tokens >= max_new_tokens:
         printEOS("max_new_tokens")
         break
+
+      chunk_prev += chunk
+      yield chunk_prev
 
     output = cogenerator.output
     if output is not None:

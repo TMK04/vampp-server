@@ -18,7 +18,7 @@ class ScoreCogenerator(Cogenerator):
     try:
       v = max(min(round(float(v)), 10), 1)
     except:
-      v = None
+      v = 0
     self.output = v
     return True, None
 

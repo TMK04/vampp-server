@@ -11,7 +11,7 @@ from .utils import X_keys, dumpKv
 from typing import Any, Dict
 
 
-async def fn(id: str, _temp_wav: _TemporaryFileWrapper, topic: str):
+async def fn(id: str, _temp_wav: _TemporaryFileWrapper, title: str):
   if id == "":
     raise gr.Error("id cannot be empty")
 
@@ -26,9 +26,8 @@ async def fn(id: str, _temp_wav: _TemporaryFileWrapper, topic: str):
     return predictSpeechStats(temp_wav_path, tempPath(temp_dir, ["audio", "speech_stats.csv"]))
 
   def pitchFn():
-    nonlocal temp_wav_path
-    # nonlocal topic
-    return predictPitch(temp_wav_path)
+    nonlocal temp_wav_path, title
+    return predictPitch(temp_wav_path, title)
 
   subscores: Dict[str, Any] = {}
 
@@ -56,7 +55,7 @@ demo = gr.Interface(
     inputs=[
         gr.Textbox(label="id"),
         gr.File(label="audio", file_types=[".wav"]),
-        gr.Textbox(label="topic", value=""),
+        gr.Textbox(label="title", value=""),
     ],
     outputs=gr.Textbox(label="subscores"),
 )

@@ -35,9 +35,9 @@ def predictSpeechStats(wav_path: str, speech_stats_path: str):
     yield f"speech_{key}", speech_stats_df[key].mean()
 
 
-def predictPitch(wav_path: str):
+def predictPitch(wav_path: str, title: str):
   content = transcribe(wav_path)
   yield "pitch_content", content
 
-  for k, v in generate(content):
+  for k, v in generate(content, title):
     yield f"pitch_{k}", v

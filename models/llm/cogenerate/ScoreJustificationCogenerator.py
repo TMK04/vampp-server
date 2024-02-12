@@ -21,7 +21,7 @@ class ScoreJustificationCogenerator(Cogenerator):
     return True, None
 
 
-def ScoreJustificationAppend(score_name: str, points: str):
+def Append(score_name: str, points: str):
   return f"""
 [SEP]
 {score_name} Justification
@@ -51,7 +51,7 @@ dict_append_pretokenized = {
 - Is the project **difficult to use** for the target audience?""",
 }
 dict_append_pretokenized = {
-    score_name: ScoreJustificationAppend(score_name, score_justification_points)
+    score_name: Append(score_name, score_justification_points)
     for score_name, score_justification_points in dict_append_pretokenized.items()
 }
 
@@ -87,3 +87,18 @@ def cogenerate(score_name: str, content_pretokenized: torch.Tensor,
   input = Wrap(score_name, content_pretokenized, topic_pretokenized)
   cogenerator = ScoreJustificationCogenerator()
   return cogenerateMulti(cogenerator, input, 512)
+
+
+def AppendShort(score_name: str):
+  return f"""
+[SEP]
+{score_name} Justification
+====
+"""
+
+
+dict_append_short = {score_name: AppendShort(score_name) for score_name in score_names}
+dict_append_short_pretokenized = {
+    score_name: PretokenizeAppend(append_short)
+    for score_name, append_short in dict_append_short.items()
+}

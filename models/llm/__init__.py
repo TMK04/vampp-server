@@ -1,4 +1,4 @@
-from .cogenerate import Cogenerator, ScoreJustificationCogenerator, SummaryCogenerator, TopicCogenerator
+from .cogenerate import Cogenerator, ScoreCogenerator, ScoreJustificationCogenerator, SummaryCogenerator, TopicCogenerator
 
 
 def generate(content: str):
@@ -13,6 +13,10 @@ def generate(content: str):
     for score_justification in ScoreJustificationCogenerator.cogenerate(
         score_name, content_pretokenized, topic_pretokenized):
       yield score_justification_key, score_justification
+    score_justification_pretokenized = Cogenerator.PretokenizeInput(score_justification)
+    for score in ScoreCogenerator.cogenerate(score_name, content_pretokenized, topic_pretokenized,
+                                             score_justification_pretokenized):
+      yield score_name, score
     break
 
 

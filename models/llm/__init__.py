@@ -1,4 +1,5 @@
 import torch
+
 from .cogenerate import TopicCogenerator, cogenerateSingle
 from .cogenerate.Cogenerator import PretokenizeInput
 
@@ -12,9 +13,7 @@ def generate(content: str):
 
 
 def generateTopic(content_pretokenized: torch.Tensor):
-  input = torch.cat((TopicCogenerator.prepend_pretokenized, content_pretokenized,
-                     TopicCogenerator.append_pretokenized),
-                    dim=1)
+  input = TopicCogenerator.Wrap(content_pretokenized)
   cogenerator = TopicCogenerator.TopicCogenerator()
   return cogenerateSingle(cogenerator, input)
 

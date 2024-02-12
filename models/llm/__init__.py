@@ -17,7 +17,6 @@ def generate(content: str):
     for score in ScoreCogenerator.cogenerate(score_name, content_pretokenized, topic_pretokenized,
                                              score_justification_pretokenized):
       yield score_name, score
-    break
 
 
 # Test

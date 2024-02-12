@@ -19,6 +19,32 @@ class ScoreCogenerator(Cogenerator):
     return True, None
 
 
+def AppendShort(score_name: str):
+  return f"""
+========
+{score_name}
+====
+"""
+
+
+dict_append_short = {
+    score_name: AppendShort(score_name)
+    for score_name in ScoreJustificationCogenerator.score_names
+}
+
+
+def Prepend(score_name: str):
+  return f"""Analyze the following project pitches based on {score_name}.""" + response_sep + f"""INPUT:
+Example Pitch{TopicCogenerator.append_short}Example Topic{ScoreJustificationCogenerator.dict_append_short[score_name]}Example Justification{dict_append_short[score_name]}1""" + response_sep + """INPUT:
+"""
+
+
+dict_prepend_pretokenized = {
+    score_name: PretokenizePrepend(Prepend(score_name))
+    for score_name in ScoreJustificationCogenerator.score_names
+}
+
+
 def Append(score_name: str):
   return f"""
 ========
@@ -29,29 +55,8 @@ def Append(score_name: str):
 
 
 dict_append_pretokenized = {
-    score_name: Append(score_name)
+    score_name: PretokenizeAppend(Append(score_name))
     for score_name in ScoreJustificationCogenerator.score_names
-}
-
-
-def Prepend(score_name: str):
-  return f"""Analyze the following project pitches based on {score_name}.""" + response_sep + f"""INPUT:
-Example Pitch{TopicCogenerator.append_short}Example Topic{ScoreJustificationCogenerator.dict_append_short[score_name]}Example Justification{dict_append_pretokenized[score_name]}1""" + response_sep + """INPUT:
-"""
-
-
-dict_prepend_pretokenized = {
-    score_name: Prepend(score_name)
-    for score_name in ScoreJustificationCogenerator.score_names
-}
-
-dict_prepend_pretokenized = {
-    score_name: PretokenizePrepend(score_justification_prepend)
-    for score_name, score_justification_prepend in dict_prepend_pretokenized.items()
-}
-dict_append_pretokenized = {
-    score_name: PretokenizeAppend(score_justification_append)
-    for score_name, score_justification_append in dict_append_pretokenized.items()
 }
 
 

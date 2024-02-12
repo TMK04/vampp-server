@@ -18,13 +18,6 @@ class TopicCogenerator(Cogenerator):
     return True, None
 
 
-append_pretokenized = """
-
-RESPONSE:
-Topic (main idea)
-* short (3-10 words)
-====
-"""
 append_short = """
 
 RESPONSE:
@@ -32,12 +25,18 @@ Topic
 ====
 """
 append_short_pretokenized = PretokenizeAppend(append_short)
-prepend_pretokenized = """Summarize the following project pitches.""" + response_sep + f"""INPUT:
-Example Pitch{append_pretokenized}Example Topic""" + response_sep + """INPUT:
-"""
+prepend_pretokenized = PretokenizePrepend("""Summarize the following project pitches.""" +
+                                          response_sep + f"""INPUT:
+Example Pitch{append_short}Example Topic""" + response_sep + """INPUT:
+""")
 
-prepend_pretokenized = PretokenizePrepend(prepend_pretokenized)
-append_pretokenized = PretokenizeAppend(append_pretokenized)
+append_pretokenized = PretokenizeAppend("""
+
+RESPONSE:
+Topic (main idea)
+* short (3-10 words)
+====
+""")
 
 
 def Wrap(content_pretokenized: torch.Tensor):

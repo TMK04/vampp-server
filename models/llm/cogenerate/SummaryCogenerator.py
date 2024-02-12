@@ -19,18 +19,24 @@ class SummaryCogenerator(Cogenerator):
     return True, None
 
 
-append_pretokenized = """
+append_short = """
+========
+Summary
+====
+"""
+
+prepend_pretokenized = PretokenizePrepend("""Summarize the following project pitches.""" +
+                                          response_sep + f"""INPUT:
+Example Pitch{TopicCogenerator.append_short}Example Topic{append_short}Example Summary""" +
+                                          response_sep + """INPUT:
+""")
+
+append_pretokenized = PretokenizeAppend("""
 ========
 Summary
 * brief (20-60 words)
 ====
-"""
-prepend_pretokenized = """Summarize the following project pitches.""" + response_sep + f"""INPUT:
-Example Pitch{TopicCogenerator.append_short}Example Topic{append_pretokenized}Example Summary""" + response_sep + """INPUT:
-"""
-
-prepend_pretokenized = PretokenizePrepend(prepend_pretokenized)
-append_pretokenized = PretokenizeAppend(append_pretokenized)
+""")
 
 
 def Wrap(content_pretokenized: torch.Tensor, topic_pretokenized: torch.Tensor):

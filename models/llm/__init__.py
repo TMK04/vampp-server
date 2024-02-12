@@ -1,4 +1,4 @@
-from .generates.generateYAML import generateYAML
+from .cogenerate import cogenerateSingle
 from .parsers.Parser import PretokenizeAndWrap
 from .parsers.TopicParser import TopicParser, append_pretokenized, prepend_pretokenized
 
@@ -6,7 +6,7 @@ from .parsers.TopicParser import TopicParser, append_pretokenized, prepend_preto
 def generateTopic(content: str):
   content_pretokenized = PretokenizeAndWrap(prepend_pretokenized, content, append_pretokenized)
   parser = TopicParser()
-  topic = generateYAML(parser, content_pretokenized)
+  topic = cogenerateSingle(parser, content_pretokenized)
   return topic
 
 

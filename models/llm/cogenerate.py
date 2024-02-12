@@ -12,10 +12,10 @@ settings.token_repetition_penalty = 1.1
 settings.top_k = 1
 
 
-def generateYAML(
+def cogenerateSingle(
     parser: Parser,
     input_ids: torch.Tensor = empty_ids,
-    max_new_tokens: int = 128,
+    max_new_tokens: int = 64,
 ):
   # Send prompt to generator to begin stream
 
@@ -64,6 +64,43 @@ def generateYAML(
     if eos:
       print()
       break
+    if generated_tokens == max_new_tokens:
+      printEOS("max_new_tokens")
+      break
+
+  output = parser.output
+  print(col_bot, output, col_default, sep="")
+  return output
+
+
+def cogenerateMulti(
+    parser: Parser,
+    input_ids: torch.Tensor = empty_ids,
+    max_new_tokens: int = 512,
+):
+  # Send prompt to generator to begin stream
+
+  generator.begin_stream(input_ids, settings)
+
+  # Streaming loop. Note that repeated calls to sys.stdout.flush() adds some latency, but some
+  # consoles won't update partial lines without it.
+
+  generated_tokens = 0
+
+  printChunks(col_bot)
+  while True:
+    chunk, eos, chunk_tokens = generator.stream()
+    if eos:
+      printEOS("exllamav2")
+      parser.setCurrentV()
+      break
+
+    printChunks(chunk)
+    sys.stdout.flush()
+    for token_tensor in chunk_tokens[0]:
+      generated_tokens += 1
+      token = token_tensor.item()
+      parser.appendCurrentV(token)
     if generated_tokens == max_new_tokens:
       printEOS("max_new_tokens")
       break

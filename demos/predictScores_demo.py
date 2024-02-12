@@ -1,26 +1,43 @@
-# import concurrent.futures
+import json
 import gradio as gr
-import os
 
 from server.models.ridge import inferBv, inferClarity, inferPe
+from server.utils.common import tempDir, tempPath
+
+from .utils import X_bv_keys, X_clarity_keys, X_pe_keys
 
 from typing import Any, Dict, Iterable
+
+
+def loadSubscores(temp_path: str):
+  with open(temp_path) as f:
+    return json.load(f)
 
 
 def SubsetArr(_dict: Dict[str, Any], keys: Iterable[str]):
   return [_dict[key] for key in keys]
 
 
-async def fn(subscores: Dict[str, Any]):
+async def fn(id: str):
+  if id == "":
+    raise gr.Error("id cannot be empty")
+
+  temp_dir = tempDir(id, [], exist_ok=True)
+
+  subscores = {
+      **loadSubscores(tempPath(temp_dir, ["audio.json"])),
+      **loadSubscores(tempPath(temp_dir, ["video.json"]))
+  }
+
   scores = {}
 
-  X_pe = SubsetArr(subscores, ["moving", "smiling", "upright", "ec", "pa", "speech_enthusiasm"])
+  X_pe = SubsetArr(subscores, X_pe_keys)
   scores["pe"] = inferPe(X_pe)
 
-  X_clarity = SubsetArr(subscores, ["speech_clarity", "beholder_clarity"])
+  X_clarity = SubsetArr(subscores, X_clarity_keys)
   scores["clarity"] = inferClarity(X_clarity)
 
-  X_bv = SubsetArr(subscores, ["beholder_creativity", "beholder_feasibility", "beholder_impact"])
+  X_bv = SubsetArr(subscores, X_bv_keys)
   scores["bv"] = inferBv(X_bv)
 
   return scores
@@ -30,6 +47,6 @@ name = "predictScores"
 demo = gr.Interface(
     api_name=name,
     fn=fn,
-    inputs=gr.JSON(label="subscores"),
+    inputs=gr.Textbox(label="id"),
     outputs=gr.JSON(label="scores"),
 )

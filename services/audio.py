@@ -18,26 +18,26 @@ def splitAndBatchAudio(temp_wav_path):
   return batchGen(splitAudio(temp_wav_path), AUDIO_BATCH)
 
 
-speech_stats_key_ls = ["enthusiasm", "clarity"]
+speech_stats_keys = ("enthusiasm", "clarity")
 
 
 def predictSpeechStats(wav_path: str, speech_stats_path: str):
-  speech_stats_dict = DictKeyArr(speech_stats_key_ls)
+  speech_stats_dict = DictKeyArr(speech_stats_keys)
   for i_batch, window_batch in splitAndBatchAudio(wav_path):
     speech_stats = batchInferSpeechStats(window_batch)
     speech_stats_dict["i"].extend(i_batch)
-    for j, key in enumerate(speech_stats_key_ls):
+    for j, key in enumerate(speech_stats_keys):
       speech_stats_dict[key].extend(speech_stats[:, j])
   speech_stats_df = pd.DataFrame(speech_stats_dict)
   toCsv(speech_stats_df, speech_stats_path)
 
-  for key in speech_stats_key_ls:
-    yield key, speech_stats_df[key].mean()
+  for key in speech_stats_keys:
+    yield f"speech_{key}", speech_stats_df[key].mean()
 
 
 def predictPitch(wav_path: str):
   content = transcribe(wav_path)
-  yield "content", content
+  yield "pitch_content", content
 
-  for kv in generate(content):
-    yield kv
+  for k, v in generate(content):
+    yield f"pitch_{k}", v

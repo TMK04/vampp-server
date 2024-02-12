@@ -1,10 +1,12 @@
-import gradio as gr
 import json
+import gradio as gr
 import shutil
 from tempfile import _TemporaryFileWrapper
 
 from server.services.cv import localizeFrames, predictFrames, readFrames, restoreAndBatchFrames
 from server.utils.common import tempDir, tempPath
+
+from .utils import X_keys, dumpKv
 
 from typing import Any, Dict
 
@@ -25,14 +27,21 @@ async def fn(id: str, _temp_mp4: _TemporaryFileWrapper):
     readFrames_gen = readFrames(temp_mp4_path)
     localizeFrames_gen = localizeFrames(readFrames_gen, tempPath(temp_dir, ["frame", "xyxy.csv"]))
     temp_restored_dir = tempDir(temp_dir, ["frame", "restored"])
-    for k, v in predictFrames(restoreAndBatchFrames(localizeFrames_gen, temp_restored_dir),
-                              tempPath(temp_dir, ["frame", "multitask.csv"]),
-                              tempPath(temp_dir, ["frame", "attire.csv"])):
-      yield json.dumps({"k": k, "v": v})
+    return predictFrames(restoreAndBatchFrames(localizeFrames_gen, temp_restored_dir),
+                         tempPath(temp_dir, ["frame", "multitask.csv"]),
+                         tempPath(temp_dir, ["frame", "attire.csv"]))
+
+  subscores: Dict[str, Any] = {}
 
   try:
-    for subscore in framesFn():
-      yield subscore
+    try:
+      for k, v in framesFn():
+        if k in X_keys:
+          subscores[k] = v
+        yield dumpKv(k, v)
+    finally:
+      with open(tempPath(temp_dir, ["video.json"]), "w") as f:
+        json.dump(subscores, f)
   except Exception as e:
     raise gr.Error(str(e))
 

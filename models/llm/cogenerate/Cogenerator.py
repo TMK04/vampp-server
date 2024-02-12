@@ -26,11 +26,6 @@ class Cogenerator:
     return v
 
 
-def PretokenizeAndWrap(prepend: torch.Tensor, input: str, append: torch.Tensor):
-  pretokenized = torch.cat((prepend, PretokenizeInput(input), append), dim=1)
-  return pretokenized
-
-
 def PretokenizePrepend(prepend: str):
   pretokenized = tokenizer.encode(prepend, add_bos=True, encode_special_tokens=True)
   return pretokenized

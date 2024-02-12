@@ -4,7 +4,7 @@ from exllamav2.generator import ExLlamaV2Sampler
 
 from server.models.llm.generator import generator
 from server.models.llm.tokenizer import tokenizer
-from server.models.llm.utils import col_bot, col_default, printChunks, printEOS
+from server.models.llm.utils import col_bot, col_default, printChunks, printEOS, printPrompt
 
 from .Cogenerator import Cogenerator
 
@@ -19,6 +19,9 @@ def cogenerate(_iter: Callable):
 
   def cogenerate(cogenerator: Cogenerator, input_ids: torch.Tensor, max_new_tokens: int):
     nonlocal _iter
+
+    printPrompt(tokenizer.decode(input_ids, decode_special_tokens=True)[0])
+
     # Send prompt to generator to begin stream
 
     generator.begin_stream(input_ids, settings)
@@ -64,7 +67,6 @@ def iterSingle(cogenerator: Cogenerator, chunk_tokens: torch.Tensor):
   global generator
 
   generated_tokens = 0
-  eos = False
   for token_tensor in chunk_tokens[0]:
     generated_tokens += 1
     token = token_tensor.item()
@@ -75,9 +77,8 @@ def iterSingle(cogenerator: Cogenerator, chunk_tokens: torch.Tensor):
           printEOS("matched newline_token_id")
           done, next_tokens = cogenerator.setCurrentV()
           if done:
-            printEOS("done")
-            eos = True
-            break
+            printEOS("done\n")
+            return True, 0
           if next_tokens is None:
             input_ids = generator.sequence_ids
           else:
@@ -90,9 +91,6 @@ def iterSingle(cogenerator: Cogenerator, chunk_tokens: torch.Tensor):
           continue
       case _:
         cogenerator.appendCurrentV(token)
-  if eos:
-    print()
-    return True, 0
   return False, generated_tokens
 
 

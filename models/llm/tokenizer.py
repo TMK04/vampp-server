@@ -22,9 +22,9 @@ class ExLlamaV2Tokenizer(_ExLlamaV2Tokenizer):
 
 tokenizer = ExLlamaV2Tokenizer(config)
 
-response_sep = f""" {tokenizer.eos_token}
+response_sep = f"""{tokenizer.eos_token}
 
-{tokenizer.bos_token} """
+{tokenizer.bos_token}"""
 
 stop_conditions = {tokenizer.bos_token_id, tokenizer.eos_token_id, "INPUT:", "RESPONSE:", "===="}
 

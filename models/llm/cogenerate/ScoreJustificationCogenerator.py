@@ -28,7 +28,7 @@ def ScoreJustificationAppend(score_name: str, points: str):
 """
 
 
-score_justification_appends = {
+dict_append_pretokenized = {
     "Clarity":
     """+ Is the language used **clear and concise**?
 + Are key points illustrated with *good* examples?
@@ -47,20 +47,20 @@ score_justification_appends = {
 + Does the project **solve** the target audience's needs?
 - Is the project **difficult to use** for the target audience?""",
 }
-score_justification_appends = {
+dict_append_pretokenized = {
     score_name: ScoreJustificationAppend(score_name, score_justification_points)
-    for score_name, score_justification_points in score_justification_appends.items()
+    for score_name, score_justification_points in dict_append_pretokenized.items()
 }
 
 
-def ScoreJustificationPrepend(score_name: str, eg: str):
+def Prepend(score_name: str, eg: str):
   return f"""Analyze the following pitches based on {score_name}.
 Use all guiding questions (+ for good, - for bad)""" + response_sep + f"""INPUT:
-Hello, I'm Alex Turner, presenting a project to address the lack of accessible platforms for hands-on learning in space exploration. My solution is the Space Exploration Simulation Platform (SESP). This platform offers an immersive and interactive environment for enthusiasts to conduct experiments, simulate space missions, and enhance their skills. Modeled after successful concepts like Cybersecurity Capture The Flag, SESP provides a user-friendly interface, step-by-step learning, and a live scoreboard for real-time progress tracking. The goal is to empower users to bridge the gap between theoretical knowledge and practical experience, preparing them for the challenges of space exploration. Thank you for considering my proposal.{TopicCogenerator.append_short_raw}Space Exploration Simulation Platform{score_justification_appends[score_name]}{eg}""" + response_sep + """INPUT:
+Hello, I'm Alex Turner, presenting a project to address the lack of accessible platforms for hands-on learning in space exploration. My solution is the Space Exploration Simulation Platform (SESP). This platform offers an immersive and interactive environment for enthusiasts to conduct experiments, simulate space missions, and enhance their skills. Modeled after successful concepts like Cybersecurity Capture The Flag, SESP provides a user-friendly interface, step-by-step learning, and a live scoreboard for real-time progress tracking. The goal is to empower users to bridge the gap between theoretical knowledge and practical experience, preparing them for the challenges of space exploration. Thank you for considering my proposal.{TopicCogenerator.append_short}Space Exploration Simulation Platform{dict_append_pretokenized[score_name]}{eg}""" + response_sep + """INPUT:
 """
 
 
-prepends = {
+dict_prepend_pretokenized = {
     "Clarity":
     """* The language is clear and concise, effectively conveying main points.
 * Key points are supported with relevant examples, e.g., comparing SESP to Cybersecurity Capture The Flag.
@@ -81,24 +81,25 @@ prepends = {
 * Addresses the need for accessible hands-on learning in space exploration.
 * Appears to be user-friendly for the target audience.""",
 }
-prepends = {
-    score_name: ScoreJustificationPrepend(score_name, score_justification_eg)
-    for score_name, score_justification_eg in prepends.items()
+dict_prepend_pretokenized = {
+    score_name: Prepend(score_name, score_justification_eg)
+    for score_name, score_justification_eg in dict_prepend_pretokenized.items()
 }
 
-prepends = {
+dict_prepend_pretokenized = {
     score_name: PretokenizePrepend(score_justification_prepend)
-    for score_name, score_justification_prepend in prepends.items()
+    for score_name, score_justification_prepend in dict_prepend_pretokenized.items()
 }
-score_justification_appends = {
+dict_append_pretokenized = {
     score_name: PretokenizeAppend(score_justification_append)
-    for score_name, score_justification_append in score_justification_appends.items()
+    for score_name, score_justification_append in dict_append_pretokenized.items()
 }
 
 
 def Wrap(score_name: str, content_pretokenized: torch.Tensor, topic_pretokenized: torch.Tensor):
-  return torch.cat((prepends[score_name], content_pretokenized, TopicCogenerator.append_short,
-                    topic_pretokenized, score_justification_appends[score_name]),
+  return torch.cat((dict_prepend_pretokenized[score_name], content_pretokenized,
+                    TopicCogenerator.append_short_pretokenized, topic_pretokenized,
+                    dict_append_pretokenized[score_name]),
                    dim=1)
 
 

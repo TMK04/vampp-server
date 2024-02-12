@@ -15,6 +15,10 @@ class ScoreCogenerator(Cogenerator):
 
   def setCurrentV(self):
     v = self.popCurrentV()
+    try:
+      v = max(min(int(float(v)), 10), 1)
+    except:
+      v = None
     self.output = v
     return True, None
 

@@ -23,7 +23,7 @@ class ScoreJustificationCogenerator(Cogenerator):
 
 def AppendShort(score_name: str):
   return f"""
-[SEP]
+========
 {score_name} Justification
 ====
 """
@@ -57,7 +57,7 @@ dict_prepend_pretokenized = {
 
 def Append(score_name: str, points: str):
   return f"""
-[SEP]
+========
 {score_name} Justification
 * concise (20-60 words)
 {points}

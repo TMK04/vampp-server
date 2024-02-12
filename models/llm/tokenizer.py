@@ -25,20 +25,12 @@ tokenizer = ExLlamaV2Tokenizer(config)
 response_sep = f""" {tokenizer.eos_token}
 
 {tokenizer.bos_token} """
-field_sep = f"""
-[SEP]
-"""
-subfield_sep = f"""
-========
-"""
 
 stop_conditions = {tokenizer.bos_token_id, tokenizer.eos_token_id, "INPUT:", "RESPONSE:", "===="}
 
 
 def StopStringsRe():
-  stop_strings = [
-      "\s+",
-  ]
+  stop_strings = []
   for stop_condition in stop_conditions:
     if isinstance(stop_condition, int):
       stop_string = tokenizer.decode(torch.tensor([stop_condition], dtype=torch.long),
@@ -52,7 +44,8 @@ def StopStringsRe():
 
 
 stop_strings_re = StopStringsRe()
+whitespace_re = re.compile(r"\s{2,}")
 
 
 def cleanStopStrings(text):
-  return stop_strings_re.sub(" ", text).strip()
+  return whitespace_re.sub(" ", stop_strings_re.sub(" ", text).strip())

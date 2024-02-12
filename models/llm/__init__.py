@@ -1,7 +1,9 @@
 from .cogenerate import Cogenerator, ScoreCogenerator, ScoreJustificationCogenerator, SummaryCogenerator, TopicCogenerator
+from .tokenizer import cleanStopStrings
 
 
 def generate(content: str):
+  content = cleanStopStrings(content)
   content_pretokenized = Cogenerator.PretokenizeInput(content)
   for topic in TopicCogenerator.cogenerate(content_pretokenized):
     yield "topic", topic

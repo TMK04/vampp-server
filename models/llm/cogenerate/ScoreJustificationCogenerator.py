@@ -42,8 +42,8 @@ Example Pitch{TopicCogenerator.append_short}Example Topic{dict_append_short[scor
 
 dict_prepend = {
     "Clarity": "The pitch uses clear language.",
-    "Creativity": "The pitch shows creativity",
-    "Feasibility": "The project is feasible",
+    "Creativity": "The pitch shows creativity.",
+    "Feasibility": "The project is feasible.",
     "Impact": "The project positively impacts the target audience."
 }
 dict_prepend_pretokenized = {

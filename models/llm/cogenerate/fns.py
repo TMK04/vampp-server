@@ -51,6 +51,7 @@ def cogenerate(_iter: Callable):
       generated_tokens += _generated_tokens
       if generated_tokens >= max_new_tokens:
         printEOS("max_new_tokens")
+        cogenerator.setCurrentV()
         break
 
       chunk_prev += chunk

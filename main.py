@@ -14,7 +14,7 @@ import gradio as gr
 from server.config import DEBUG, HOST, PORT, SHARE
 from server.demos import (  #
     predictAudio_demo,  #
-    predictScores_demo,  #
+    predictFinal_demo,  #
     predictVideo_demo  #
 )
 
@@ -22,12 +22,12 @@ demo = gr.TabbedInterface(
     [
         predictVideo_demo.demo,  #
         predictAudio_demo.demo,  #
-        predictScores_demo.demo,  #
+        predictFinal_demo.demo,  #
     ],
     [
         predictVideo_demo.name,  #
         predictAudio_demo.name,  #
-        predictScores_demo.name  #
+        predictFinal_demo.name  #
     ])
 
 if __name__ == "__main__":

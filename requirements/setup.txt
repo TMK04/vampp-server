@@ -1,6 +1,8 @@
 https://download.pytorch.org/whl/cu118/torch-2.1.2%2Bcu118-cp310-cp310-linux_x86_64.whl; platform_system == "Linux" and platform_machine == "x86_64"
 https://download.pytorch.org/whl/cu118/torch-2.1.2%2Bcu118-cp310-cp310-win_amd64.whl; platform_system == "Windows"
+torch==2.1.2; platform_system != "Linux" or platform_machine != "x86_64" and platform_system != "Windows"
 https://download.pytorch.org/whl/cu118/torchvision-0.16.2%2Bcu118-cp310-cp310-linux_x86_64.whl; platform_system == "Linux" and platform_machine == "x86_64"
 https://download.pytorch.org/whl/cu118/torchvision-0.16.2%2Bcu118-cp310-cp310-win_amd64.whl; platform_system == "Windows"
+torchvision==0.16.2; platform_system != "Linux" or platform_machine != "x86_64" and platform_system != "Windows"
 Cython
 opencv-python-headless

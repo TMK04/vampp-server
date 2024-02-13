@@ -4,6 +4,7 @@ import ffmpy
 from server.utils.common import tempPath
 from server.utils.cv import OG_HEIGHT, OG_WIDTH
 import pandas as pd
+import lzma
 
 
 def makeFinalVideo(temp_dir: str):
@@ -59,9 +60,11 @@ def makeFinalVideo(temp_dir: str):
       temp_audio_path: None
   },
                outputs={
-                   temp_final_path: "-c:v copy -c:a aac -y"
+                   temp_final_path: "-c:v copy -c:a aac -y -crf 28"
                }).run()
-  # return data url (base64) of final video
+  # get data url (base64) of final video
   with open(temp_final_path, "rb") as f:
-    data_url = f"data:video/mp4;base64,{base64.b64encode(f.read()).decode()}"
-  return data_url
+    data = f.read()
+  data_url = f"data:video/mp4;base64,{base64.b64encode(data).decode()}"
+  compressed_data = tuple(lzma.compress(data_url.encode()))
+  return compressed_data

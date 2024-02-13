@@ -6,7 +6,6 @@ from server.models.face_restorer import restoreFace
 from server.models.presenter_localizer import batchInfer, calculatePresenterXYXY, localizePresenter
 from server.models.xdensenet import batchInferAttire, batchInferMultitask
 from server.utils.common import DictKeyArr, batchGen, toCsv
-from server.utils.cv import OG_HEIGHT, OG_WIDTH, resizeWithPad
 
 
 def readFrames(input_file: str):
@@ -21,7 +20,6 @@ def readFrames(input_file: str):
         break
       i += 1
       if i % FRAME_INTERVAL == 0:
-        frame = resizeWithPad(frame, OG_WIDTH, OG_HEIGHT)
         current_batch.append((i, frame))
         l += 1
         if l == FRAME_BATCH:

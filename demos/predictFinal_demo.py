@@ -3,7 +3,7 @@ import gradio as gr
 import shutil
 
 from server.models.ridge import inferBv, inferClarity, inferPe
-from server.services.final_video import makeFinalVideo
+from server.services.final_video import generateFinalVideo
 from server.utils.common import tempDir, tempPath
 
 from .utils import X_bv_keys, X_clarity_keys, X_pe_keys
@@ -43,9 +43,11 @@ async def fn(id: str):
     X_bv = SubsetArr(subscores, X_bv_keys)
     scores["bv"] = inferBv(X_bv)
 
-    scores["final_video"] = makeFinalVideo(temp_dir)
+    yield json.dumps(scores)
 
-    return json.dumps(scores)
+    final_video = generateFinalVideo(temp_dir)
+    yield json.dumps({"final_video": final_video})
+
   finally:
     shutil.rmtree(temp_dir)
 

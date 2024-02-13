@@ -1,13 +1,14 @@
-import base64
+from base64 import b64encode
 import cv2
 import ffmpy
+import lzma
+import pandas as pd
+
 from server.utils.common import tempPath
 from server.utils.cv import OG_HEIGHT, OG_WIDTH
-import pandas as pd
-import lzma
 
 
-def makeFinalVideo(temp_dir: str):
+def generateFinalVideo(temp_dir: str):
   temp_mp4_path = tempPath(temp_dir, ["og.mp4"])
   temp_audio_path = tempPath(temp_dir, ["og.wav"])
   temp_temp_final_path = tempPath(temp_dir, ["temp_final.mp4"])
@@ -31,26 +32,28 @@ def makeFinalVideo(temp_dir: str):
     if not ret:
       break
 
-    if i in speech_stats_df.index:
-      speech_stats = speech_stats_df.loc[i]
-      stats["Speech Clarity"] = speech_stats["clarity"]
-      stats["Speech Enthusiasm"] = speech_stats["enthusiasm"]
     if i in xdensenet_df.index:
       xdensenet = xdensenet_df.loc[i]
       stats["Moving"] = xdensenet["moving"]
       stats["Smiling"] = xdensenet["smiling"]
       stats["Upright"] = xdensenet["upright"]
       stats["Eye Contact"] = xdensenet["ec"]
-    if len(stats) > 0:
-      cv2.putText(frame, "; ".join([f"{k}: {v:.2f}" for k, v in stats.items()]), (10, 30),
-                  cv2.FONT_HERSHEY_COMPLEX, 0.5, (0, 0, 255), 1, cv2.LINE_AA)
+    if i in speech_stats_df.index:
+      speech_stats = speech_stats_df.loc[i]
+      stats["Speech Clarity"] = speech_stats["clarity"]
+      stats["Speech Enthusiasm"] = speech_stats["enthusiasm"]
+    for i, (k, v) in enumerate(stats.items()):
+      if type(v) == float:
+        v = f"{v:.2f}"
+      cv2.putText(frame, f"{k}: {v}", (10, 20 * (i + 1)), cv2.FONT_HERSHEY_COMPLEX, 0.5,
+                  (255, 255, 255), 1)
 
     if i in xyxy_df.index:
       xyxy = xyxy_df.loc[i]
     if xyxy is not None:
       cv2.rectangle(frame, (xyxy["x1"], xyxy["y1"]), (xyxy["x2"], xyxy["y2"]), (0, 0, 255), 1)
 
-    temp_final_video.write(frame)
+    temp_final_video.write(cv2.resize(frame, (OG_WIDTH, OG_HEIGHT)))
     i += 1
   cap.release()
   temp_final_video.release()
@@ -65,6 +68,6 @@ def makeFinalVideo(temp_dir: str):
   # get data url (base64) of final video
   with open(temp_final_path, "rb") as f:
     data = f.read()
-  data_url = f"data:video/mp4;base64,{base64.b64encode(data).decode()}"
-  compressed_data = tuple(lzma.compress(data_url.encode()))
-  return compressed_data
+  data = f"data:video/mp4;base64,{b64encode(data).decode()}"
+  data = b64encode(lzma.compress(data.encode())).decode()
+  return data

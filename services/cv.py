@@ -1,6 +1,4 @@
 import cv2
-import os
-import numpy as np
 import pandas as pd
 
 from server.config import FRAME_ATTIRE_MASK, FRAME_BATCH, FRAME_INTERVAL

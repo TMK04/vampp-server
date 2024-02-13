@@ -8,10 +8,13 @@ from server.models.speech_stats import batchInferSpeechStats, preprocess
 from server.models.transcriber import transcribe
 from server.utils.common import DictKeyArr, batchGen, toCsv
 
+WINDOW_LEN = 10
+
 
 def splitAudio(wav_path: str):
-  for i, window in enumerate(sf.blocks(wav_path, blocksize=AUDIO_SR * 10, overlap=0, fill_value=0)):
-    yield str(i), preprocess(window)
+  for i, window in enumerate(
+      sf.blocks(wav_path, blocksize=AUDIO_SR * WINDOW_LEN, overlap=0, fill_value=0)):
+    yield i * WINDOW_LEN, preprocess(window)
 
 
 def splitAndBatchAudio(temp_wav_path):

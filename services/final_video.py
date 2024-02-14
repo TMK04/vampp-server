@@ -43,12 +43,13 @@ def generateFinalVideo(temp_dir: str):
       speech_stats = speech_stats_df.loc[i]
       stats["Clear Speech"] = speech_stats["clarity"]
       stats["Enthusiasm"] = speech_stats["enthusiasm"]
-    for i, (k, v) in enumerate(stats.items()):
+    for stats_i, (k, v) in enumerate(stats.items()):
       if v > 0.5:
         color = (0, 255, 0)
       else:
         color = (0, 0, 255)
-      cv2.putText(frame, f"{k}: {v}", (10, 20 * (i + 1)), cv2.FONT_HERSHEY_COMPLEX, 0.5, color, 1)
+      cv2.putText(frame, f"{k}: {v}", (10, 20 * (stats_i + 1)), cv2.FONT_HERSHEY_COMPLEX, 0.5,
+                  color, 1)
 
     if i in xyxy_df.index:
       xyxy = xyxy_df.loc[i]

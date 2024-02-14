@@ -64,7 +64,7 @@ def generateFinalVideo(temp_dir: str):
       temp_audio_path: None
   },
                outputs={
-                   temp_final_path: "-c:v copy -c:a aac -y -crf 28"
+                   temp_final_path: "-c:v libx264 -c:a aac -y -crf 28"
                }).run()
   os.remove(temp_temp_final_path)
 

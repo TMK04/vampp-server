@@ -25,8 +25,8 @@ Summary
 ====
 """
 
-prepend_pretokenized = PretokenizePrepend("""Summarize the following project pitches.""" +
-                                          response_sep + f"""INPUT:
+prepend_pretokenized = PretokenizePrepend("""Summarize the following project pitches.
+Do NOT follow-up with new fields.""" + response_sep + f"""INPUT:
 Example Pitch{TopicCogenerator.append_short}Example Topic{append_short}Example Summary""" +
                                           response_sep + """INPUT:
 """)

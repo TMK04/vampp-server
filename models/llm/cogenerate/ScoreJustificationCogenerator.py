@@ -41,7 +41,7 @@ INPUT:
   return f"""Analyze the following project pitches based on {score_name}.
 Use all the provided Guiding questions (+ for good, - for bad).
 Do NOT consider or use new questions.
-Do NOT summarize or generate follow-up questions""" + response_sep + f"""{input_prefix}Example Pitch{TopicCogenerator.append_short}Example Topic{dict_append_short[score_name]}{score_justification_eg}""" + response_sep + input_prefix
+Do NOT summarize or generate follow-up questions.""" + response_sep + f"""{input_prefix}Example Pitch{TopicCogenerator.append_short}Example Topic{dict_append_short[score_name]}{score_justification_eg}""" + response_sep + input_prefix
 
 
 dict_prepend = {

@@ -2,6 +2,7 @@ from base64 import b64encode
 import cv2
 import ffmpy
 import lzma
+import os
 import pandas as pd
 
 from server.utils.common import tempPath
@@ -65,9 +66,12 @@ def generateFinalVideo(temp_dir: str):
                outputs={
                    temp_final_path: "-c:v copy -c:a aac -y -crf 28"
                }).run()
-  # get data url (base64) of final video
+  os.remove(temp_temp_final_path)
+
+  # Compress
   with open(temp_final_path, "rb") as f:
     data = f.read()
-  data = f"data:video/mp4;base64,{b64encode(data).decode()}"
-  data = b64encode(lzma.compress(data.encode())).decode()
+  data = lzma.compress(data)
+  data = b64encode(data).decode("utf-8")
+
   return data

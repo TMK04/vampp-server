@@ -7,7 +7,7 @@ from server.models.speech_stats import batchInferSpeechStats, preprocess
 from server.models.transcriber import transcribe
 from server.utils.common import DictKeyArr, batchGen, toCsv
 
-WINDOW_LEN = 10
+WINDOW_LEN = 5
 
 
 def splitAudio(wav_path: str):

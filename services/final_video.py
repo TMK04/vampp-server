@@ -41,13 +41,14 @@ def generateFinalVideo(temp_dir: str):
       stats["Eye Contact"] = xdensenet["ec"]
     if i in speech_stats_df.index:
       speech_stats = speech_stats_df.loc[i]
-      stats["Speech Clarity"] = speech_stats["clarity"]
-      stats["Speech Enthusiasm"] = speech_stats["enthusiasm"]
+      stats["Clear Speech"] = speech_stats["clarity"]
+      stats["Enthusiasm"] = speech_stats["enthusiasm"]
     for i, (k, v) in enumerate(stats.items()):
-      if type(v) == float:
-        v = f"{v:.2f}"
-      cv2.putText(frame, f"{k}: {v}", (10, 20 * (i + 1)), cv2.FONT_HERSHEY_COMPLEX, 0.5,
-                  (255, 255, 255), 1)
+      if v > 0.5:
+        color = (0, 255, 0)
+      else:
+        color = (0, 0, 255)
+      cv2.putText(frame, f"{k}: {v}", (10, 20 * (i + 1)), cv2.FONT_HERSHEY_COMPLEX, 0.5, color, 1)
 
     if i in xyxy_df.index:
       xyxy = xyxy_df.loc[i]

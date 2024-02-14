@@ -52,13 +52,13 @@ dict_prepend = {
 3. Are there *coherent* transitions between sections? (+)
 4. Does the presenter use *jargon* without explaining them? (-)""",
         eg=
-        "The pitch is concise with examples, but does not flow smoothly. Moreover, the presenter uses a lot of technical terms but only explains a few."
+        "The pitch is concise with examples, but does not flow smoothly. Moreover, technical terms were not explained."
     ),
     "Creativity":
     dict(points="""1. Do similar projects exist? (-)
 2. Does the project offer **unique** features that set it apart? (+)
 3. Does the project utilize new ideas/technologies/etc.? (+)""",
-         eg="The project is not new, but uses a new technology."),
+         eg="The project is not new, but uses new technologies to improve existing features."),
     "Feasibility":
     dict(points="""1. Are resources **available** to implement the project? (+)
 2. Are there risks in implementing & maintaining the project? (-)

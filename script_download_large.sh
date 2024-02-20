@@ -25,9 +25,11 @@ mkdir "$MODELS_DIR/xdensenet" && huggingface-cli download beholder-vampp/xdensen
 
 ## face_restorer
 
-mkdir "$MODELS_DIR/face_restorer"
-cd "$SERVER_DIR/models/face_restorer/CodeFormer" && python scripts/download_pretrained_models.py all
-mv "$SERVER_DIR/models/face_restorer/CodeFormer/weights/CodeFormer/codeformer.pth" "$MODELS_DIR/face_restorer/codeformer.pth"
+if [ ! -f "$MODELS_DIR/face_restorer/codeformer.pth" ]; then
+  mkdir "$MODELS_DIR/face_restorer"
+  cd "$SERVER_DIR/models/face_restorer/CodeFormer" && python scripts/download_pretrained_models.py all
+  mv "$SERVER_DIR/models/face_restorer/CodeFormer/weights/CodeFormer/codeformer.pth" "$MODELS_DIR/face_restorer/codeformer.pth"
+fi
 
 ## llm
 

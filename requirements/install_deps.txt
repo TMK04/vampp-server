@@ -21,3 +21,4 @@ transformers
 gradio<4.0.0
 py7zr
 python-dotenv
+yt-dlp

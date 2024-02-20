@@ -15,6 +15,7 @@ mkdir "$MODELS_DIR/ridge" && huggingface-cli download beholder-vampp/ridge --loc
 
 ## speech_stats
 
+mkdir "$MODELS_DIR/speech_stats"
 mkdir "$MODELS_DIR/speech_stats/pretrained" && huggingface-cli download audeering/wav2vec2-large-robust-12-ft-emotion-msp-dim --local-dir "$MODELS_DIR/speech_stats/pretrained" --local-dir-use-symlink False --exclude pytorch_model.bin
 mkdir "$MODELS_DIR/speech_stats/models" && huggingface-cli download beholder-vampp/speech_stats --local-dir "$MODELS_DIR/speech_stats/models" --local-dir-use-symlink False
 

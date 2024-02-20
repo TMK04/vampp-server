@@ -1,4 +1,4 @@
-import os``
+import os
 import torch
 import torch.nn as nn
 from transformers import Wav2Vec2Model, Wav2Vec2PreTrainedModel, Wav2Vec2Processor

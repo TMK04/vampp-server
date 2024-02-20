@@ -1,11 +1,13 @@
-from pathlib import Path
+import os
 import pickle
 
-wd = Path(__file__).parent
+from server.config import MODELS_DIR
+
+wd = os.path.join(MODELS_DIR, "ridge")
 
 
 def load(path):
-  with open(wd / f"models/{path}.pkl", "rb") as f:
+  with open(os.path.join(wd, f"{path}.pkl"), "rb") as f:
     return pickle.load(f)
 
 

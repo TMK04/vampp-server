@@ -1,9 +1,10 @@
-from pathlib import Path
+import os
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from typing import List, Tuple
 
+from server.config import MODELS_DIR
 from ..components import _Classifier, _ConvNormAct, _DepthwiseSeparableConv2d, _GAP, _NormAct, device, init_weights
 
 
@@ -124,10 +125,10 @@ class Head(nn.Sequential):
     init_weights(self.modules)
 
 
-wd = Path(__file__).parent
+wd = os.path.join(MODELS_DIR, "xdensenet")
 
 multitask_model = nn.Sequential(XDenseNet(block_config=[6, 12, 32, 32]), Head(1664, 4, 3, (1, 1)))
-multitask_state_dict = torch.load(wd / "./models/multitask.pth")["model"]
+multitask_state_dict = torch.load(os.path.join(wd, "multitask.pth"))["model"]
 for key in list(multitask_state_dict.keys()):
   if key.startswith('1.fc'):
     multitask_state_dict[key.replace('1.fc', '1.classifier.fc')] = multitask_state_dict.pop(key)
@@ -139,6 +140,6 @@ multitask_model = multitask_model.to(device)
 multitask_model.eval()
 
 attire_model = nn.Sequential(XDenseNet(block_config=[3, 6, 12, 8]), Head(516, 1, 1, (1, 1)))
-attire_model.load_state_dict(torch.load(wd / "./models/attire.pth")["model"])
+attire_model.load_state_dict(torch.load(os.path.join(wd, "attire.pth"))["model"])
 attire_model = attire_model.to(device)
 attire_model.eval()

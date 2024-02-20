@@ -1,5 +1,8 @@
-from pathlib import Path
+import os
 from ultralytics import YOLO
 
-model_path = Path(__file__).parent / "models/model.pt"
+from server.config import MODELS_DIR
+
+wd = os.path.join(MODELS_DIR, "presenter_localizer")
+model_path =  os.path.join(wd, "model.pt")
 model = YOLO(model_path, task="detect")

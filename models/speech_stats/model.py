@@ -1,8 +1,9 @@
-from pathlib import Path
+import os``
 import torch
 import torch.nn as nn
 from transformers import Wav2Vec2Model, Wav2Vec2PreTrainedModel, Wav2Vec2Processor
 
+from server.config import MODELS_DIR
 from ..components import _Classifier, device
 
 
@@ -69,9 +70,9 @@ class Head(nn.Module):
     return logits
 
 
-wd = Path(__file__).parent
-model_ss_pretrained_path = wd / "./pretrained"
-model_ss_path = wd / "./models/model.pth"
+wd = os.path.join(MODELS_DIR, "speech_stats")
+model_ss_pretrained_path = os.path.join(wd, "pretrained")
+model_ss_path = os.path.join(wd, "models", "model.pth")
 
 processor = Wav2Vec2Processor.from_pretrained(model_ss_pretrained_path)
 

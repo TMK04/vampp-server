@@ -1,8 +1,9 @@
 from basicsr.utils.registry import ARCH_REGISTRY
-from pathlib import Path
+import os
 import torch
-from facelib.utils.face_restoration_helper import FaceRestoreHelper
 
+from facelib.utils.face_restoration_helper import FaceRestoreHelper
+from server.config import MODELS_DIR
 from ..components import device
 
 net = ARCH_REGISTRY.get('CodeFormer')(dim_embd=512,
@@ -11,8 +12,8 @@ net = ARCH_REGISTRY.get('CodeFormer')(dim_embd=512,
                                       n_layers=9,
                                       connect_list=['32', '64', '128', '256']).to(device)
 
-ckpt_path = Path(__file__).parent / './CodeFormer/weights/CodeFormer/codeformer.pth'
-checkpoint = torch.load(ckpt_path)['params_ema']
+wd = os.path.join(MODELS_DIR, 'face_restorer')
+checkpoint = torch.load(os.path.join(wd, "codeformer.pth"))['params_ema']
 net.load_state_dict(checkpoint)
 net.eval()
 

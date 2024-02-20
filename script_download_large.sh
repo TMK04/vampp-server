@@ -25,7 +25,9 @@ mkdir "$MODELS_DIR/xdensenet" && huggingface-cli download beholder-vampp/xdensen
 
 ## face_restorer
 
-. "$SERVER_MODELS_DIR/face_restorer/download.sh"
+mkdir "$MODELS_DIR/face_restorer"
+cd "$SERVER_DIR/models/face_restorer/CodeFormer" && python scripts/download_pretrained_models.py all
+mv "$SERVER_DIR/models/face_restorer/CodeFormer/weights/CodeFormer/codeformer.pth" "$MODELS_DIR/face_restorer/codeformer.pth"
 
 ## llm
 

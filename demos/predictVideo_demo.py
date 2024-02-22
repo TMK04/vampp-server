@@ -1,5 +1,6 @@
 import json
 import gradio as gr
+import os.path
 import shutil
 from tempfile import _TemporaryFileWrapper
 
@@ -18,8 +19,9 @@ async def fn(id: str, _temp_mp4: _TemporaryFileWrapper):
 
   temp_dir = tempDir(id, [], exist_ok=True)
   temp_mp4_path = tempPath(temp_dir, ["og.mp4"])
-  # move _temp_mp4 to temp_mp4_path
-  shutil.copy(_temp_mp4.name, temp_mp4_path)
+  if not os.path.isfile(temp_mp4_path):
+    # move _temp_mp4 to temp_mp4_path
+    shutil.copy(_temp_mp4.name, temp_mp4_path)
   _temp_mp4.close()
 
   def framesFn():

@@ -1,5 +1,6 @@
 import gradio as gr
 import json
+import os.path
 import shutil
 from tempfile import _TemporaryFileWrapper
 
@@ -17,8 +18,9 @@ async def fn(id: str, _temp_wav: _TemporaryFileWrapper, pitch_topic: str, yt_tit
 
   temp_dir = tempDir(id, [], exist_ok=True)
   temp_wav_path = tempPath(temp_dir, ["og.wav"])
-  # move _temp_wav to temp_wav_path
-  shutil.copy(_temp_wav.name, temp_wav_path)
+  if not os.path.isfile(temp_wav_path):
+    # move _temp_wav to temp_wav_path
+    shutil.copy(_temp_wav.name, temp_wav_path)
   _temp_wav.close()
 
   def speechStatsFn():
